@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Pdf from 'react-native-pdf';
-import { Text,StyleSheet, View , Dimensions} from 'react-native';
+import { StyleSheet, View , Dimensions, SafeAreaView} from 'react-native';
+import { Layout, Text, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 
-export default function Pdf_renderer() {
+
+export const Pdf_renderer = ({ navigation }) => {
 
 	//Checks if file exist or else throws an error back TODO #4
 	
@@ -11,7 +13,9 @@ export default function Pdf_renderer() {
 	const source = {uri:'http://www.africau.edu/images/default/sample.pdf',cache:true};
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView style={{ flex: 1 }}>
+
+		<View style={styles.container} > 
 			<Pdf
 				source={source}
 				onLoadComplete={(numberOfPages,filePath)=>{
@@ -25,6 +29,7 @@ export default function Pdf_renderer() {
 				}}
 				style={styles.pdf}/>
 		</View>
+		</SafeAreaView>
 	)
 }
 
