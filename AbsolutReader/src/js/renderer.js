@@ -5,7 +5,7 @@ import { Layout, Text, TopNavigation, TopNavigationAction } from '@ui-kitten/com
 import { encodeToBase64, PDFDocument } from "pdf-lib"; //Adding links
 import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
-import {request, PERMISSIONS} from 'react-native-permissions';
+
 
 var RNFS = require('react-native-fs');
 var base64js = require('base64-js');
@@ -57,7 +57,7 @@ export default class App extends Component {
 
 		//We pick the file name and check if it exists at library:
 		const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
-		const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name;
+		const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name; //TODO #1
 
 		
 		const createPageLinkAnnotation = (pdfDoc, id , color, left_x, left_y, right_x, right_y) =>
@@ -75,6 +75,19 @@ export default class App extends Component {
 			Dest: ['[Chaimager:${id}]', 'XYZ', null, null, null],
 		}),
 		);
+		function pdf_get_coordinates(doc, searchtext) {
+			var numPages = doc.numPages;
+			for (let i = 1; i <= numPages; i++){
+				doc.getPage(i)
+					.then(function (page) {
+				 		page.getTextContent()
+							.then(function (content) {
+								console.log(content);
+							})
+			})
+	
+			};
+		  }
 		
 
 		//Loads json if file exists
@@ -109,7 +122,8 @@ export default class App extends Component {
 					loadingTask.promise
 					.then(function (doc) {
 						//PDF was loaded, now we do a text search
-						
+						pdf_get_coordinates(doc,'Sample'); //returns an array of all found coordinates for a specific keyword
+
 					
 						});
 
