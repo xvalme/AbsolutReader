@@ -3,8 +3,11 @@ import Pdf from 'react-native-pdf';
 import { StyleSheet, View , Dimensions, SafeAreaView, useWindowDimensions} from 'react-native';
 import { Layout, Text, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { PDFDocument } from "pdf-lib";
+import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 
-var RNFS = require('react-native-fs'); 
+var RNFS = require('react-native-fs');
+
 
 export default class App extends Component {
 
@@ -16,7 +19,7 @@ export default class App extends Component {
 		super(props);
 
 		this.path = RNFS.DocumentDirectoryPath; //Main path of app
-		this.source = require('./test.pdf');
+		this.source = {uri:'http://www.africau.edu/images/default/sample.pdf',cache:true};
 
 		this.state = {chaimager: '{}', chaimager_loaded: 'False'}
 	}
@@ -43,20 +46,35 @@ export default class App extends Component {
 	
 	}
 
-	load_chaimager (source) {
+	load_chaimager (filepath) {
 		//Checks if there is a chaimager file and, if not, creates one.
 		//Updates chaimager inside of this.state with the values that got
 		//and updates the PDF
 
-		var path = this.path + '';
-		var source = this.source + '';
-
 		//Creates chaimager folder if it does not exists already:
-		RNFS.mkdir(path + '/chaimager_files');
+		RNFS.mkdir(this.path + '/chaimager_files');
 
 		//We pick the file name and check if it exists at library:
-		const chaimager_file_name = source.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
-		const chaimager_file_path = path + '/chaimager_files/' + chaimager_file_name;
+		const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
+		const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name;
+
+		
+		const createPageLinkAnnotation = (pdfDoc, id , color, left_x, left_y, right_x, right_y) =>
+		pdfDoc.context.register(
+		pdfDoc.context.obj({
+			Type: 'Annot',
+			Subtype: 'Link',
+
+			Rect: [left_x, left_y, right_x, right_y],
+
+			//Colors go here
+			Border: [0, 0, 1],
+			C: [0, 0, 1],
+
+			Dest: ['[Chaimager:${id}]', 'XYZ', null, null, null],
+		}),
+		);
+		
 
 		//Loads json if file exists
 		RNFS.readFile(chaimager_file_path, 'utf8')
@@ -67,21 +85,40 @@ export default class App extends Component {
 			() => {
 				//File does not exists. Create a new one:
 				RNFS.writeFile(chaimager_file_path, '{}', 'utf8');
-				this.setState((state) => {return {chaimager: '{}'};});
+				this.setState((state) => {return {chaimager: JSON.parse('{}')};});
 			})
 			.then(() => {
 				//Now that we have the Chaimager json, we need to edit the PDF
 
-				//Reading the pdf from source:
-				RNFS.readFile(source).then((data) => {
-					return data;
-				})
-				.then((data) => {
-					return PDFDocument.load(data);
-				})
+				//Reading the pdf from filepath:
+				
+				RNFS.readFile(filepath, 'base64').then((data) => {
+					return filepath;})
+	
 				.then((PdfDoc) => {
+					//We now add the links based on the chaimager file
 
-				})
+					//4TESTING:
+					this.setState((state) => {return {
+						chaimager: JSON.parse('{"ids": [{"name":"Moriarty","image":"feioisfe"}, {"name":"Michael","image":"feioisfe"}] }')};});
+					
+					pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;  //Setting stuff for running the pdfjs library
+
+					const loadingTask = pdfjsLib.getDocument(PdfDoc);
+					loadingTask.promise
+					.then(function (doc) {
+						const numPages = doc.numPages;
+						console.log("# Document Loaded");
+						console.log("Number of Pages: " + numPages);
+						console.log(); });
+
+
+					for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
+						//For each id in the Chaimager file we update the pdf:
+
+					}
+
+				}) 
 				
 				
 			})

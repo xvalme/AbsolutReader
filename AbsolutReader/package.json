@@ -21,6 +21,7 @@
     "invariant": "^2.2.4",
     "jspdf": "^2.3.1",
     "pdf-lib": "^1.16.0",
+    "pdfjs-dist": "^2.9.359",
     "react": "17.0.1",
     "react-native": "0.64.2",
     "react-native-fs": "^2.18.0",
