@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
-import Pdf from 'react-native-pdf';
+import Pdf from 'react-native-pdf'; //Rendering
 import { StyleSheet, View , Dimensions, SafeAreaView, useWindowDimensions} from 'react-native';
 import { Layout, Text, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
-import { PDFDocument } from "pdf-lib";
+import { encodeToBase64, PDFDocument } from "pdf-lib"; //Adding links
 import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
+import {request, PERMISSIONS} from 'react-native-permissions';
 
 var RNFS = require('react-native-fs');
-
+var base64js = require('base64-js');
 
 export default class App extends Component {
 
@@ -19,7 +20,7 @@ export default class App extends Component {
 		super(props);
 
 		this.path = RNFS.DocumentDirectoryPath; //Main path of app
-		this.source = {uri:'http://www.africau.edu/images/default/sample.pdf',cache:true};
+		this.source = {uri:'https://juventudedesporto.cplp.org/files/sample-pdf_9359.pdf',cache:true};
 
 		this.state = {chaimager: '{}', chaimager_loaded: 'False'}
 	}
@@ -91,9 +92,9 @@ export default class App extends Component {
 				//Now that we have the Chaimager json, we need to edit the PDF
 
 				//Reading the pdf from filepath:
-				
 				RNFS.readFile(filepath, 'base64').then((data) => {
-					return filepath;})
+					return base64js.toByteArray(data);})
+					//Returns PDF as ByteArray
 	
 				.then((PdfDoc) => {
 					//We now add the links based on the chaimager file
@@ -104,19 +105,19 @@ export default class App extends Component {
 					
 					pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;  //Setting stuff for running the pdfjs library
 
-					const loadingTask = pdfjsLib.getDocument(PdfDoc);
+					const loadingTask = pdfjsLib.getDocument({data: PdfDoc});  //Conversts base64 to something pdfjs understands
 					loadingTask.promise
 					.then(function (doc) {
-						const numPages = doc.numPages;
-						console.log("# Document Loaded");
-						console.log("Number of Pages: " + numPages);
-						console.log(); });
+						//PDF was loaded, now we do a text search
+						
+					
+						});
 
 
 					for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
 						//For each id in the Chaimager file we update the pdf:
 
-					}
+					};
 
 				}) 
 				
