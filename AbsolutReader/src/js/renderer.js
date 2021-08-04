@@ -3,9 +3,7 @@ import Pdf from 'react-native-pdf'; //Rendering
 import { StyleSheet, View , Dimensions, SafeAreaView, useWindowDimensions} from 'react-native';
 import { Layout, Text, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { encodeToBase64, PDFDocument } from "pdf-lib"; //Adding links
-import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
-
+import {get_pdf_coordinates} from './pdf_tools/get_pdf_coordinates.js';
 
 var RNFS = require('react-native-fs');
 var base64js = require('base64-js');
@@ -59,37 +57,6 @@ export default class App extends Component {
 		const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
 		const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name; //TODO #1
 
-		
-		const createPageLinkAnnotation = (pdfDoc, id , color, left_x, left_y, right_x, right_y) =>
-		pdfDoc.context.register(
-		pdfDoc.context.obj({
-			Type: 'Annot',
-			Subtype: 'Link',
-
-			Rect: [left_x, left_y, right_x, right_y],
-
-			//Colors go here
-			Border: [0, 0, 1],
-			C: [0, 0, 1],
-
-			Dest: ['[Chaimager:${id}]', 'XYZ', null, null, null],
-		}),
-		);
-		function pdf_get_coordinates(doc, searchtext) {
-			var numPages = doc.numPages;
-			for (let i = 1; i <= numPages; i++){
-				doc.getPage(i)
-					.then(function (page) {
-				 		page.getTextContent()
-							.then(function (content) {
-								console.log(content);
-							})
-			})
-	
-			};
-		  }
-		
-
 		//Loads json if file exists
 		RNFS.readFile(chaimager_file_path, 'utf8')
 		.then((json) => {
@@ -116,16 +83,8 @@ export default class App extends Component {
 					this.setState((state) => {return {
 						chaimager: JSON.parse('{"ids": [{"name":"Moriarty","image":"feioisfe"}, {"name":"Michael","image":"feioisfe"}] }')};});
 					
-					pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;  //Setting stuff for running the pdfjs library
-
-					const loadingTask = pdfjsLib.getDocument({data: PdfDoc});  //Conversts base64 to something pdfjs understands
-					loadingTask.promise
-					.then(function (doc) {
-						//PDF was loaded, now we do a text search
-						pdf_get_coordinates(doc,'Sample'); //returns an array of all found coordinates for a specific keyword
-
+					get_pdf_coordinates(PdfDoc, 'Document');
 					
-						});
 
 
 					for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
