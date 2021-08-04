@@ -83,10 +83,8 @@ export default class App extends Component {
 					this.setState((state) => {return {
 						chaimager: JSON.parse('{"ids": [{"name":"Moriarty","image":"feioisfe"}, {"name":"Michael","image":"feioisfe"}] }')};});
 					
-					get_pdf_coordinates(PdfDoc, 'Document');
+					get_pdf_coordinates(PdfDoc, 'is');
 					
-
-
 					for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
 						//For each id in the Chaimager file we update the pdf:
 
