@@ -3,7 +3,7 @@ import Pdf from 'react-native-pdf'; //Rendering
 import { StyleSheet, View , Dimensions, SafeAreaView, useWindowDimensions} from 'react-native';
 import { Layout, Text, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
 import { encodeToBase64, PDFDocument } from "pdf-lib"; //Adding links
-import {get_pdf_coordinates} from './pdf_tools/get_pdf_coordinates.js';
+import {pdf_editor} from './pdf_tools/pdf_editor';
 
 var RNFS = require('react-native-fs');
 var base64js = require('base64-js');
@@ -18,7 +18,7 @@ export default class App extends Component {
 		super(props);
 
 		this.path = RNFS.DocumentDirectoryPath; //Main path of app
-		this.source = {uri:'https://juventudedesporto.cplp.org/files/sample-pdf_9359.pdf',cache:true};
+		this.source = {uri:'http://www.africau.edu/images/default/sample.pdf',cache:true};
 
 		this.state = {chaimager: '{}', chaimager_loaded: 'False'}
 	}
@@ -83,7 +83,7 @@ export default class App extends Component {
 					this.setState((state) => {return {
 						chaimager: JSON.parse('{"ids": [{"name":"Moriarty","image":"feioisfe"}, {"name":"Michael","image":"feioisfe"}] }')};});
 					
-					get_pdf_coordinates(PdfDoc, 'is');
+					pdf_editor(PdfDoc, 'more');
 					
 					for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
 						//For each id in the Chaimager file we update the pdf:
