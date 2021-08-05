@@ -18,7 +18,7 @@ function createPageLinkAnnotation (pdfDoc, id) {
     )
 }
 
-export async function make_links (pdfDoc, id, coordinate_dic) {
+export async function make_links (pdfDoc, id, array_coordinate_dic) {
 
     var pdfDoc = await PDFDocument.load(pdfDoc);
     console.log("a"); //Not loading???
