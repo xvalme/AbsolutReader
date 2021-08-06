@@ -1,22 +1,20 @@
 import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
-import { encodeToBase64, PDFDocument, PDFName, PDFString, PDFArray } from "pdf-lib"; //Adding links
-
-/*
-Of interest:
-https://github.com/mozilla/pdf.js/issues/5643
-*/
+import { encodeToBase64, PDFDocument, PDFName, PDFString, PDFArray,rgb } from "pdf-lib"; //Adding links
 
 export async function pdf_editor (pdfDoc, keywords){
 
     coords = await get_pdf_coordinates(pdfDoc, keywords); //We get the coords array
-    console.log("Coords gotten.");
 
-    make_links(pdfDoc, keywords, coords);
+    base64_pdf = await make_links(pdfDoc, keywords, coords);
+
+    console.log('Returning PDF after link added');
+    
+    return base64_pdf;
 
 }
 
-export async function get_pdf_coordinates (pdfDoc, keywords){
+async function get_pdf_coordinates (pdfDoc, keywords){
 
     /*Given a file (Already opened by fs), it uses Pdfjs library to get the coordinates of the keywords
     that exist in every single page, and returns an array of dictionarys with the coords and pages
@@ -81,9 +79,10 @@ function calculate_coords (page, transform, width, height, text, keywords){
     return ({page:page, x: x, y:y, right_x:right_x, right_y: right_y});
 }
 
-export async function make_links (pdfDoc, id, array_coordinate_dic) {
+async function make_links (pdfDoc, id, array_coordinate_dic) {
 
-    var pdfDoc = await PDFDocument.load(pdfDoc);
+    var pdfDoc = await PDFDocument.load(pdfDoc, {ignoreEncryption: true});
+    //TODO #5
 
     const pages = await pdfDoc.getPages();
 
@@ -95,27 +94,45 @@ export async function make_links (pdfDoc, id, array_coordinate_dic) {
 
         const coordinate_dic = array_coordinate_dic[i];
 
-        const linkAnnotation = pdfDoc.context.obj({
+        //Drawing rectangle of the link
+        page.drawRectangle({
+            x: coordinate_dic["x"],
+            y: coordinate_dic["y"],
+            width: coordinate_dic["right_x"]-coordinate_dic["x"],
+            height: coordinate_dic["right_y"]-coordinate_dic["y"],
+            color: rgb(0.75, 0.2, 0.2),
+            opacity: 0.5,
+          });
+
+        var linkAnnotation = pdfDoc.context.obj({
+            //Link adding information comes here
             Type: 'Annot',
             Subtype: 'Link',
             Rect: [coordinate_dic["x"], coordinate_dic["y"], coordinate_dic["right_x"], coordinate_dic["right_y"]],
 
-            Border: [0, 0, 2],
-            C: [0, 0, 1],
+            Border: [0, 0, 0], //Invisible border
+            C: [0, 0, 1],  // 
             A: {
               Type: 'Action',
               S: 'URI',
-              URI: PDFString.of('https://chaimager.me/[' + id + ']'),
+              URI: PDFString.of('https://chaimager.me/[' + id + ']'), //It does not add if is not a valid url
             },
           });
 
-        const linkAnnotationRef = pdfDoc.context.register(linkAnnotation);
+        var linkAnnotationRef = pdfDoc.context.register(linkAnnotation);
+        
+        const annots = page.node.lookupMaybe(PDFName.of('Annots'), PDFArray);
 
-        page.node.set(PDFName.of('Annots'), pdfDoc.context.obj([linkAnnotationRef]));
+        if (annots){ //IF there are already annotations we just add a new one
+
+            annots.push(linkAnnotationRef);}
+
+        else {  //Need to create a new array of annotations
+             page.node.set(PDFName.of('Annots'), pdfDoc.context.obj([linkAnnotationRef])); };
 
     }
 
     const pdfBytes = await pdfDoc.save();
 
-    console.log(encodeToBase64(pdfBytes)); 
+    return encodeToBase64(pdfBytes); 
 }
