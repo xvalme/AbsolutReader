@@ -29,7 +29,7 @@ export default class Pdf_Renderer extends Component {
 		
 		if (link.includes("https://chaimager.me/[")==true) {
 			
-			var name = link.slice(11);
+			var name = link.slice(21);
 
 			//Searching in chaimager file if exists
 		}
@@ -93,7 +93,7 @@ export default class Pdf_Renderer extends Component {
 					chaimager_loaded: true,
 				}});
 	}
-}
+	}
 
 	render(){
 	return (
