@@ -12,7 +12,7 @@ export const AppNavigator = () => (
     <Navigator headerMode='none'>
 
       <Screen name='Renderer' component={Pdf_renderer}/>
-      <Screen name='Homescreen' component={Homescreen}/> 
+      
       
     
     </Navigator>

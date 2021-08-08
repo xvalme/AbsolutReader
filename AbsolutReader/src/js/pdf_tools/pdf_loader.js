@@ -2,15 +2,17 @@ import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
 import { encodeToBase64, PDFDocument, PDFName, PDFString, PDFArray,rgb } from "pdf-lib"; //Adding links
 
-export async function pdf_editor (pdfDoc, keywords){
+export async function pdf_loader (pdfDoc, keywords){
 
-    coords = await get_pdf_coordinates(pdfDoc, keywords); //We get the coords array
+    var coords = await get_pdf_coordinates(pdfDoc, keywords); //We get the coords array
 
-    base64_pdf = await make_links(pdfDoc, keywords, coords);
+    var base64_pdf = await make_links(pdfDoc, keywords, coords);
 
     console.log('Returning PDF after link added');
+
+    var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
     
-    return base64_pdf;
+    return {new_source: new_source, base64_pdf: base64_pdf};
 
 }
 
@@ -51,7 +53,10 @@ async function get_pdf_coordinates (pdfDoc, keywords){
 
                 var coords = calculate_coords(i, transform, width, height, text, keywords);
 
-                coords_array.push(coords)
+                for (const v of coords) {
+                    coords_array.push(v);
+                };
+
                                     
             }
         }
@@ -64,19 +69,33 @@ function calculate_coords (page, transform, width, height, text, keywords){
     //Size (x coordinate system) of each letter
     var len_of_charachter = width / text.length;
 
-    //Position of beggining of string we want
-    var start_position = text.indexOf(keywords) * len_of_charachter;
+    //Positions of beggining of string we want
+    var startIndex = 0;
+    var indices = [];
+    var index;
+    var coords = [];
 
-    var x = transform[4] + start_position
-    var y = transform[5];
+    while ((index = text.indexOf(keywords, startIndex)) > -1) {
+        indices.push(index);
+        startIndex = index + keywords.length;
+    };
+    
+    for (const v of indices) {
 
-    //Postions of the ending
+        var start_position = v * len_of_charachter;
 
-    var right_y = y + height;
+        var x = transform[4] + start_position
+        var y = transform[5];
 
-    var right_x = x + (keywords.length * len_of_charachter);
+        //Postions of the ending
 
-    return ({page:page, x: x, y:y, right_x:right_x, right_y: right_y});
+        var right_y = y + height;
+
+        var right_x = x + (keywords.length * len_of_charachter); 
+
+        coords.push({page:page, x: x, y:y, right_x:right_x, right_y: right_y}); };
+    
+    return (coords);
 }
 
 async function make_links (pdfDoc, id, array_coordinate_dic) {

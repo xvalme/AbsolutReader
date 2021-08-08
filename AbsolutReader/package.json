@@ -29,6 +29,7 @@
     "react-native": "0.64.2",
     "react-native-fs": "^2.18.0",
     "react-native-gesture-handler": "^1.10.3",
+    "react-native-image-base64": "^0.1.4",
     "react-native-pdf": "^6.3.0",
     "react-native-pdf-lib": "^1.0.0",
     "react-native-permissions": "^3.0.5",
