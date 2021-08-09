@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Pdf from 'react-native-pdf'; //Rendering
 import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput} from 'react-native';
-import { Layout, Text, TopNavigation, TopNavigationAction, Button, Tab, TabBar, Divider} from '@ui-kitten/components';
+import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider} from '@ui-kitten/components';
 import {pdf_loader} from './pdf_tools/pdf_loader';
 import { IndexOutOfBoundsError } from 'pdf-lib';
 import ColorPicker from 'react-native-wheel-color-picker'
@@ -176,45 +176,113 @@ export default class Pdf_Renderer extends Component {
 	chaimager_cache_save () {
 	}
 
-	render_top_menu () {return (
-
-		<View style={{}}>
-
-			<Button>Load Chaimager</Button>
-	  	
-		</View>
-
-	  )}
+	render_top_menu () {}
 
 	render(){
+
+	const BackIcon = (props) => (
+		<Icon {...props} name='arrow-back'/>
+		);
+	const EditIcon = (props) => (
+		<Icon {...props} name='edit'/>
+		);
+
+	const renderRightActions = () => (
+		<React.Fragment>
+		  <TopNavigationAction icon={EditIcon}/>
+		</React.Fragment>
+	  );
+
+	const renderBackAction = () => (
+	<TopNavigationAction icon={BackIcon}/>
+	);
+	
 	return (
 
 	<SafeAreaView style={{ flex: 1 }}>
 
-		<TopNavigation
-
-				alignment='center'
-				title= {this.state.filename}
-				subtitle= {this.render_top_menu} />
+		<TopNavigation style={{height:Dimensions.get('window').height / 12}}
+						alignment='center'
+						title='Absolut Reader'
+						subtitle={this.state.filename}
+						accessoryLeft={renderBackAction}
+						accessoryRight={renderRightActions}/>
 
 		<Divider />
-						
-			<Modal 
+					
+		<Modal 
+		
+			animationType="slide"
+			transparent={true}
+			visible={this.state.chaimager_popup_visible}
+			onRequestClose={() => {this.setState((state) => {
+				return {
+					chaimager_popup_visible: false
+				};
+			})}}>
 			
-				animationType="slide"
-				transparent={true}
-				visible={this.state.chaimager_popup_visible}
-				onRequestClose={() => {this.setState((state) => {
-					return {
-						chaimager_popup_visible: false
-					};
-				})}}>
+			<View style = {{flex: 1,
+						justifyContent: "center",
+						alignItems: "center"
+						}}>
+			
+			<View style = {{margin: 20,
+							backgroundColor: "white",
+							borderRadius: 20,
+							padding: 35,
+							alignItems: "center",
+							shadowColor: "#000",
+							shadowOffset: {
+							width: 0,
+							height: 2
+							},
+							shadowOpacity: 0.25,
+							shadowRadius: 4,
+							elevation: 5}}>
+
+				<Text style = {{marginBottom: 15,
+								textAlign: "center",
+								color: "black"}}>
+
+					{this.state.modal_character["name"]}
 				
-				<View style = {{flex: 1,
-							justifyContent: "center",
-							alignItems: "center"
-							}}>
-				
+				</Text>
+
+				<Image source={{uri:this.state.modal_character["image"]}} 
+						style={{width: 200,
+								height: 200,}}
+						/>
+
+				<Text style = {{marginBottom: 15,
+								textAlign: "center",
+								color: "black"}} >
+
+					{this.state.modal_character["bio"]}
+
+				</Text>
+
+			</View>
+
+		</View>
+
+	</Modal>
+
+		<Modal 
+		
+			animationType="slide"
+			transparent={true}
+			visible={this.state.chaimager_adder_popup_visible}
+			onRequestClose={() => {this.setState((state) => {
+				return {
+					chaimager_adder_popup_visible: false
+				};
+			})}}>
+			
+			<View style = {{flex: 1,
+						justifyContent: "center",
+						alignItems: "center"
+						}}>
+			
 				<View style = {{margin: 20,
 								backgroundColor: "white",
 								borderRadius: 20,
@@ -227,92 +295,35 @@ export default class Pdf_Renderer extends Component {
 								},
 								shadowOpacity: 0.25,
 								shadowRadius: 4,
-								elevation: 5}}>
+								elevation: 5}} >
 
-				 	<Text style = {{marginBottom: 15,
-    								textAlign: "center",
-									color: "black"}}>
+					<TextInput placeholder="Name of character"
+								onChangeText={(text) => this.chaimager_cache_name(text)}/>
 
-						{this.state.modal_character["name"]}
+					<TextInput	placeholder= "Small biography"
+								onChangeText={(text) => this.chaimager_cache_bio(text)}
+					/>
+
+					<ColorPicker
+						onColorChangeComplete={(color) => this.chaimager_chache_color(color)}
+						thumbSize={40}
+						sliderSize={40}
+						noSnap={true}
+						row={true}
+					/>
 					
-					</Text>
+					<Button onPress={this.chaimager_cache_image}  
+							title="Select Image"  />
 
-					<Image source={{uri:this.state.modal_character["image"]}} 
-							style={{width: 200,
-									height: 200,}}
-							/>
-
-					<Text style = {{marginBottom: 15,
-    								textAlign: "center",
-									color: "black"}} >
-
-						{this.state.modal_character["bio"]}
-
-					</Text>
-
+					<Button onPress={this.chaimager_cache_save}  
+							title="Save"  
+					/>
 				</View>
-
 			</View>
 
-		</Modal>
 
-			<Modal 
-			
-				animationType="slide"
-				transparent={true}
-				visible={this.state.chaimager_adder_popup_visible}
-				onRequestClose={() => {this.setState((state) => {
-					return {
-						chaimager_adder_popup_visible: false
-					};
-				})}}>
-				
-				<View style = {{flex: 1,
-							justifyContent: "center",
-							alignItems: "center"
-							}}>
-				
-					<View style = {{margin: 20,
-									backgroundColor: "white",
-									borderRadius: 20,
-									padding: 35,
-									alignItems: "center",
-									shadowColor: "#000",
-									shadowOffset: {
-									width: 0,
-									height: 2
-									},
-									shadowOpacity: 0.25,
-									shadowRadius: 4,
-									elevation: 5}} >
-
-						<TextInput placeholder="Name of character"
-        						   onChangeText={(text) => this.chaimager_cache_name(text)}/>
-
-						<TextInput	placeholder= "Small biography"
-        							onChangeText={(text) => this.chaimager_cache_bio(text)}
-						/>
-
-						<ColorPicker
-							onColorChangeComplete={(color) => this.chaimager_chache_color(color)}
-							thumbSize={40}
-							sliderSize={40}
-							noSnap={true}
-							row={true}
-						/>
-						
-						<Button onPress={this.chaimager_cache_image}  
-								title="Select Image"  />
-
-						<Button onPress={this.chaimager_cache_save}  
-								title="Save"  
-						/>
-					</View>
-				</View>
-
-
-		</Modal>
-			
+	</Modal>
+		
 		<View style={styles.pdf_container} > 
 			<Pdf
 				source={this.state.source}
