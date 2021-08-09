@@ -189,7 +189,11 @@ export default class Pdf_Renderer extends Component {
 
 	const renderRightActions = () => (
 		<React.Fragment>
-		  <TopNavigationAction icon={EditIcon}/>
+		  <TopNavigationAction icon={EditIcon} onPress={() => {this.setState((state) => {
+																	return {
+																		chaimager_adder_popup_visible: true
+																	};
+																})}}/>
 		</React.Fragment>
 	  );
 
