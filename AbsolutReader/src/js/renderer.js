@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import Pdf from 'react-native-pdf'; //Rendering
-import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image} from 'react-native';
-import { Layout, Text, TopNavigation, TopNavigationAction } from '@ui-kitten/components';
+import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput} from 'react-native';
+import { Layout, Text, TopNavigation, TopNavigationAction, Button, Tab, TabBar, Divider} from '@ui-kitten/components';
 import {pdf_loader} from './pdf_tools/pdf_loader';
 import { IndexOutOfBoundsError } from 'pdf-lib';
+import ColorPicker from 'react-native-wheel-color-picker'
+import DocumentPicker from 'react-native-document-picker';
 
 var RNFS = require('react-native-fs');
 var base64js = require('base64-js');
@@ -22,8 +24,16 @@ export default class Pdf_Renderer extends Component {
 					chaimager_loaded: false, 
 					source:{uri:'http://www.africau.edu/images/default/sample.pdf',cache:true},
 					filepath:'', //Added after PDF is loaded
+					filename:'', //Added after PDF is loaded
 					chaimager_popup_visible: false,
-					modal_character: ''}
+					chaimager_adder_popup_visible: false,
+					modal_character: '',
+					//Cache for adding new character
+					chaimager_name_cache:'',
+					chaimager_color_cache: '',
+					chaimager_bio_cache: '',
+					chaimager_image_cache: '',
+				}
 		
 	}
 
@@ -80,6 +90,8 @@ export default class Pdf_Renderer extends Component {
 			const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
 			const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name; //TODO #1
 
+			this.setState((state) => {return {filename: filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') }});
+
 			//Loads json if file exists
 			try {
 				json = await RNFS.readFile(chaimager_file_path, 'utf8');
@@ -132,12 +144,63 @@ export default class Pdf_Renderer extends Component {
 		load_chaimager(this.state.filepath);
 	}
 
+	async image_selector () {
+		try {
+			const res = await DocumentPicker.pick({
+			  type: [DocumentPicker.types.images],
+			});
+			return res.uri;
+		  } catch (err) {
+			if (DocumentPicker.isCancel(err)) {
+			  // User cancelled the picker, exit any dialogs or menus and move on
+			} else {
+			  throw err;
+			}
+		  }
+	}
+
+	chaimager_cache_name() {}
+
+	chaimager_cache_bio() {}
+
+	chaimager_chache_color () {}
+
+	chaimager_cache_image () {
+		image_path = this.image_selector();
+
+		//Opening image
+
+		//Converting image to base64
+
+	}
+	chaimager_cache_save () {
+	}
+
+	render_top_menu () {return (
+
+		<View style={{}}>
+
+			<Button>Load Chaimager</Button>
+	  	
+		</View>
+
+	  )}
+
 	render(){
 	return (
-		
-		<SafeAreaView style={{ flex: 1 }}>
+
+	<SafeAreaView style={{ flex: 1 }}>
+
+		<TopNavigation
+
+				alignment='center'
+				title= {this.state.filename}
+				subtitle= {this.render_top_menu} />
+
+		<Divider />
+						
+			<Modal 
 			
-			<Modal
 				animationType="slide"
 				transparent={true}
 				visible={this.state.chaimager_popup_visible}
@@ -193,6 +256,63 @@ export default class Pdf_Renderer extends Component {
 
 		</Modal>
 
+			<Modal 
+			
+				animationType="slide"
+				transparent={true}
+				visible={this.state.chaimager_adder_popup_visible}
+				onRequestClose={() => {this.setState((state) => {
+					return {
+						chaimager_adder_popup_visible: false
+					};
+				})}}>
+				
+				<View style = {{flex: 1,
+							justifyContent: "center",
+							alignItems: "center"
+							}}>
+				
+					<View style = {{margin: 20,
+									backgroundColor: "white",
+									borderRadius: 20,
+									padding: 35,
+									alignItems: "center",
+									shadowColor: "#000",
+									shadowOffset: {
+									width: 0,
+									height: 2
+									},
+									shadowOpacity: 0.25,
+									shadowRadius: 4,
+									elevation: 5}} >
+
+						<TextInput placeholder="Name of character"
+        						   onChangeText={(text) => this.chaimager_cache_name(text)}/>
+
+						<TextInput	placeholder= "Small biography"
+        							onChangeText={(text) => this.chaimager_cache_bio(text)}
+						/>
+
+						<ColorPicker
+							onColorChangeComplete={(color) => this.chaimager_chache_color(color)}
+							thumbSize={40}
+							sliderSize={40}
+							noSnap={true}
+							row={true}
+						/>
+						
+						<Button onPress={this.chaimager_cache_image}  
+								title="Select Image"  />
+
+						<Button onPress={this.chaimager_cache_save}  
+								title="Save"  
+						/>
+					</View>
+				</View>
+
+
+		</Modal>
+			
 		<View style={styles.pdf_container} > 
 			<Pdf
 				source={this.state.source}
@@ -213,7 +333,8 @@ export default class Pdf_Renderer extends Component {
 
 				style={styles.pdf}/>
 		</View>
-		</SafeAreaView>
+		
+	</SafeAreaView>
 	)}
 }
 
@@ -222,7 +343,6 @@ pdf_container: {
 	flex: 1,
 	justifyContent: 'flex-start',
 	alignItems: 'center',
-	marginTop: 25,
 },
 pdf: {
 	flex:1,
