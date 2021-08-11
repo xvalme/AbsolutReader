@@ -2,19 +2,27 @@ import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
 import { encodeToBase64, PDFDocument, PDFName, PDFString, PDFArray,rgb } from "pdf-lib"; //Adding links
 
-export async function pdf_loader (pdfDoc, keywords){
+export async function pdf_loader (pdfDoc, keywords, no_chaimager=false){
 
-    var coords = await get_pdf_coordinates(pdfDoc, keywords); //We get the coords array
+    if (no_chaimager == false){
 
-    var base64_pdf = await make_links(pdfDoc, keywords, coords);
+        var coords = await get_pdf_coordinates(pdfDoc, keywords); //We get the coords array
 
-    console.log('Returning PDF after link added');
+        var base64_pdf = await make_links(pdfDoc, keywords, coords);
 
-    var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
-    
-    return {new_source: new_source, base64_pdf: base64_pdf};
+        console.log('Returning PDF after link added');
 
-}
+        var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
+        
+        return {new_source: new_source, base64_pdf: base64_pdf};}
+
+    else {
+        //No chaimager characters.We only want the base64 
+        var base64_pdf = await make_links(pdfDoc, 'efbuwehuasakm918981313adsa0das2e02', 0);
+        var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
+
+        return {new_source: new_source, base64_pdf: base64_pdf};}
+    }
 
 async function get_pdf_coordinates (pdfDoc, keywords){
 
