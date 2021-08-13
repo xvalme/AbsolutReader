@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Pdf from 'react-native-pdf'; //Rendering
 import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput} from 'react-native';
-import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider} from '@ui-kitten/components';
+import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem} from '@ui-kitten/components';
 import {pdf_loader} from './pdf_tools/pdf_loader';
 import { IndexOutOfBoundsError } from 'pdf-lib';
 import ColorPicker from 'react-native-wheel-color-picker'
@@ -27,6 +27,7 @@ export default class Pdf_Renderer extends Component {
 					filename:'', //Added after PDF is loaded
 					chaimager_popup_visible: false,
 					chaimager_adder_popup_visible: false,
+					chaimager_list_visible: false,
 					modal_character: '',
 					//Cache for adding new character
 					chaimager_name_cache:'',
@@ -247,9 +248,14 @@ export default class Pdf_Renderer extends Component {
 	const BackIcon = (props) => (
 		<Icon {...props} name='arrow-back'/>
 		);
+
 	const EditIcon = (props) => (
 		<Icon {...props} name='edit'/>
 		);
+
+	const PaletteIcon = (props) => (
+		<Icon {...props} name='color-palette-outline'/>
+	)
 
 	const MenuIcon = (props) => (
 		<Icon {...props} name='menu'/>
@@ -263,18 +269,25 @@ export default class Pdf_Renderer extends Component {
 																	};
 																})}}/>
 
+		<TopNavigationAction icon={PaletteIcon} onPress={() => {this.setState((state) => {
+																									return {
+																										chaimager_list_visible: true
+																									};
+																								})}}/>	
+
 			<TopNavigationAction icon={MenuIcon} onPress={() => {this.setState((state) => {
 																				return {
 																					chaimager_adder_popup_visible: true
 																				};
-																			})}}/>														
+																			})}}/>			
+													
 		</React.Fragment>
 	  );
 
 	const renderBackAction = () => (
 	<TopNavigationAction icon={BackIcon}/>
 	);
-	
+
 	return (
 
 	<SafeAreaView style={{ flex: 1 }}>
@@ -287,6 +300,47 @@ export default class Pdf_Renderer extends Component {
 						accessoryRight={renderRightActions}/>
 
 		<Divider />
+
+		<Modal 
+			animationType="slide"
+			transparent={true}
+			visible={this.state.chaimager_list_visible}
+			onRequestClose={() => {this.setState((state) => {
+				return {
+					chaimager_list_visible: false
+				};
+			})}}>
+			
+			<View style = {{flex: 1,
+						justifyContent: "center",
+						alignItems: "center"
+						}}>
+			
+				<View style = {{margin: 20,
+								backgroundColor: "white",
+								borderRadius: 20,
+								padding: 35,
+								alignItems: "center",
+								shadowColor: "#000",
+								shadowOffset: {
+								width: 0,
+								height: 2
+								},
+								shadowOpacity: 0.25,
+								shadowRadius: 4,
+								elevation: 5}} >
+
+					<List>
+
+					</List>
+
+				</View>
+
+			</View>
+
+
+	</Modal>
+	
 					
 		<Modal 
 		
