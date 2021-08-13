@@ -10,8 +10,6 @@ export async function pdf_loader (pdfDoc, keywords, no_chaimager=false){
 
         var base64_pdf = await make_links(pdfDoc, keywords, coords);
 
-        console.log('Returning PDF after link added');
-
         var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
         
         return {new_source: new_source, base64_pdf: base64_pdf};}

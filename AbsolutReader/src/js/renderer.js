@@ -84,7 +84,6 @@ export default class Pdf_Renderer extends Component {
 
 		//Runs only if not already loaded:
 		if (this.state.chaimager_loaded == false) {
-			console.log("Loading chaimager");
 
 			//We pick the file name and check if it exists at library:
 			const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
@@ -130,12 +129,13 @@ export default class Pdf_Renderer extends Component {
 					source: pdf_source["new_source"],
 					chaimager_loaded: true,
 				}});	
+
+				console.log("Chaimager loaded");
 	};
-		console.log(this.state.chaimager["ids"]);
-		console.log("Chaimager loaded");
 	}
 
 	async re_load_chaimager () {
+
 		//Reloads chaimager after being added a new character
 
 		var base64_pdf = this.state.source["uri"]; //Already base64, from the loading of the chaimager
@@ -144,31 +144,27 @@ export default class Pdf_Renderer extends Component {
 
 		var PdfDoc = base64js.toByteArray(array); //PDF as byte array so pdf.js library can understand it
 
-		console.log("Adding the " +  this.state.chaimager["ids"].length + "th character");
-
 		for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
 
 			var name = this.state.chaimager["ids"][i]["name"];
 			
 			//Calling our function to add the links
 			try {
-			var pdf_source = await pdf_loader(PdfDoc, name);
+				var pdf_source = await pdf_loader(PdfDoc, name);
 
-			var PdfDoc = base64js.toByteArray(pdf_source["base64_pdf"]);
-			
-				//Now we change the source for this. Note that the edited file is not stored on the local filesystem,
-				//rather in the RAM, so the original PDF stays unedited, which is good
+				var PdfDoc = base64js.toByteArray(pdf_source["base64_pdf"]);
+				
+					//Now we change the source for this. Note that the edited file is not stored on the local filesystem,
+					//rather in the RAM, so the original PDF stays unedited, which is good
 
-				this.setState((state) => {return {
-					source: pdf_source["new_source"],
-					chaimager_loaded: true,
-				}});	
-
-			console.log("Chaimager reloaded"); 
+					this.setState((state) => {return {
+						source: pdf_source["new_source"],
+					}});	
 			}
 			catch {
 				(error) => {console.log(error);}}
 		};
+		console.log("Chaimager reloaded"); 
 
 	}
 
