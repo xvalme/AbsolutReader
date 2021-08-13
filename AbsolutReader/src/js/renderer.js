@@ -20,7 +20,7 @@ export default class Pdf_Renderer extends Component {
 
 		this.path = RNFS.DocumentDirectoryPath; //Main path of app
 
-		this.state = {chaimager: {"ids": []}, 
+		this.state = {chaimager: {"ids": [{}]}, 
 					chaimager_loaded: false, 
 					source:{uri:'http://www.africau.edu/images/default/sample.pdf',cache:true},
 					filepath:'', //Added after PDF is loaded
@@ -94,7 +94,6 @@ export default class Pdf_Renderer extends Component {
 
 			//Loads json if file exists
 
-			if (this.state.chaimager["ids"].length == 0) {
 				//Only gets the information from the file if it is not 1st time loading
 				/*
 				//TODO #6
@@ -106,7 +105,6 @@ export default class Pdf_Renderer extends Component {
 					//Chaimager file does not exist
 
 				RNFS.writeFile(chaimager_file_path, '{"ids": []}', 'utf8');}) */
-			}
 		
 			//Now that we have the Chaimager json, we need to edit the PDF
 			//Reading the pdf again from filepath:
@@ -115,40 +113,63 @@ export default class Pdf_Renderer extends Component {
 
 			var PdfDoc = base64js.toByteArray(base64_pdf); //PDF as byte array so pdf.js library can understand it
 
-			if (this.state.chaimager["ids"].length == 0) {
+			for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
 
-				var pdf_source = await pdf_loader(PdfDoc, 'none', true);
+				var name = this.state.chaimager["ids"][i]["name"];
+				
+				//Calling our function to add the links
+				var pdf_source = await pdf_loader(PdfDoc, name);
+
 				var PdfDoc = base64js.toByteArray(pdf_source["base64_pdf"]);
+			};
+			
+			//Now we change the source for this. Note that the edited file is not stored on the local filesystem,
+			//rather in the RAM, so the original PDF stays unedited, which is good
 
 				this.setState((state) => {return {
 					source: pdf_source["new_source"],
 					chaimager_loaded: true,
-				}});
+				}});	
+	};
+		console.log(this.state.chaimager["ids"]);
+		console.log("Chaimager loaded");
+	}
 
-			}
-			else {
+	async re_load_chaimager () {
+		//Reloads chaimager after being added a new character
 
-				for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
+		var base64_pdf = this.state.source["uri"]; //Already base64, from the loading of the chaimager
 
-					var name = this.state.chaimager["ids"][i]["name"];
-					
-					//Calling our function to add the links
-					var pdf_source = await pdf_loader(PdfDoc, name);
-	
-					var PdfDoc = base64js.toByteArray(pdf_source["base64_pdf"]);
-				};
-				
+		var array = base64_pdf.replace('data:application/pdf;base64,', '');
+
+		var PdfDoc = base64js.toByteArray(array); //PDF as byte array so pdf.js library can understand it
+
+		console.log("Adding the " +  this.state.chaimager["ids"].length + "th character");
+
+		for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
+
+			var name = this.state.chaimager["ids"][i]["name"];
+			
+			//Calling our function to add the links
+			try {
+			var pdf_source = await pdf_loader(PdfDoc, name);
+
+			var PdfDoc = base64js.toByteArray(pdf_source["base64_pdf"]);
+			
 				//Now we change the source for this. Note that the edited file is not stored on the local filesystem,
 				//rather in the RAM, so the original PDF stays unedited, which is good
-	
-					this.setState((state) => {return {
-						source: pdf_source["new_source"],
-						chaimager_loaded: true,
-					}});	
 
+				this.setState((state) => {return {
+					source: pdf_source["new_source"],
+					chaimager_loaded: true,
+				}});	
+
+			console.log("Chaimager reloaded"); 
 			}
-	};
-		console.log("Chaimager loaded");
+			catch {
+				(error) => {console.log(error);}}
+		};
+
 	}
 
 	async image_selector () {
@@ -201,6 +222,7 @@ export default class Pdf_Renderer extends Component {
 	
 	chaimager_cache_save () {
 		//Ads new information to json and reset chaimager cache
+		console.log("Saving new character");
 
 		var name = this.state.chaimager_name_cache;
 		var bio = this.state.chaimager_bio_cache;
@@ -210,8 +232,7 @@ export default class Pdf_Renderer extends Component {
 		this.state.chaimager["ids"].push({name: name, bio:bio, color:color, image:image});
 
 		//Making the modal invisible and preparing to relaod chaimager:
-		this.setState((state) => {return {chaimager_adder_popup_visible: false,
-											chaimager_loaded: false}});
+		this.setState((state) => {return {chaimager_adder_popup_visible: false }});
 
 		//Reseting cache:
 		this.setState((state) => {return {chaimager_name_cache:'',
@@ -221,11 +242,9 @@ export default class Pdf_Renderer extends Component {
 		};});
 
 		//Reloading chaimager
-		this.load_chaimager(this.state.filepath);
+		this.re_load_chaimager();
 		
 	}
-
-	render_top_menu () {}
 
 	render(){
 
