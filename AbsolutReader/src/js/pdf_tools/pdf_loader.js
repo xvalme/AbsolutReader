@@ -1,14 +1,14 @@
 import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
-import { encodeToBase64, PDFDocument, PDFName, PDFString, PDFArray,rgb } from "pdf-lib"; //Adding links
+import { encodeToBase64, PDFDocument, PDFName, PDFString, PDFArray, rgb } from "pdf-lib"; //Adding links
 
-export async function pdf_loader (pdfDoc, keywords, no_chaimager=false){
+export async function pdf_loader (pdfDoc, keywords, color, no_chaimager=false){
 
     if (no_chaimager == false){
 
         var coords = await get_pdf_coordinates(pdfDoc, keywords); //We get the coords array
 
-        var base64_pdf = await make_links(pdfDoc, keywords, coords);
+        var base64_pdf = await make_links(pdfDoc, keywords, coords, color);
 
         var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
         
@@ -104,10 +104,11 @@ function calculate_coords (page, transform, width, height, text, keywords){
     return (coords);
 }
 
-async function make_links (pdfDoc, id, array_coordinate_dic) {
+async function make_links (pdfDoc, id, array_coordinate_dic, color) {
 
     var pdfDoc = await PDFDocument.load(pdfDoc, {ignoreEncryption: true});
     //TODO #5
+    rgb_color = hexToRgb(color);
 
     const pages = await pdfDoc.getPages();
 
@@ -125,7 +126,7 @@ async function make_links (pdfDoc, id, array_coordinate_dic) {
             y: coordinate_dic["y"],
             width: coordinate_dic["right_x"]-coordinate_dic["x"],
             height: coordinate_dic["right_y"]-coordinate_dic["y"],
-            color: rgb(0.75, 0.2, 0.2),
+            color: rgb(rgb_color.r/255, rgb_color.g/255, rgb_color.b/255),
             opacity: 0.5,
           });
 
@@ -161,3 +162,12 @@ async function make_links (pdfDoc, id, array_coordinate_dic) {
 
     return encodeToBase64(pdfBytes); 
 }
+
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
