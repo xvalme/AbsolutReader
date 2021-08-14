@@ -22,14 +22,16 @@ export default class Pdf_Renderer extends Component {
 
 		this.state = {chaimager: {"ids": [{}]}, 
 					chaimager_loaded: false, 
-					source:{uri:'http://www.africau.edu/images/default/sample.pdf',cache:true},
+					source:{uri:props.route.params["filepath"],cache:true},
 					filepath:'', //Added after PDF is loaded
 					filename:'', //Added after PDF is loaded
+					//Modals:
+					chaimager_loading: false,
 					chaimager_popup_visible: false,
 					chaimager_adder_popup_visible: false,
 					chaimager_list_visible: false,
 					modal_character: '',
-					//Cache for adding new character
+					//Cache for adding new character:
 					chaimager_name_cache:'',
 					chaimager_color_cache: '',
 					chaimager_bio_cache: '',
@@ -85,6 +87,7 @@ export default class Pdf_Renderer extends Component {
 
 		//Runs only if not already loaded:
 		if (this.state.chaimager_loaded == false) {
+			this.setState((state) => {return {chaimager_loading: true}});
 
 			//We pick the file name and check if it exists at library:
 			const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
@@ -116,9 +119,10 @@ export default class Pdf_Renderer extends Component {
 			for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
 
 				var name = this.state.chaimager["ids"][i]["name"];
+				var color = this.state.chaimager.ids[i].color;
 				
 				//Calling our function to add the links
-				var pdf_source = await pdf_loader(PdfDoc, name);
+				var pdf_source = await pdf_loader(PdfDoc, name, color);
 
 				var PdfDoc = base64js.toByteArray(pdf_source["base64_pdf"]);
 			};
@@ -130,7 +134,7 @@ export default class Pdf_Renderer extends Component {
 					source: pdf_source["new_source"],
 					chaimager_loaded: true,
 				}});	
-
+				this.setState((state) => {return {chaimager_loading: false}});
 				console.log("Chaimager loaded");
 	};
 	}
@@ -138,6 +142,8 @@ export default class Pdf_Renderer extends Component {
 	async re_load_chaimager () {
 
 		//Reloads chaimager after being added a new character
+
+		this.setState((state) => {return {chaimager_loading: true}});
 
 		var base64_pdf = this.state.source["uri"]; //Already base64, from the loading of the chaimager
 
@@ -148,10 +154,12 @@ export default class Pdf_Renderer extends Component {
 		for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
 
 			var name = this.state.chaimager["ids"][i]["name"];
+
+			var color = this.state.chaimager.ids[i].color;
 			
 			//Calling our function to add the links
 			try {
-				var pdf_source = await pdf_loader(PdfDoc, name);
+				var pdf_source = await pdf_loader(PdfDoc, name, color);
 
 				var PdfDoc = base64js.toByteArray(pdf_source["base64_pdf"]);
 				
@@ -166,6 +174,7 @@ export default class Pdf_Renderer extends Component {
 				(error) => {console.log(error);}}
 		};
 		console.log("Chaimager reloaded"); 
+		this.setState((state) => {return {chaimager_loading: false}});
 
 	}
 
@@ -304,6 +313,39 @@ export default class Pdf_Renderer extends Component {
 		<Modal 
 			animationType="slide"
 			transparent={true}
+			visible={this.state.chaimager_loading}>
+			
+			<View style = {{flex: 1,
+						justifyContent: "center",
+						alignItems: "center"
+						}}>
+			
+				<View style = {{margin: 20,
+								backgroundColor: "white",
+								borderRadius: 20,
+								padding: 35,
+								alignItems: "center",
+								shadowColor: "#000",
+								shadowOffset: {
+								width: 0,
+								height: 2
+								},
+								shadowOpacity: 0.25,
+								shadowRadius: 4,
+								elevation: 5}} >
+
+					<Text>Chaimager is loading...</Text>
+
+				</View>
+
+			</View>
+
+
+	</Modal>
+
+		<Modal 
+			animationType="slide"
+			transparent={true}
 			visible={this.state.chaimager_list_visible}
 			onRequestClose={() => {this.setState((state) => {
 				return {
@@ -340,7 +382,6 @@ export default class Pdf_Renderer extends Component {
 
 
 	</Modal>
-	
 					
 		<Modal 
 		
@@ -500,6 +541,7 @@ export default class Pdf_Renderer extends Component {
 				onPressLink={(uri)=>{
 					this.chaimager(uri);  //Chaimager handling of characters
 				}}
+				enableRTL={true}
 
 				style={styles.pdf}/>
 		</View>

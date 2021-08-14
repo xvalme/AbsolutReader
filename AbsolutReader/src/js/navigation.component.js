@@ -11,8 +11,8 @@ export const AppNavigator = () => (
   <NavigationContainer>
     <Navigator headerMode='none'>
 
-      <Screen name='Renderer' component={Pdf_renderer}/>
-      
+      <Screen name='Homescreen' component={Homescreen} />
+      <Screen name='Pdf_renderer' component={Pdf_renderer}/>
       
     
     </Navigator>
