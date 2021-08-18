@@ -3,31 +3,10 @@ import * as eva from '@eva-design/eva';
 import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon, TopNavigationAction, List, Card} from '@ui-kitten/components';
 import { Image, StyleSheet, SafeAreaView, Dimensions, View, Text} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
+import { pdf_pagenumber_getter } from './pdf_tools/pdf_info_getter';
+import Pdf from 'react-native-pdf'; //Rendering
 
 var RNFS = require('react-native-fs');
-
-async function file_selector () {
-
-  try {
-    const res = await DocumentPicker.pick({
-      type: [DocumentPicker.types.pdf],
-    });
-
-    var pdf_path = res.uri;
-    //Reading imagefile after we have the path
-
-    return pdf_path;
-
-    } catch (err) {
-    if (DocumentPicker.isCancel(err)) {
-      throw err;
-    } else {
-      throw err;
-    }
-    }
-
-  
-}
 
 export default class Homescreen extends Component {
 
@@ -44,9 +23,48 @@ export default class Homescreen extends Component {
   //Loading a new file
   load_file = async () => {
     console.log("User is adding a new book");
-    var filepath = await file_selector();
-    this.props.navigation.navigate('Pdf_renderer', {filepath: filepath});
+    var filepath = await this.file_selector();
+    console.log(filepath);
+
+    //Adding file to the library:
+    this.add_pdf_to_library(filepath);
+
+    //this.props.navigation.navigate('Pdf_renderer', {filepath: filepath});
   };
+
+  file_selector = async () => {
+
+    try {
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.pdf],
+      });
+  
+      var pdf_path = res.uri;
+      //Reading imagefile after we have the path
+  
+      return pdf_path;
+  
+      } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        throw err;
+      } else {
+        throw err;
+      }
+      }
+  }
+
+  add_pdf_to_library = async (filepath) => {
+    //Gets information about pdf and adds it to the database
+    //Picks up the title, pages, and thumbnail
+
+    var title = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.');
+
+    var pagenumber = await pdf_pagenumber_getter (filepath);
+
+
+
+
+  }
 
   async load_library () {
     //Will load the pdf library based on a stored json. Returns an array with the info to render
@@ -74,9 +92,8 @@ export default class Homescreen extends Component {
     });
   
     //4Testing
-    library.books.push({title: "A", pages: 123, current_page: 1, thumbnail: 'ejofije'});
-    library.books.push({title: "A", pages: 123, current_page: 1, thumbnail: 'ejofije'});
-    library.books.push({title: "A", pages: 123, current_page: 1, thumbnail: 'ejofije'});
+    library.books.push({title: "A", pages: 123, current_page: 1,source:{uri:'content://com.android.providers.media.documents/document/document%3A7795',cache:true} });
+    library.books.push({title: "B", pages: 123, current_page: 1,source:{uri:'content://com.android.providers.media.documents/document/document%3A7726',cache:true} });
   
     var library_list = []; //Exporting list  
   
@@ -85,9 +102,9 @@ export default class Homescreen extends Component {
       var total_page = library.books[i].pages;
       var current_page = library.books[i].current_page;
   
-      var thumbnail = library.books[i].thumbnail; //as base64
-  
-      library_list.push({title: title, pages: total_page, current_page: current_page, thumbnail: thumbnail});
+      var source = library.books[i].source;
+
+      library_list.push({title: title, pages: total_page, current_page: current_page, source: source});
     };
     console.log("Library found with " + library_list.length + ' elements.');
   
@@ -136,12 +153,13 @@ export default class Homescreen extends Component {
       footer={renderItemFooter(info)}
       >
       
-      <Text>
-        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's
-        standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make
-        a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting,
-        remaining essentially unchanged.
-      </Text>
+      <Pdf
+				source={info.item.source}
+        style={{width:Dimensions.get('window').width / 2 * 0.9, height:Dimensions.get('window').height / 4}}
+        singlePage={true}
+        
+      />
+
     </Card>
   );
 
@@ -204,6 +222,7 @@ export default class Homescreen extends Component {
         style={styles.container}
         data={this.state.library}
         renderItem={renderItem}
+        numColumns={2}
       />
 
         </View>
@@ -221,11 +240,13 @@ export default class Homescreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
+    width: Dimensions.get('window').width
   },
-  contentContainer: {
-    paddingHorizontal: 8,
-  },
+
   item: {
-    marginVertical: 4,
+    width: Dimensions.get('window').width / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 1
   },
 });
