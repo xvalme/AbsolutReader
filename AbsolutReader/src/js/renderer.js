@@ -95,19 +95,20 @@ export default class Pdf_Renderer extends Component {
 
 			this.setState((state) => {return {filename: filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') }});
 
+			/* TODO
 			//Loads json if file exists
+			await RNFS.writeFile(chaimager_file_path, '');
+			//Only gets the information from the file if it is not 1st time loading
 
-				//Only gets the information from the file if it is not 1st time loading
-				/*
-				//TODO #6
-				RNFS.readFile(chaimager_file_path, 'utf8').then((json) => {
-					var chaimager_json = JSON.parse(json);
-					this.setState((state) => {return {chaimager: chaimager_json}});
-				},
-				(error) => {				
-					//Chaimager file does not exist
-
-				RNFS.writeFile(chaimager_file_path, '{"ids": []}', 'utf8');}) */
+			RNFS.readFile(chaimager_file_path).then((json) => {
+				console.log(json);
+				var chaimager_json = JSON.parse(json);
+				this.setState((state) => {return {chaimager: chaimager_json}});
+			},
+			(error) => {				
+				//Chaimager file does not exist
+				RNFS.writeFile(chaimager_file_path, '{"ids": [{}]}', 'utf8');
+			}) */
 		
 			//Now that we have the Chaimager json, we need to edit the PDF
 			//Reading the pdf again from filepath:
@@ -333,6 +334,11 @@ export default class Pdf_Renderer extends Component {
 								shadowOpacity: 0.25,
 								shadowRadius: 4,
 								elevation: 5}} >
+					
+					<Image source={require('./../assets/images/logo.jpg')} style={{
+                                                                      width: Dimensions.get('window').width/4,
+																	  height: Dimensions.get('window').width/4,
+                                                                      }} />
 
 					<Text>Chaimager is loading...</Text>
 
