@@ -98,10 +98,11 @@ export default class Homescreen extends Component {
     const path = RNFS.DocumentDirectoryPath; //Main path of the App
   
     const library_json = path + 'library.json';
+
+    var library = {"books": []} //While not loaded
   
     //Loading the json
     var library = await RNFS.readFile(library_json).then(async (json) => {
-      console.log(json);
       
       var library = await JSON.parse(json);
 
