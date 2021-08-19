@@ -24,12 +24,9 @@ export default class Homescreen extends Component {
   load_file = async () => {
     console.log("User is adding a new book");
     var filepath = await this.file_selector();
-    console.log(filepath);
 
     //Adding file to the library:
     this.add_pdf_to_library(filepath);
-
-    //this.props.navigation.navigate('Pdf_renderer', {filepath: filepath});
   };
 
   file_selector = async () => {
@@ -61,9 +58,36 @@ export default class Homescreen extends Component {
 
     var pagenumber = await pdf_pagenumber_getter (filepath);
 
+    var source = {uri: filepath, cache:true};
 
+    var info = {title: title, pages: pagenumber, current_page: 0, source:source};
 
+    var new_library = this.state.library;
+    
+    new_library.push(info);
 
+    this.setState((state) => {return {
+			library: new_library};});
+
+    //Now saving it to the json
+
+    const path = RNFS.DocumentDirectoryPath; //Main path of the App
+  
+    const library_json = path + 'library.json';
+
+    var saving_object = {"books": new_library};
+    var saving_string = JSON.stringify(saving_object)
+
+    await RNFS.unlink(library_json);
+    await RNFS.writeFile(library_json, saving_string, 'utf8');
+    
+    console.log("Added book to library");
+  }
+
+  read_book = async (source) => {
+    var filepath = source.uri;
+
+    this.props.navigation.navigate('Pdf_renderer', {filepath: filepath});
   }
 
   async load_library () {
@@ -76,12 +100,16 @@ export default class Homescreen extends Component {
     const library_json = path + 'library.json';
   
     //Loading the json
-    var library = await RNFS.readFile(library_json).then((json) => {
-      var library = JSON.parse(json);
+    var library = await RNFS.readFile(library_json).then(async (json) => {
+      console.log(json);
+      
+      var library = await JSON.parse(json);
+
       return library;
   
-      }, (err) => {//Json does not exit. Creating one
-        RNFS.writeFile(library_json, '{"books": []}', 'utf8')
+      },async (err) => {//Json does not exit. Creating one
+        console.log('Creating new library.');
+        await RNFS.writeFile(library_json, '{"books": []}', 'utf8')
         .then((success) => {
           var library = JSON.parse('{"books": []}');
           return library;
@@ -90,11 +118,7 @@ export default class Homescreen extends Component {
           console.log(err.message);
         });
     });
-  
-    //4Testing
-    library.books.push({title: "A", pages: 123, current_page: 1,source:{uri:'content://com.android.providers.media.documents/document/document%3A7795',cache:true} });
-    library.books.push({title: "B", pages: 123, current_page: 1,source:{uri:'content://com.android.providers.media.documents/document/document%3A7726',cache:true} });
-  
+
     var library_list = []; //Exporting list  
   
     for (var i = 0; i < library.books.length; i++) {
