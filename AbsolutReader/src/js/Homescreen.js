@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import * as eva from '@eva-design/eva';
 import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon, TopNavigationAction, List, Card} from '@ui-kitten/components';
-import { Image, StyleSheet, SafeAreaView, Dimensions, View, Text} from 'react-native';
+import { Image, StyleSheet, SafeAreaView, Dimensions, View, Text, PermissionsAndroid} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { pdf_pagenumber_getter } from './pdf_tools/pdf_info_getter';
 import Pdf from 'react-native-pdf'; //Rendering
@@ -36,9 +36,10 @@ export default class Homescreen extends Component {
     try {
       const res = await DocumentPicker.pick({
         type: [DocumentPicker.types.pdf],
+        copyTo: "documentDirectory",
       });
   
-      var pdf_path = res.uri;
+      var pdf_path = res.fileCopyUri;
       var name = res.name;
       //Reading imagefile after we have the path
   
@@ -90,16 +91,49 @@ export default class Homescreen extends Component {
   remove_pdf_from_library = async (filepath) => {
   }
 
+  edit_pdf_from_library = async (item) => {
+    //item contains all the information as a object from the library
+  }
+
   read_book = async (source) => {
     var filepath = source.uri;
 
     this.props.navigation.navigate('Pdf_renderer', {filepath: filepath});
   }
 
+  requestStoragePermission = async () => {
+    console.log("Asking user for permissions.");
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: "Read storage permission",
+          message:
+            "AbsolutReader needs to have acess  " +
+            "to your storage to load the e-books",
+          buttonNeutral: "Ask me later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK"
+        }
+      );
+    
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("Granted");
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   async load_library () {
     //Will load the pdf library based on a stored json. Returns an array with the info to render
 
     if (this.state.library_loaded == false){ //Stop from repeating itself to the eternity
+
+    await this.requestStoragePermission();
   
     const path = RNFS.DocumentDirectoryPath; //Main path of the App
   
@@ -162,35 +196,54 @@ export default class Homescreen extends Component {
     <Icon {...props} name='menu'/>
     );
 
+  const DropDownIcon = (props) => (
+    <Icon {...props} name='more-vertical-outline'/>
+  )
+
   const renderMenu = () => (
     <TopNavigationAction icon={MenuIcon}/>
     );
 
-  const renderItemFooter = (info) => (
-    <View>
-        <Text >
-          {info.item.title}
-        </Text>
-        <Text >
-          {info.item.current_page} / {info.item.pages}
-        </Text>
-  </View>
-);
-
   const renderItem = (info) => (
     <Card
       status='basic'
-      style={styles.item}
-      footer={renderItemFooter(info)}
+      style= {{   width: Dimensions.get('window').width / 2,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  margin: 1}}
+                  
+
       onPress={() => {this.read_book(info.item.source)}}
       >
       
+      <View>
       <Pdf
 				source={info.item.source}
-        style={{width:Dimensions.get('window').width / 2 * 0.9, height:Dimensions.get('window').height / 4}}
+        style={{width:Dimensions.get('window').width / 2 * 0.8, height:Dimensions.get('window').height / 4}}
         singlePage={true}
         
       />
+      </View>
+
+          <View>
+            <Text style={{   justifyContent: 'center',
+                             textAlign: 'center',}}>
+                {info.item.title}
+              </Text>
+                <View style={{flexDirection: 'row', alignItems:'center', justifyContent: 'center',}}>
+                      <Text>
+                        {info.item.current_page} / {info.item.pages} Pages
+                      </Text>
+
+                      <Button 
+                      appearance='ghost'
+                      onPress={() => {this.edit_pdf_from_library(info.item)}}
+                      onLongPress={() => {this.edit_pdf_from_library(info.item)}}
+                      accessoryLeft={DropDownIcon}
+                      size='small' />
+
+                 </View>
+          </View>
 
     </Card>
   );
@@ -251,7 +304,6 @@ export default class Homescreen extends Component {
         <View style={{flex: 9}}>
 
           <List
-        style={styles.container}
         data={this.state.library}
         renderItem={renderItem}
         numColumns={2}
@@ -269,16 +321,3 @@ export default class Homescreen extends Component {
   }}
 
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: Dimensions.get('window').width
-  },
-
-  item: {
-    width: Dimensions.get('window').width / 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 1
-  },
-});
