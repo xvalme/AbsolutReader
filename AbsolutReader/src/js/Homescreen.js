@@ -23,10 +23,12 @@ export default class Homescreen extends Component {
   //Loading a new file
   load_file = async () => {
     console.log("User is adding a new book");
-    var filepath = await this.file_selector();
+    var file = await this.file_selector();
+    var filepath = file[0];
+    var filename = file[1];
 
     //Adding file to the library:
-    this.add_pdf_to_library(filepath);
+    this.add_pdf_to_library(filepath, filename);
   };
 
   file_selector = async () => {
@@ -37,9 +39,10 @@ export default class Homescreen extends Component {
       });
   
       var pdf_path = res.uri;
+      var name = res.name;
       //Reading imagefile after we have the path
   
-      return pdf_path;
+      return [pdf_path, name];
   
       } catch (err) {
       if (DocumentPicker.isCancel(err)) {
@@ -50,11 +53,11 @@ export default class Homescreen extends Component {
       }
   }
 
-  add_pdf_to_library = async (filepath) => {
+  add_pdf_to_library = async (filepath, filename) => {
     //Gets information about pdf and adds it to the database
     //Picks up the title, pages, and thumbnail
 
-    var title = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.');
+    var title = filename.split('.').slice(0, -1).join('.');
 
     var pagenumber = await pdf_pagenumber_getter (filepath);
 
@@ -82,6 +85,9 @@ export default class Homescreen extends Component {
     await RNFS.writeFile(library_json, saving_string, 'utf8');
     
     console.log("Added book to library");
+  }
+
+  remove_pdf_from_library = async (filepath) => {
   }
 
   read_book = async (source) => {
@@ -176,6 +182,7 @@ export default class Homescreen extends Component {
       status='basic'
       style={styles.item}
       footer={renderItemFooter(info)}
+      onPress={() => {this.read_book(info.item.source)}}
       >
       
       <Pdf
