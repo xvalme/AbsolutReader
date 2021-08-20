@@ -314,6 +314,7 @@ export default class Pdf_Renderer extends Component {
 		<Modal 
 			animationType="slide"
 			transparent={true}
+			onRequestClose={() => {this.props.navigation.navigate('Homescreen')}}
 			visible={this.state.chaimager_loading}>
 			
 			<View style = {{flex: 1,
@@ -335,7 +336,7 @@ export default class Pdf_Renderer extends Component {
 								shadowRadius: 4,
 								elevation: 5}} >
 					
-					<Image source={require('./../assets/images/logo.jpg')} style={{
+					<Image source={require('./../assets/images/logo.png')} style={{
                                                                       width: Dimensions.get('window').width/4,
 																	  height: Dimensions.get('window').width/4,
                                                                       }} />

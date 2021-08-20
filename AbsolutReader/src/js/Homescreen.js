@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon, TopNavigationAction, List, Card} from '@ui-kitten/components';
+import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon, TopNavigationAction, List, Card, Modal} from '@ui-kitten/components';
 import { Image, StyleSheet, SafeAreaView, Dimensions, View, Text, PermissionsAndroid} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { pdf_pagenumber_getter } from './pdf_tools/pdf_info_getter';
@@ -17,7 +17,9 @@ export default class Homescreen extends Component {
     this.version = app_package["version"];
 
     this.state={library: [],
-                library_loaded: false}
+                library_loaded: false,
+                edit_modal_visible: false,
+                edit_modal_info: {}}
   }
 
   //Loading a new file
@@ -88,11 +90,33 @@ export default class Homescreen extends Component {
     console.log("Added book to library");
   }
 
-  remove_pdf_from_library = async (filepath) => {
-  }
+  remove_pdf_from_library = async () => {
+    var info = this.state.edit_modal_info;
 
-  edit_pdf_from_library = async (item) => {
-    //item contains all the information as a object from the library
+    var library = this.state.library;
+
+    for (let i = 0; i < library.length; i++){
+      //Locating book in library list
+      if (library[i].source == info.source){
+
+        var index = i;
+
+        library.splice(index, 1);
+
+        {this.setState((state) => {return {
+          edit_modal_visible: false}
+          ;}
+        );
+        }
+
+        //Now editing the .json file to save the changes:
+
+        //Also deleting the corresponding .json file
+
+      }
+
+
+    }
   }
 
   read_book = async (source) => {
@@ -118,7 +142,6 @@ export default class Homescreen extends Component {
       );
     
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log("Granted");
         return true;
       } else {
         return false;
@@ -185,8 +208,9 @@ export default class Homescreen extends Component {
   render() {
   this.load_library(); //Loading the library. Async function.
 
+  //Icons and images:
   const render_top_logo = () => (
-    <Image source={require('./../assets/images/logo.jpg')} style={{
+    <Image source={require('./../assets/images/logo.png')} style={{
       width: Dimensions.get('window').height/12*0.7,
     height: Dimensions.get('window').height/12*0.7,
       }} />
@@ -200,6 +224,10 @@ export default class Homescreen extends Component {
     <Icon {...props} name='more-vertical-outline'/>
   )
 
+  const CloseIcon = (props) => (
+    <Icon {...props} name='close'/>
+  );
+  //Rendering things
   const renderMenu = () => (
     <TopNavigationAction icon={MenuIcon}/>
     );
@@ -214,6 +242,7 @@ export default class Homescreen extends Component {
                   
 
       onPress={() => {this.read_book(info.item.source)}}
+      onLongPress={() => {renderDropDown(info.item)}}
       >
       
       <View>
@@ -237,8 +266,7 @@ export default class Homescreen extends Component {
 
                       <Button 
                       appearance='ghost'
-                      onPress={() => {this.edit_pdf_from_library(info.item)}}
-                      onLongPress={() => {this.edit_pdf_from_library(info.item)}}
+                      onPress={() => {renderDropDown(info.item)}}
                       accessoryLeft={DropDownIcon}
                       size='small' />
 
@@ -247,6 +275,14 @@ export default class Homescreen extends Component {
 
     </Card>
   );
+
+  const renderDropDown = async (info) => {
+    await this.setState((state) => {return {
+        edit_modal_visible: true,
+        edit_modal_info: info}
+          ;}
+    );
+  };
 
   if (this.state.library_loaded == false) { //Is still loading the library
     return (
@@ -287,7 +323,76 @@ export default class Homescreen extends Component {
   return (
     <SafeAreaView style={{ flex: 1 }}>
 
-      
+    <Modal 
+			animationType="slide"
+			transparent={true}
+			onRequestClose={() => {this.setState((state) => {return {
+                                                        edit_modal_visible: false}
+                                                        ;}
+                                            );
+                              }
+                      }
+			visible={this.state.edit_modal_visible}>
+
+			<View style = {{flex: 1,
+						justifyContent: "center",
+						alignItems: "center"
+						}}>
+			
+				<View style = {{margin: 20,
+								backgroundColor: "white",
+								borderRadius: 20,
+								padding: 35,
+								alignItems: "center",
+								shadowColor: "#000",
+								shadowOffset: {
+								width: 0,
+								height: 2
+								},
+								shadowOpacity: 0.25,
+								shadowRadius: 4,
+								elevation: 5}} >
+
+            <View style={{alignSelf: 'flex-end'}}>
+              <Button accessoryLeft={CloseIcon} appearance='ghost' size='giant' status='basic'
+                      onPress={() => {this.setState((state) => {return {
+                        edit_modal_visible: false}
+                        ;} );}} />
+            </View>
+					
+              <Pdf
+            source={this.state.edit_modal_info.source}
+            style={{width:Dimensions.get('window').width / 2 * 0.8, height:Dimensions.get('window').height / 4}}
+            singlePage={true}
+            
+          />
+
+          <Text>{this.state.edit_modal_info.title}</Text>
+
+          <View style={{margin:Dimensions.get('window').width/50}}>
+            <Button title='Remove book from library'
+            onPress={() => {this.remove_pdf_from_library()}} 
+            style={{margin: 2 ,width: Dimensions.get('window').width * 0.8}}
+            status='danger'>Remove book from library</Button>
+
+            <Button title='Info about book' 
+            style={{margin: 2, width: Dimensions.get('window').width * 0.8}}
+            status='success'
+            >Info about the book</Button>
+
+            <Button title='Share Chaimager file' 
+            style={{margin: 2, width: Dimensions.get('window').width * 0.8}}
+            status='basic'
+            >Share Chaimager file</Button>
+          </View>
+
+				</View>
+
+			</View>
+
+
+	</Modal>
+ 
 		<TopNavigation style={{height:Dimensions.get('window').height / 12}}
 						alignment='center'
 						title='Absolut Reader'
