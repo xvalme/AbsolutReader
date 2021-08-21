@@ -23,7 +23,7 @@ export default class Pdf_Renderer extends Component {
 		this.state = {chaimager: {"ids": [{}]}, 
 					chaimager_loaded: false, 
 					source:{uri:props.route.params["filepath"],cache:true},
-					filepath:'', //Added after PDF is loaded
+					filepath:props.route.params["filepath"], //Added after PDF is loaded
 					filename:'', //Added after PDF is loaded
 					//Modals:
 					chaimager_loading: false,
@@ -80,10 +80,6 @@ export default class Pdf_Renderer extends Component {
 		//Checks if there is a chaimager file and, if not, creates one.
 		//Updates chaimager inside of this.state with the values that got
 		//and updates the PDF
-
-		//Where file is stored
-		this.setState((state) => {return {
-			filepath: filepath};});
 
 		//Runs only if not already loaded:
 		if (this.state.chaimager_loaded == false) {
@@ -176,6 +172,38 @@ export default class Pdf_Renderer extends Component {
 		};
 		console.log("Chaimager reloaded"); 
 		this.setState((state) => {return {chaimager_loading: false}});
+
+	}
+
+	async update_page_homescreen (page) {
+		//Updates the homescreen value of the pages read when user starts new page
+
+		const filepath = this.state.filepath;
+
+		const path = RNFS.DocumentDirectoryPath; //Main path of the App
+      
+		const library_json = path + 'library.json';
+
+		var json = await RNFS.readFile(library_json);
+		var library = await JSON.parse(json);
+
+		for (var i = 0; i<library.books.length; i++){
+			
+			//Finding the right book
+
+			if (library.books[i].source.uri == filepath) {
+				
+				//Now editing the file
+				library.books[i].current_page = page;
+
+			}
+		}
+
+		//Now saving file:
+		var saving_library = JSON.stringify(library);
+
+		await RNFS.unlink(library_json);
+		await RNFS.writeFile(library_json, saving_library, 'utf8');
 
 	}
 
@@ -538,7 +566,7 @@ export default class Pdf_Renderer extends Component {
 					this.load_chaimager(filePath);
 				}}
 				onPageChanged={(page,numberOfPages)=>{
-					console.log(`current page: ${page}`);
+					this.update_page_homescreen(page);
 				}}
 
 				onError={(error)=>{
