@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon, TopNavigationAction, List, Card, Modal} from '@ui-kitten/components';
-import { Image, StyleSheet, SafeAreaView, Dimensions, View, Text, PermissionsAndroid} from 'react-native';
+import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card, Modal} from '@ui-kitten/components';
+import { Image, StyleSheet, SafeAreaView, Dimensions, View, PermissionsAndroid} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { pdf_pagenumber_getter } from './pdf_tools/pdf_info_getter';
 import Pdf from 'react-native-pdf'; //Rendering
@@ -19,7 +19,8 @@ export default class Homescreen extends Component {
     this.state={library: [],
                 library_loaded: false,
                 edit_modal_visible: false,
-                edit_modal_info: {}}
+                edit_modal_info: {},
+                welcome_modal_visible: true}
   }
 
   //Loading a new file
@@ -91,6 +92,8 @@ export default class Homescreen extends Component {
   }
 
   remove_pdf_from_library = async () => {
+    //Deletes pdf from library but the chaimager file will persist.
+
     var info = this.state.edit_modal_info;
 
     var library = this.state.library;
@@ -111,7 +114,15 @@ export default class Homescreen extends Component {
 
         //Now editing the .json file to save the changes:
 
-        //Also deleting the corresponding .json file
+    const path = RNFS.DocumentDirectoryPath; //Main path of the App
+      
+    const library_json = path + 'library.json';
+
+    var saving_object = {"books": this.state.library};
+    var saving_string = JSON.stringify(saving_object)
+
+    await RNFS.unlink(library_json);
+    await RNFS.writeFile(library_json, saving_string, 'utf8');
 
       }
 
@@ -393,6 +404,55 @@ export default class Homescreen extends Component {
 
 	</Modal>
  
+    <Modal 
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {this.setState((state) => {return {
+                                                          welcome_modal_visible: false}
+                                                          ;}
+                                              );
+                                }
+                        }
+        visible={this.state.welcome_modal_visible}>
+
+        <View style = {{flex: 1,
+              justifyContent: "center",
+              alignItems: "center"
+              }}>
+        
+          <View style = {{margin: 20,
+                  backgroundColor: "white",
+                  borderRadius: 20,
+                  padding: 35,
+                  alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOffset: {
+                  width: 0,
+                  height: 2
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 4,
+                  elevation: 5}} >
+
+          
+            <View>
+                <Text style={{textAlign:'center'}}>Welcome back!</Text>
+                
+                
+                <Button accessoryLeft={CloseIcon} appearance='outline' size='small' status='danger'
+                        onPress={() => {this.setState((state) => {return {
+                          welcome_modal_visible: false}
+                          ;} );}} />
+            </View>
+
+          </View>
+
+        </View>
+
+
+    </Modal>
+  
+
 		<TopNavigation style={{height:Dimensions.get('window').height / 12}}
 						alignment='center'
 						title='Absolut Reader'
