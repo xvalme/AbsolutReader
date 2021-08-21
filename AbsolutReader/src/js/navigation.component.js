@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import  Homescreen  from './Homescreen';
 import  Pdf_renderer  from './renderer';
+import Settings from './settings';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -13,6 +14,7 @@ export const AppNavigator = () => (
 
       <Screen name='Homescreen' component={Homescreen} />
       <Screen name='Pdf_renderer' component={Pdf_renderer}/>
+      <Screen name='Settings' component={Settings} />
       
     
     </Navigator>

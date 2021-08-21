@@ -240,7 +240,7 @@ export default class Homescreen extends Component {
   );
   //Rendering things
   const renderMenu = () => (
-    <TopNavigationAction icon={MenuIcon}/>
+    <TopNavigationAction icon={MenuIcon} onPress={() => {this.props.navigation.navigate('Settings');}}/>
     );
 
   const renderItem = (info) => (
