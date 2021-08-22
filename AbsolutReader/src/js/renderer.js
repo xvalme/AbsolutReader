@@ -25,6 +25,8 @@ export default class Pdf_Renderer extends Component {
 					source:{uri:props.route.params["filepath"],cache:true},
 					filepath:props.route.params["filepath"], //Added after PDF is loaded
 					filename:'', //Added after PDF is loaded
+					//Rendering chaimager stage. Value from 0 to 100;
+					chaimager_stage:0,
 					//Modals:
 					chaimager_loading: false,
 					chaimager_popup_visible: false,
