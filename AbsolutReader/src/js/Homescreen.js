@@ -130,10 +130,10 @@ export default class Homescreen extends Component {
     }
   }
 
-  read_book = async (source) => {
+  read_book = async (source, page) => {
     var filepath = source.uri;
 
-    this.props.navigation.navigate('Pdf_renderer', {filepath: filepath});
+    this.props.navigation.navigate('Pdf_renderer', {filepath: filepath, current_page: page});
   }
 
   requestStoragePermission = async () => {
@@ -252,7 +252,7 @@ export default class Homescreen extends Component {
                   margin: 1}}
                   
 
-      onPress={() => {this.read_book(info.item.source)}}
+      onPress={() => {this.read_book(info.item.source, info.item.current_page)}}
       onLongPress={() => {renderDropDown(info.item)}}
       >
       
