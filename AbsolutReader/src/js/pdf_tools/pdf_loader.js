@@ -2,25 +2,19 @@ import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
 import { encodeToBase64, PDFDocument, PDFName, PDFString, PDFArray, rgb } from "pdf-lib"; //Adding links
 
-export async function pdf_loader (pdfDoc, keywords, color, no_chaimager=false){
+export async function pdf_loader (pdfDoc, keywords, color){
 
-    if (no_chaimager == false){
+    console.log("Initiating the chaimager pdf_loader.")
+    var coords = await get_pdf_coordinates(pdfDoc, keywords); //We get the coords array
+    console.log("Pdf cordinates of expressions gotten.")
 
-        var coords = await get_pdf_coordinates(pdfDoc, keywords); //We get the coords array
+    var base64_pdf = await make_links(pdfDoc, keywords, coords, color);
+    console.log("Pdf links of expressions made. Pdf edited.")
 
-        var base64_pdf = await make_links(pdfDoc, keywords, coords, color);
+    var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
+    
+    return {new_source: new_source, base64_pdf: base64_pdf};}
 
-        var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
-        
-        return {new_source: new_source, base64_pdf: base64_pdf};}
-
-    else {
-        //No chaimager characters.We only want the base64 
-        var base64_pdf = await make_links(pdfDoc, 'efbuwehuasakm918981313adsa0das2e02', 0);
-        var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
-
-        return {new_source: new_source, base64_pdf: base64_pdf};}
-    }
 
 async function get_pdf_coordinates (pdfDoc, keywords){
 
@@ -36,7 +30,7 @@ async function get_pdf_coordinates (pdfDoc, keywords){
 
     const loadingTask = pdfjsLib.getDocument({data: pdfDoc});  //Conversts base64 to something pdfjs understands
 	
-    const doc = await loadingTask.promise
+    const doc = await loadingTask.promise;
 
     var numPages = doc.numPages;
 
@@ -58,6 +52,7 @@ async function get_pdf_coordinates (pdfDoc, keywords){
                 var text = items[p]["str"];
 
                 var coords = calculate_coords(i, transform, width, height, text, keywords);
+                //sends the page, transform with the x and y elements, size, the complete sentence and the keywords we want in a array.
 
                 for (const v of coords) {
                     coords_array.push(v);

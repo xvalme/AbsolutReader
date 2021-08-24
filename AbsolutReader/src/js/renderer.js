@@ -3,7 +3,6 @@ import Pdf from 'react-native-pdf'; //Rendering
 import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput} from 'react-native';
 import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem} from '@ui-kitten/components';
 import {pdf_loader} from './pdf_tools/pdf_loader';
-import { IndexOutOfBoundsError } from 'pdf-lib';
 import ColorPicker from 'react-native-wheel-color-picker'
 import DocumentPicker from 'react-native-document-picker';
 
@@ -259,14 +258,30 @@ export default class Pdf_Renderer extends Component {
 	
 	chaimager_cache_save () {
 		//Ads new information to json and reset chaimager cache
-		console.log("Saving new character");
+		console.log("Saving character");
 
 		var name = this.state.chaimager_name_cache;
 		var bio = this.state.chaimager_bio_cache;
 		var color = this.state.chaimager_color_cache;
 		var image = this.state.chaimager_image_cache;
 
-		this.state.chaimager["ids"].push({name: name, bio:bio, color:color, image:image});
+		var editing = false
+
+		//Checks if name already exists, and, if yes, edit it instead of adding it.
+		for (let i=0; i<this.state.chaimager.length - 1; i++) {
+			if (this.state.chaimager[i].name == name){
+				//Only editing
+				this.state.chaimager[i].name = name;
+				this.state.chaimager[i].bio = bio;
+				this.state.chaimager[i].color = color;
+				this.state.chaimager[i].image = image;
+
+				editing = true;
+			}
+		}
+
+		if (editing == false){
+		this.state.chaimager["ids"].push({name: name, bio:bio, color:color, image:image}); }
 
 		//Making the modal invisible and preparing to relaod chaimager:
 		this.setState((state) => {return {chaimager_adder_popup_visible: false }});
@@ -281,6 +296,21 @@ export default class Pdf_Renderer extends Component {
 		//Reloading chaimager
 		this.re_load_chaimager();
 		
+	}
+
+	chaimager_edit (info) {
+		//When the user requests to change a character.
+		
+		//Preparing edit modal variables:
+		this.chaimager_cache_bio(info.bio);
+		this.chaimager_cache_name(info.name);
+		this.chaimager_chache_color(info.color);
+		this.setState((state) => {return {chaimager_image_cache: info.image}});
+
+		//Making modal visible
+
+		this.setState((state) => {return {chaimager_adder_popup_visible: true}});		
+
 	}
 
 	render(){
@@ -328,6 +358,31 @@ export default class Pdf_Renderer extends Component {
 	<TopNavigationAction icon={BackIcon}/>
 	);
 
+	const renderChaimagerList = (info) => (
+		<Card
+		  status='basic'
+		  style= {{   width: Dimensions.get('window').width * 0.9,
+					  justifyContent: 'center',
+					  alignItems: 'center',
+					  margin: 1}}
+					  
+		  >
+
+			  <Text style={{alignSelf='center'}}>
+				Chaimager list of characters.
+			  </Text>
+		  
+		  <View style={{flexDirection='row'}}>
+
+			<Text>{info.item.name}</Text>
+			<Image source={info.item.image} />
+
+		  </View>
+
+	
+		</Card>
+	  );
+	
 	return (
 
 	<SafeAreaView style={{ flex: 1 }}>
@@ -409,9 +464,10 @@ export default class Pdf_Renderer extends Component {
 								shadowRadius: 4,
 								elevation: 5}} >
 
-					<List>
-
-					</List>
+					<List 
+						data={this.state.chaimager}
+						renderItem={renderChaimagerList}
+						numColumns={1}/>
 
 				</View>
 
@@ -509,11 +565,13 @@ export default class Pdf_Renderer extends Component {
 
 					<View>
 						<TextInput placeholder="Keywords to find"
+									defaultValue={this.state.chaimager_name_cache}
 									textAlign={'center'}
 									onChangeText={(text) => this.chaimager_cache_name(text)}/>
 									
 
 						<TextInput	placeholder= "Small biography (max 4 lines)"
+									defaultValue={this.state.chaimager_bio_cache}
 									textAlign={'center'}
 									numberOfLines={4}
 									multiline={true}
