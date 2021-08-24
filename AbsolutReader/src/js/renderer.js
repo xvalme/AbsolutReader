@@ -117,16 +117,10 @@ export default class Pdf_Renderer extends Component {
 
 			var PdfDoc = base64js.toByteArray(base64_pdf); //PDF as byte array so pdf.js library can understand it
 
-			for (var i = 0; i < this.state.chaimager["ids"].length; i++) {
+			//Calling our function to add the links
+			var pdf_source = await this.pdf_loader(PdfDoc, this.state.chaimager);
 
-				var name = this.state.chaimager["ids"][i]["name"];
-				var color = this.state.chaimager.ids[i].color;
-				
-				//Calling our function to add the links
-				var pdf_source = await this.pdf_loader(PdfDoc, name, color);
-
-				var PdfDoc = base64js.toByteArray(pdf_source["base64_pdf"]);
-			};
+			var PdfDoc = base64js.toByteArray(pdf_source["base64_pdf"]);
 			
 			//Now we change the source for this. Note that the edited file is not stored on the local filesystem,
 			//rather in the RAM, so the original PDF stays unedited, which is good
@@ -247,7 +241,10 @@ export default class Pdf_Renderer extends Component {
 		
 	}
 
-	async pdf_loader (pdfDoc, keywords, color){
+	async pdf_loader (pdfDoc, keywords){
+
+		//Keywords as ana array of objects with name and color keys
+		//Ex: [{name:"Antunes", color:"#FFFFFF"}]
 
 		async function get_pdf_coordinates (pdfDoc, keywords){
 	
@@ -280,20 +277,23 @@ export default class Pdf_Renderer extends Component {
 				var items = (content["items"]);
 		
 				for (let p = 0; p < items.length; p++){
+
+					for (let z = 0; z < keywords.length; z++){
 		
-					if (items[p]["str"].includes(keywords)){
-		
-						var transform = items[p]["transform"];
-						var width = items[p]["width"];
-						var height = items[p]["height"];
-						var text = items[p]["str"];
-		
-						var coords = calculate_coords(i, transform, width, height, text, keywords);
-						//sends the page, transform with the x and y elements, size, the complete sentence and the keywords we want in a array.
-		
-						for (const v of coords) {
-							coords_array.push(v);
-						};
+						if (items[p]["str"].includes(keywords[z].name)){
+			
+							var transform = items[p]["transform"];
+							var width = items[p]["width"];
+							var height = items[p]["height"];
+							var text = items[p]["str"];
+			
+							var coords = calculate_coords(i, transform, width, height, text, keywords[z].name, keywords[z].color);
+							//sends the page, transform with the x and y elements, size, the complete sentence and the keywords we want in a array.
+			
+							for (const v of coords) {
+								coords_array.push(v);
+							};
+						}
 		
 											
 					}
@@ -302,7 +302,7 @@ export default class Pdf_Renderer extends Component {
 			return coords_array;
 		}  
 
-		function calculate_coords (page, transform, width, height, text, keywords){
+		function calculate_coords (page, transform, width, height, text, keywords, color){
 	
 			//Size (x coordinate system) of each letter
 			var len_of_charachter = width / text.length;
@@ -331,22 +331,23 @@ export default class Pdf_Renderer extends Component {
 		
 				var right_x = x + (keywords.length * len_of_charachter); 
 		
-				coords.push({page:page, x: x, y:y, right_x:right_x, right_y: right_y}); };
+				coords.push({page:page, x: x, y:y, right_x:right_x, right_y: right_y, color:color, keywords:keywords}); };
 			
 			return (coords);
 		}
 		
-		async function make_links (pdfDoc, id, array_coordinate_dic, color) {
+		async function make_links (pdfDoc, array_coordinate_dic) {
 		
 			var pdfDoc = await PDFDocument.load(pdfDoc, {ignoreEncryption: true});
 			//TODO #5
-			rgb_color = hexToRgb(color);
 		
 			const pages = await pdfDoc.getPages();
 
 			absolut_unit = 50 / array_coordinate_dic.length;
 		
 			for (let i = 0; i < array_coordinate_dic.length; i++){
+				var rgb_color = hexToRgb(array_coordinate_dic[i].color);
+				var id = array_coordinate_dic[i].name;
 
 				this.setState((state) => {return {chaimager_stage: 50 + absolut_unit * i}});
 		
@@ -415,7 +416,7 @@ export default class Pdf_Renderer extends Component {
 		//half work is done
 		this.setState((state) => {return {chaimager_stage: 50}});
 	
-		var base64_pdf = await make_links(pdfDoc, keywords, coords, color);
+		var base64_pdf = await make_links(pdfDoc, coords);
 		console.log("Pdf links of expressions made. Pdf edited.")
 	
 		var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
@@ -576,6 +577,14 @@ export default class Pdf_Renderer extends Component {
 						accessoryRight={renderRightActions}/>
 
 		<Divider />
+
+		<View
+			style={{
+				borderBottomColor: 'blue',
+				borderBottomWidth: 1,
+				width: Dimensions.get('window').height * this.state.chaimager_stage / 100 
+			}}
+			/>
 
 		<Modal 
 			animationType="slide"
