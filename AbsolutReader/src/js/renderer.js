@@ -266,8 +266,12 @@ export default class Pdf_Renderer extends Component {
 			const doc = await loadingTask.promise;
 		
 			var numPages = doc.numPages;
+
+			var absolut_unit = 50 / numPages;
 		
 			for (let i = 1; i <= numPages; i++){
+
+				this.setState((state) => {return {chaimager_stage: absolut_unit * i}});
 		
 				page = await doc.getPage(i);
 		
@@ -339,8 +343,12 @@ export default class Pdf_Renderer extends Component {
 			rgb_color = hexToRgb(color);
 		
 			const pages = await pdfDoc.getPages();
+
+			absolut_unit = 50 / array_coordinate_dic.length;
 		
 			for (let i = 0; i < array_coordinate_dic.length; i++){
+
+				this.setState((state) => {return {chaimager_stage: 50 + absolut_unit * i}});
 		
 				var page_number = array_coordinate_dic[i]["page"];
 		
@@ -403,11 +411,17 @@ export default class Pdf_Renderer extends Component {
 		console.log("Initiating the chaimager pdf_loader.")
 		var coords = await get_pdf_coordinates(pdfDoc, keywords); //We get the coords array
 		console.log("Pdf cordinates of expressions gotten.")
+
+		//half work is done
+		this.setState((state) => {return {chaimager_stage: 50}});
 	
 		var base64_pdf = await make_links(pdfDoc, keywords, coords, color);
 		console.log("Pdf links of expressions made. Pdf edited.")
 	
 		var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
+
+		//Loading completed.
+		this.setState((state) => {return {chaimager_stage: 100}});
 		
 		return {new_source: new_source, base64_pdf: base64_pdf};}
 
