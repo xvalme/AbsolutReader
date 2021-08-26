@@ -22,7 +22,25 @@ export default class Homescreen extends Component {
                 edit_modal_info: {},
                 welcome_modal_visible: true}
   }
+  
+  async load_welcome_page () {
+		//Gets the info from the website
 
+		try {
+		var response = await fetch('https://absolutreader.works/api/welcome_page');
+
+		var json = await response.json(); }
+
+		catch { //No internet connection or server error.
+
+		var json = {title: "Welcome back",
+					text: "Consider making a donation"}
+		}
+
+		this.setState((state) => {return {welcome_page: json}});
+
+
+	} 
   //Loading a new file
   load_file = async () => {
     console.log("User is adding a new book");

@@ -1,0 +1,30 @@
+.add {
+  background: #282828;
+  padding: 50px;
+  font-size: 18px;
+  color: #fff;
+  border: none;
+  border-radius: 300px;
+  display: block;
+  margin: auto;
+  margin-top: 50px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 50px;
+}
+
+.add:hover {
+  background: #ffffff;
+  padding: 50px;
+  font-size: 18px;
+  color: #000000;
+  border: none;
+  border-radius: 300px;
+  display: block;
+  margin: auto;
+  margin-top: 50px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 50px;
+}
+
