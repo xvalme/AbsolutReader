@@ -20,7 +20,8 @@ export default class Homescreen extends Component {
                 library_loaded: false,
                 edit_modal_visible: false,
                 edit_modal_info: {},
-                welcome_modal_visible: true}
+                welcome_modal_visible: true,
+                }
   }
   
   async load_welcome_page () {
@@ -150,7 +151,7 @@ export default class Homescreen extends Component {
 
   read_book = async (source, page) => {
     var filepath = source.uri;
-
+    
     this.props.navigation.navigate('Pdf_renderer', {filepath: filepath, current_page: page});
   }
 
@@ -183,7 +184,15 @@ export default class Homescreen extends Component {
   async load_library () {
     //Will load the pdf library based on a stored json. Returns an array with the info to render
 
-    if (this.state.library_loaded == false){ //Stop from repeating itself to the eternity
+    try {
+      var back = this.props.route.params["back_action"];
+    }
+    catch (e) {
+      var back = false;
+    }
+
+    if (this.state.library_loaded == false || back == true){ //Stop from repeating itself to the eternity
+      //Also loads if returns from the render
 
     await this.requestStoragePermission();
   
@@ -230,6 +239,8 @@ export default class Homescreen extends Component {
     this.setState((state) => {return {
       library: library_list,
       library_loaded: true};});
+
+      this.props.route.params["back_action"] = false; //So that it does not repeat itself to the end of the universe
 
     return library_list; }
   }
@@ -350,7 +361,7 @@ export default class Homescreen extends Component {
   else {
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }} >
 
     <Modal 
 			animationType="slide"
