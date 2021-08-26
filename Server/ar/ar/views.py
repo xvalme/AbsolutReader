@@ -5,4 +5,4 @@ def index (request):
     return render (request, "index.html")
 
 def contribute (request):
-    return 0
+    return render (request, "contribute.html")

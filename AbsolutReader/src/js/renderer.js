@@ -122,6 +122,10 @@ export default class Pdf_Renderer extends Component {
 			//Now that we have the Chaimager json, we need to edit the PDF
 			//Reading the pdf again from filepath:
 
+			this.setState((state) => {return {
+				chaimager_stage: 0
+				}});
+
 			var base64_pdf = await RNFS.readFile(filepath, 'base64');
 
 			var pdfDoc = base64js.toByteArray(base64_pdf); //PDF as byte array so pdf.js library can understand it
@@ -156,7 +160,6 @@ export default class Pdf_Renderer extends Component {
 					var absolut_unit = 50 / numPages;
 				
 					for (let i = 1; i <= numPages; i++){
-	
 				
 						var page = await doc.getPage(i);
 				
@@ -191,7 +194,7 @@ export default class Pdf_Renderer extends Component {
 				}  
 
 			var array_coordinate_dic = await get_pdf_coordinates (pdfDoc, keywords);
-			
+
 			async function make_links(pdfDoc, array_coordinate_dic) {
 
 				if (array_coordinate_dic != 0) { //Empty. No characters.
