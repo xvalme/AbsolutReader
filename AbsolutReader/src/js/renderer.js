@@ -102,22 +102,32 @@ export default class Pdf_Renderer extends Component {
 			const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
 			const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name; //TODO #1
 
-			this.setState((state) => {return {filename: filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') }});
+			this.setState((state) => {return {filename: filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.'),
+											chaimager_file_path: chaimager_file_path }});
 
-			/* TODO
-			//Loads json if file exists
-			await RNFS.writeFile(chaimager_file_path, '');
-			//Only gets the information from the file if it is not 1st time loading
 
-			RNFS.readFile(chaimager_file_path).then((json) => {
-				console.log(json);
-				var chaimager_json = JSON.parse(json);
-				this.setState((state) => {return {chaimager: chaimager_json}});
-			},
-			(error) => {				
-				//Chaimager file does not exist
-				RNFS.writeFile(chaimager_file_path, '{"ids": [{}]}', 'utf8');
-			}) */
+			//Loads json
+			var chaimager_exists = await RNFS.exists(chaimager_file_path);
+
+			var chaimager_folder_exists = await RNFS.exists(this.path + '/chaimager_files/');
+
+			if (chaimager_folder_exists == false) {
+				await RNFS.mkdir(this.path + '/chaimager_files/');
+			}
+
+			if (chaimager_exists == true) {
+
+				var json = await RNFS.readFile(chaimager_file_path);
+
+				var chaimager_json = await JSON.parse(json);
+
+				await this.setState((state) => {return {chaimager: chaimager_json}}); }
+
+			else {
+				
+				await RNFS.writeFile(chaimager_file_path, '{"ids": [{}]}', 'utf8');
+				console.log("Created new chaimager file.");
+			}
 		
 			//Now that we have the Chaimager json, we need to edit the PDF
 			//Reading the pdf again from filepath:
@@ -139,6 +149,7 @@ export default class Pdf_Renderer extends Component {
 
 			console.log("Initiating the chaimager pdf_loader.");
 
+			var parent = this; //For changing state inside of these functions:
 			async function get_pdf_coordinates (pdfDoc, keywords){
 			
 					/*Given a file (Already opened by fs), it uses Pdfjs library to get the coordinates of the keywords
@@ -160,7 +171,11 @@ export default class Pdf_Renderer extends Component {
 					var absolut_unit = 50 / numPages;
 				
 					for (let i = 1; i <= numPages; i++){
-				
+
+						await parent.setState((state) => {return {
+							chaimager_stage: i * absolut_unit
+							}});
+
 						var page = await doc.getPage(i);
 				
 						var content = await page.getTextContent();
@@ -206,6 +221,10 @@ export default class Pdf_Renderer extends Component {
 					var absolut_unit = 50 / array_coordinate_dic.length;
 
 					for (let i = 0; i < array_coordinate_dic.length; i++) {
+						await parent.setState((state) => {return {
+							chaimager_stage: i * absolut_unit + 50
+							}});
+
 						var rgb_color = hexToRgb(array_coordinate_dic[i].color);
 						var id = array_coordinate_dic[i].name;
 
@@ -265,7 +284,15 @@ export default class Pdf_Renderer extends Component {
 				}
 			}
 
+			await parent.setState((state) => {console.log(parent.state.chaimager_stage); return {
+				chaimager_stage: 50
+				}});
+
 			var base64_pdf =  await make_links(pdfDoc, array_coordinate_dic);
+
+			await parent.setState((state) => {console.log(parent.state.chaimager_stage); return {
+				chaimager_stage: 100
+				}});
 
 			console.log("Pdf links of expressions made. Pdf edited.");
 			
@@ -315,7 +342,6 @@ export default class Pdf_Renderer extends Component {
 			var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
 	
 			//Loading completed.
-			this.setState((state) => {return {chaimager_stage: 100}});
 
 			var pdfDoc = base64js.toByteArray(base64_pdf);
 			
@@ -439,8 +465,6 @@ export default class Pdf_Renderer extends Component {
 		if (editing == false){
 		this.state.chaimager["ids"].push({name: name, bio:bio, color:color, image:image}); }
 
-		//Making the modal invisible and preparing to relaod chaimager:
-
 		//Reseting cache:
 		await this.setState((state) => {return {chaimager_loaded: false,
 		chaimager_adder_popup_visible: false,
@@ -451,8 +475,14 @@ export default class Pdf_Renderer extends Component {
 		};});
 
 		//Reloading chaimager
-		console.log("Reloading chaimager");
 		this.load_chaimager(this.state.filepath);
+
+		//Saving edits to file TODO #7
+
+		await RNFS.unlink(this.state.chaimager_file_path);
+		await RNFS.writeFile(this.state.chaimager_file_path, JSON.stringify(this.state.chaimager), 'utf8');
+
+		console.log("New character saved");
 		
 	}
 
@@ -553,7 +583,7 @@ export default class Pdf_Renderer extends Component {
 						accessoryRight={renderRightActions}/>
 
 		<Divider />
-
+		
 		<View
 			style={{ 
 				borderBottomColor: 'blue',
