@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Pdf from 'react-native-pdf'; //Rendering
 import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput, BackHandler} from 'react-native';
-import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem} from '@ui-kitten/components';
+import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem, Card} from '@ui-kitten/components';
 import ColorPicker from 'react-native-wheel-color-picker'
 import DocumentPicker from 'react-native-document-picker';
 import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
@@ -553,17 +553,12 @@ export default class Pdf_Renderer extends Component {
 					  justifyContent: 'center',
 					  alignItems: 'center',
 					  margin: 1}}
-					  
 		  >
-
-			  <Text style={{alignSelf:'center'}}>
-				Chaimager list of characters.
-			  </Text>
 		  
 		  <View style={{flexDirection:'row'}}>
 
 			<Text>{info.item.name}</Text>
-			<Image source={info.item.image} />
+			<Image height={10} width={10} source={info.item.image} />
 
 		  </View>
 
@@ -621,8 +616,10 @@ export default class Pdf_Renderer extends Component {
 								shadowRadius: 4,
 								elevation: 5}} >
 
+					<Text>Chaimager list of characters</Text>
+
 					<List 
-						data={this.state.chaimager}
+						data={this.state.chaimager.ids}
 						renderItem={renderChaimagerList}
 						numColumns={1}/>
 
