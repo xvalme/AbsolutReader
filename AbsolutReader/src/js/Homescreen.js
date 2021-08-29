@@ -16,6 +16,8 @@ export default class Homescreen extends Component {
     var app_package = require('./../../package.json');
     this.version = app_package["version"];
 
+    this.path = RNFS.DocumentDirectoryPath; //Main path of app
+
     this.state={library: [],
                 library_loaded: false,
                 edit_modal_visible: false,
@@ -147,6 +149,32 @@ export default class Homescreen extends Component {
 
 
     }
+  }
+
+  reset_chaimager_from_book = async () => {
+
+    var info = this.state.edit_modal_info;
+
+    var library = this.state.library;
+
+    for (let i = 0; i < library.length; i++){
+      //Locating book in library list
+      if (library[i].source == info.source){
+
+        const filepath = library[i].source.uri;
+
+        const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
+			  
+        const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name;
+
+        try {
+        await RNFS.unlink(chaimager_file_path); }
+        catch {}
+
+        this.setState(() => {return {edit_modal_visible: false}})
+        }
+    };
+      
   }
 
   read_book = async (source, page) => {
@@ -415,10 +443,11 @@ export default class Homescreen extends Component {
             style={{margin: 2 ,width: Dimensions.get('window').width * 0.8}}
             status='danger'>Remove book from library</Button>
 
-            <Button title='Info about book' 
+            <Button title='Reset' 
             style={{margin: 2, width: Dimensions.get('window').width * 0.8}}
             status='success'
-            >Info about the book</Button>
+            onPress={() => {this.reset_chaimager_from_book()}} 
+            >Reset chaimager</Button>
 
             <Button title='Share Chaimager file' 
             style={{margin: 2, width: Dimensions.get('window').width * 0.8}}

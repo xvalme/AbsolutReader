@@ -21,12 +21,12 @@ export default class Pdf_Renderer extends Component {
 
 		this.path = RNFS.DocumentDirectoryPath; //Main path of app
 
-		this.state = {chaimager: {"ids": [{},{"name":"Antunes", "color": "#1e528f"}, {"name":"Michael", "color": "#1e528f"}]}, //DEV
+		this.state = {chaimager: {"ids": [{}]}, 
 					chaimager_loaded: false, 
 					source:{uri:props.route.params["filepath"],cache:true},
 					filepath:props.route.params["filepath"],
 					current_page: props.route.params["current_page"],
-					filename:'', //Added after PDF is loaded
+					filename:'Chaimager is loading', //Added after PDF is loaded
 					//Rendering chaimager stage. Value from 0 to 100;
 					chaimager_stage:0,
 					//Modals:
@@ -48,9 +48,10 @@ export default class Pdf_Renderer extends Component {
 	}
 
 	handleBackButton = async () => {
-
+		
 		//Going back to library, not forgetting to update it:
 		this.props.navigation.navigate('Homescreen', {back_action: true});
+		
 	}
 
 	async chaimager (link) {
@@ -96,7 +97,6 @@ export default class Pdf_Renderer extends Component {
 		//and updates the PDF
 
 		//Runs only if not already loaded:
-		return 0; //DEV
 
 		if (this.state.chaimager_loaded == false) {
 
@@ -104,8 +104,8 @@ export default class Pdf_Renderer extends Component {
 			const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
 			const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name; //TODO #1
 
-			this.setState((state) => {return {filename: filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.'),
-											chaimager_file_path: chaimager_file_path }});
+			this.setState((state) => {return {chaimager_file_path: chaimager_file_path,
+												filename:'Chaimager is loading', }});
 
 
 			//Loads json
@@ -287,13 +287,13 @@ export default class Pdf_Renderer extends Component {
 				}
 			}
 
-			await parent.setState((state) => {console.log(parent.state.chaimager_stage); return {
+			await parent.setState((state) => {return {
 				chaimager_stage: 50
 				}});
 
 			var base64_pdf =  await make_links(pdfDoc, array_coordinate_dic);
 
-			await parent.setState((state) => {console.log(parent.state.chaimager_stage); return {
+			await parent.setState((state) => {return {
 				chaimager_stage: 100
 				}});
 
@@ -355,7 +355,8 @@ export default class Pdf_Renderer extends Component {
 			this.setState((state) => {return {
 				source: new_source,
 				chaimager_loaded: true,
-				chaimager_loading: false
+				chaimager_loading: false,
+				filename: filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.')
 			}});	
 			console.log("Chaimager loaded");
 	};
@@ -478,7 +479,9 @@ export default class Pdf_Renderer extends Component {
 		await RNFS.writeFile(this.state.chaimager_file_path, JSON.stringify(this.state.chaimager), 'utf8');
 
 		//Now reloading the chaimager:
-		this.load_chaimager();
+		this.load_chaimager(this.state.filepath);
+
+		await this.setState((state) => {return {chaimager_list_visible: false}});
 
 	}}
 
