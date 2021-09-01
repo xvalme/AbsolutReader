@@ -96,7 +96,9 @@ export default class Pdf_Renderer extends Component {
 		//Updates chaimager inside of this.state with the values that got
 		//and updates the PDF
 
-		//Runs only if not already loaded:
+		//Runs only if not already loaded (and in changes made to the chaimager):
+
+		step = this.state.chaimager_step; //3 steps: Run chaimager only on 2 pages, then 10, then all others
 
 		if (this.state.chaimager_loaded == false) {
 

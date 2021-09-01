@@ -21,5 +21,50 @@ export default class Pdf_Renderer extends Component {
 		
 	}
 
+	login = async (email, password) => {
+
+		//fetching website api
+
+		//Authorization header
+
+		const string = email + ':' + password;
+		
+		//to base 64
+
+		const authorization = btoa(string);
+
+		//Now fetching website:
+
+		var response = await fetch ('https://absolutreader.works/api/login/'+authorization);
+
+		//if server response says the user has logged in, we save the data credentials:
+
+		var data = JSON.parse(response);
+
+		if (data.login == true) { //User logged in
+
+			return 0
+
+		}
+	}
+
+	render () {
+		return (
+			<SafeAreaView style={{ flex: 1 }}>
+						
+						
+			<TopNavigation style={{height:Dimensions.get('window').height / 12}}
+			alignment='center'
+			title='Absolut Reader'
+            subtitle={'Version Alpha ' + this.version}/>
+
+				<View>
+					
+				</View>
+
+			</SafeAreaView>
+		)
+	}
+
     
 }

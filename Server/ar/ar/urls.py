@@ -11,5 +11,6 @@ urlpatterns = [
 
     path('api/update_available/<str:version>', api.update_available),
     path('api/welcome_page', api.welcome_page),
+    path('api/login/<str:CREDENTIALS>', api.login),
     path('api/<str:data>', api.api, name='api'),
 ]
