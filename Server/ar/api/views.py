@@ -1,9 +1,11 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render
 import json
-import base64
 from django.contrib.auth import authenticate, login
-from accounts.models import Profile 
+from django.contrib.auth.models import User
+from accounts.models import Profile, Donation, DonationForm
+from django.views.decorators.csrf import csrf_exempt
+from django.http import QueryDict
 
 def api (request, data):
     return 0
@@ -65,6 +67,61 @@ def get_info (request, user_id):
     #Returns user profile
 
     user = User.objects.get(pk=user_id)
+
+@csrf_exempt
+def donation (request):
+
+    #New user made a donation
+
+    if request.method == 'POST':
+
+        dic = request.POST.dict()
+
+        keys = list(dic.keys())[0]
+
+        keys = keys[0] + '"' + keys[1:-1] + '"}'
+
+        keys_list = []
+
+        keys_list[:0]=keys
+
+        for element in keys_list:
+
+            if element == ':':
+
+                index = keys_list.index(element)
+
+                keys_list[index] = '":"'
+
+            if element == ',':
+
+                index = keys_list.index(element)
+
+                keys_list[index] = '","'
+
+        keys = ''.join(map(str, keys_list))
+
+        timestamp = keys.find('timestamp') + 4
+
+        error = keys.find('":"', timestamp)
+
+        keys = keys[:error] + ':'
+    
+        #keys = json.loads((keys))
+
+        return HttpResponse(keys)
+
+        #Creating now the form
+
+        #form = DonationForm(initial=dic)
+
+        #print(form)
+
+        #if form.is_valid():
+           # return HttpResponse('Valid')
+
+
+    return HttpResponse(status=400)
 
 
 

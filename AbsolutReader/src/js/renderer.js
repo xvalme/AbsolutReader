@@ -29,6 +29,7 @@ export default class Pdf_Renderer extends Component {
 					filename:'Chaimager is loading', //Added after PDF is loaded
 					//Rendering chaimager stage. Value from 0 to 100;
 					chaimager_stage:0,
+					chaimager_step: 1,
 					//Modals:
 					chaimager_popup_visible: false,
 					chaimager_adder_popup_visible: false,
@@ -100,7 +101,18 @@ export default class Pdf_Renderer extends Component {
 
 		step = this.state.chaimager_step; //3 steps: Run chaimager only on 2 pages, then 10, then all others
 
-		if (this.state.chaimager_loaded == false) {
+		if (step == 1) {
+			var pages_to_render = 2;
+		}
+		if (step == 2) {
+			var pages_to_render = 10;
+		}
+		if (step == 3){
+			var pages_to_render = -1; //All
+		}
+
+		//First render:
+		if (this.state.chaimager_loaded == false && pages_to_render == 2) {
 
 			//We pick the file name and check if it exists at library:
 			const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
@@ -174,7 +186,7 @@ export default class Pdf_Renderer extends Component {
 		
 					var absolut_unit = 50 / numPages;
 				
-					for (let i = 1; i <= numPages; i++){
+					for (let i = this.state.current_page; i <= this.state.current_page + pages_to_render; i++){
 
 						await parent.setState((state) => {return {
 							chaimager_stage: i * absolut_unit
@@ -361,7 +373,238 @@ export default class Pdf_Renderer extends Component {
 				filename: filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.')
 			}});	
 			console.log("Chaimager loaded");
-	};
+	}
+		//subsequent renders:
+		else {
+			if (this.state.chaimager_loaded == false) {
+
+				this.setState((state) => {return {
+					chaimager_stage: 0
+					}});
+	
+				var base64_pdf = await RNFS.readFile(filepath, 'base64');
+	
+				var pdfDoc = base64js.toByteArray(base64_pdf); //PDF as byte array so pdf.js library can understand it
+	
+					//Calling our function to add the links
+	
+				var keywords = this.state.chaimager;
+	
+					//Keywords as an array of objects with name and color keys
+					//Ex: [{name:"Antunes", color:"#FFFFFF"}]
+	
+				console.log("Initiating the chaimager pdf_loader.");
+	
+				var parent = this; //For changing state inside of these functions:
+				async function get_pdf_coordinates (pdfDoc, keywords){
+				
+						/*Given a file (Already opened by fs), it uses Pdfjs library to get the coordinates of the keywords
+						that exist in every single page, and returns an array of dictionarys with the coords and pages
+						for the link adder.
+						*/
+					
+						//TODO #2
+						pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;  //Setting stuff for running the pdfjs library
+						
+						var coords_array = [];
+					
+						const loadingTask = pdfjsLib.getDocument({data: pdfDoc});  //Conversts base64 to something pdfjs understands
+						
+						const doc = await loadingTask.promise;
+					
+						var numPages = doc.numPages;
+			
+						var absolut_unit = 50 / numPages;
+					
+						for (let i = 1; i <= numPages; i++){
+	
+							await parent.setState((state) => {return {
+								chaimager_stage: i * absolut_unit
+								}});
+	
+							var page = await doc.getPage(i);
+					
+							var content = await page.getTextContent();
+										
+							var items = (content["items"]);
+					
+							for (let p = 0; p < items.length; p++){
+			
+								for (let z = 0; z < keywords.ids.length; z++){
+					
+									if (items[p]["str"].includes(keywords.ids[z].name)){
+						
+										var transform = items[p]["transform"];
+										var width = items[p]["width"];
+										var height = items[p]["height"];
+										var text = items[p]["str"];
+						
+										var coords = calculate_coords(i, transform, width, height, text, keywords.ids[z].name, keywords.ids[z].color);
+										//sends the page, transform with the x and y elements, size, the complete sentence and the keywords we want in a array.
+						
+										for (const v of coords) {
+											coords_array.push(v);
+										};
+									}
+					
+														
+								}
+							}
+						};
+						return coords_array;
+					}  
+	
+				var array_coordinate_dic = await get_pdf_coordinates (pdfDoc, keywords);
+	
+				async function make_links(pdfDoc, array_coordinate_dic) {
+	
+					if (array_coordinate_dic != 0) { //Empty. No characters.
+	
+						var pdfDoc = await PDFDocument.load(pdfDoc, { ignoreEncryption: true });
+						//TODO #5
+						const pages = await pdfDoc.getPages();
+	
+						var absolut_unit = 50 / array_coordinate_dic.length;
+	
+						for (let i = 0; i < array_coordinate_dic.length; i++) {
+	
+							await parent.setState((state) => {return {
+								chaimager_stage: i * absolut_unit + 50
+								}});
+	
+							var rgb_color = hexToRgb(array_coordinate_dic[i].color);
+							var id = array_coordinate_dic[i].name;
+	
+							var page_number = array_coordinate_dic[i]["page"];
+	
+							var page = pages[page_number - 1]; //Loading page
+	
+							const coordinate_dic = array_coordinate_dic[i];
+	
+							//Drawing rectangle of the link
+							page.drawRectangle({
+								x: coordinate_dic["x"],
+								y: coordinate_dic["y"],
+								width: coordinate_dic["right_x"] - coordinate_dic["x"],
+								height: coordinate_dic["right_y"] - coordinate_dic["y"],
+								color: rgb(rgb_color.r / 255, rgb_color.g / 255, rgb_color.b / 255),
+								opacity: 0.5,
+							});
+	
+							var linkAnnotation = pdfDoc.context.obj({
+								//Link adding information comes here
+								Type: 'Annot',
+								Subtype: 'Link',
+								Rect: [coordinate_dic["x"], coordinate_dic["y"], coordinate_dic["right_x"], coordinate_dic["right_y"]],
+	
+								Border: [0, 0, 0],
+								C: [0, 0, 1],
+								A: {
+									Type: 'Action',
+									S: 'URI',
+									URI: PDFString.of('https://absolutreader.works/chaimager/[' + coordinate_dic.keywords + ']'), //It does not add if is not a valid url
+								},
+							});
+	
+							var linkAnnotationRef = pdfDoc.context.register(linkAnnotation);
+	
+							const annots = page.node.lookupMaybe(PDFName.of('Annots'), PDFArray);
+	
+							if (annots) { //IF there are already annotations we just add a new one
+	
+								annots.push(linkAnnotationRef);
+							}
+	
+							else { //Need to create a new array of annotations
+								page.node.set(PDFName.of('Annots'), pdfDoc.context.obj([linkAnnotationRef]));
+							};
+	
+						}
+	
+						const pdfBytes = await pdfDoc.save();
+	
+						return encodeToBase64(pdfBytes);
+					}
+	
+					else { //Speeding up. use already given value
+						return (base64_pdf);
+					}
+				}
+	
+				await parent.setState((state) => {return {
+					chaimager_stage: 50
+					}});
+	
+				var base64_pdf =  await make_links(pdfDoc, array_coordinate_dic);
+	
+				await parent.setState((state) => {return {
+					chaimager_stage: 100
+					}});
+	
+				console.log("Pdf links of expressions made. Pdf edited.");
+				
+				function hexToRgb(hex) {
+					var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+					return result ? {
+						r: parseInt(result[1], 16),
+						g: parseInt(result[2], 16),
+						b: parseInt(result[3], 16)
+					} : null;
+				}
+	
+				function calculate_coords (page, transform, width, height, text, keywords, color){
+		
+					//Size (x coordinate system) of each letter
+					var len_of_charachter = width / text.length;
+				
+					//Positions of beggining of string we want
+					var startIndex = 0;
+					var indices = [];
+					var index;
+					var coords = [];
+				
+					while ((index = text.indexOf(keywords, startIndex)) > -1) {
+						indices.push(index);
+						startIndex = index + keywords.length;
+					};
+					
+					for (const v of indices) {
+				
+						var start_position = v * len_of_charachter;
+				
+						var x = transform[4] + start_position
+						var y = transform[5];
+				
+						//Postions of the ending
+				
+						var right_y = y + height;
+				
+						var right_x = x + (keywords.length * len_of_charachter); 
+				
+						coords.push({page:page, x: x, y:y, right_x:right_x, right_y: right_y, color:color, keywords:keywords}); };
+					
+					return (coords);
+				}
+				
+				//Got the base 64
+				var new_source = {uri:'data:application/pdf;base64,' + base64_pdf};
+		
+				//Loading completed.
+	
+				var pdfDoc = base64js.toByteArray(base64_pdf);
+				
+				//Now we change the source for this. Note that the edited file is not stored on the local filesystem,
+				//rather in the RAM, so the original PDF stays unedited, which is good
+	
+				this.setState((state) => {return {
+					source: new_source,
+					chaimager_loaded: true,
+					chaimager_loading: false,
+					filename: filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.')
+				}});	
+				console.log("Chaimager loaded");
+		};
+		}
 	}
 
 	async update_page_homescreen (page) {
