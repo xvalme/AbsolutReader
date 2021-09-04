@@ -184,7 +184,6 @@ export default class Homescreen extends Component {
   }
 
   requestStoragePermission = async () => {
-    console.log("Asking user for permissions.");
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
@@ -268,7 +267,7 @@ export default class Homescreen extends Component {
       library: library_list,
       library_loaded: true};});
 
-      this.props.route.params["back_action"] = false; //So that it does not repeat itself to the end of the universe
+      //this.props.route.params["back_action"] = false; //So that it does not repeat itself to the end of the universe
 
     return library_list; }
   }
