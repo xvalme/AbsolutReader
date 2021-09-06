@@ -88,7 +88,7 @@ export default class Homescreen extends Component {
 
     var source = {uri: filepath, cache:true};
 
-    var info = {title: title, pages: pagenumber, current_page: 0, source:source};
+    var info = {title: title, pages: pagenumber, current_page: 1, source:source};
 
     var new_library = this.state.library;
     
@@ -221,6 +221,10 @@ export default class Homescreen extends Component {
     if (this.state.library_loaded == false || back == true){ //Stop from repeating itself to the eternity
       //Also loads if returns from the render
 
+    try {
+      this.props.route.params["back_action"] = false }
+      catch {}
+
     await this.requestStoragePermission();
   
     const path = RNFS.DocumentDirectoryPath; //Main path of the App
@@ -230,27 +234,20 @@ export default class Homescreen extends Component {
     var library = {"books": []} //While not loaded
   
     //Loading the json
-    var library = await RNFS.readFile(library_json).then(async (json) => {
+    try{
+    var json = await RNFS.readFile(library_json)
       
-      var library = await JSON.parse(json);
+    var library = await JSON.parse(json);}
 
-      return library;
-  
-      },async (err) => {//Json does not exit. Creating one
-        console.log('Creating new library.');
-        await RNFS.writeFile(library_json, '{"books": []}', 'utf8')
-        .then((success) => {
-          var library = JSON.parse('{"books": []}');
-          return library;
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
-    });
+    catch {
+      console.log('Creating new library.');
 
-    var library_list = []; //Exporting list  
-  
-    for (var i = 0; i < library.books.length; i++) {
+      await RNFS.writeFile(library_json, '{"books": []}', 'utf8')
+    }
+   
+    var library_list = [];
+
+    for (var i = 0; i < library["books"].length; i++) {
       var title = library.books[i].title;
       var total_page = library.books[i].pages;
       var current_page = library.books[i].current_page;
