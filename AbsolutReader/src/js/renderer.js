@@ -27,6 +27,7 @@ export default class Pdf_Renderer extends Component {
 					filepath:props.route.params["filepath"],
 					current_page: props.route.params["current_page"],
 					filename:'Chaimager is loading', //Added after PDF is loaded
+					can_leave: true, //If is everything ready to move screen
 					//Rendering chaimager stage. Value from 0 to 100;
 					chaimager_stage:0,
 					chaimager_step: 1,
@@ -47,12 +48,24 @@ export default class Pdf_Renderer extends Component {
 
 	componentDidMount() {
 		BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+		
 	}
 
 	handleBackButton = async () => {
 		
 		//Going back to library, not forgetting to update it:
+
+		//Checks 1st if can leave the screen:
+		var can_leave = this.state.can_leave;
+
+		if (can_leave == false){
+			setTimeout(() => {  console.log("Cannot leave. 1second timeout");this.handleBackButton() }, 1000);
+		}
+		else {
 		this.props.navigation.navigate('Homescreen', {back_action: true});
+		}
+
+
 		
 	}
 
@@ -575,6 +588,7 @@ export default class Pdf_Renderer extends Component {
 
 	async update_page_homescreen (page) {
 		//Updates the homescreen value of the pages read when user starts new page
+		this.setState((state) => {return {can_leave: false}});
 
 		const filepath = this.state.filepath;
 
@@ -603,6 +617,8 @@ export default class Pdf_Renderer extends Component {
 
 		await RNFS.unlink(library_json);
 		await RNFS.writeFile(library_json, saving_library, 'utf8');
+
+		this.setState((state) => {return {can_leave: true}});
 
 	}
 	
@@ -786,7 +802,7 @@ export default class Pdf_Renderer extends Component {
 	  );
 
 	const renderBackAction = () => (
-	<TopNavigationAction icon={BackIcon}/>
+	<TopNavigationAction icon={BackIcon} onPress={() => this.handleBackButton()}/>
 	);
 
 	const renderChaimagerList = (info) => (
@@ -1054,7 +1070,8 @@ export default class Pdf_Renderer extends Component {
 				}}
 				enableRTL={true}
 
-				style={styles.pdf}/>
+				style={{	flex:1,
+							width: Dimensions.get('window').width,}}/>
 		</View>
 		
 	</SafeAreaView>
@@ -1067,8 +1084,4 @@ pdf_container: {
 	justifyContent: 'flex-start',
 	alignItems: 'center',
 },
-pdf: {
-	flex:1,
-	width:Dimensions.get('window').width,
-}
 });
