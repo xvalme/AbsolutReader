@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Pdf from 'react-native-pdf'; //Rendering
-import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput, BackHandler} from 'react-native';
+import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput, BackHandler, ScrollView} from 'react-native';
 import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem, Card} from '@ui-kitten/components';
 import ColorPicker from 'react-native-wheel-color-picker'
 import DocumentPicker from 'react-native-document-picker';
@@ -28,6 +28,7 @@ export default class Pdf_Renderer extends Component {
 					current_page: props.route.params["current_page"],
 					filename:'Chaimager is loading', //Added after PDF is loaded
 					can_leave: true, //If is everything ready to move screen
+					is_page_updating: false,
 					//Rendering chaimager stage. Value from 0 to 100;
 					chaimager_stage:0,
 					chaimager_step: 1,
@@ -51,7 +52,8 @@ export default class Pdf_Renderer extends Component {
 
 	componentDidMount() {
 		BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-		Dimensions.addEventListener('change', (dimensions) => {this.setState(() => {return {width: dimensions.window.width }});} )
+		Dimensions.addEventListener('change', (dimensions) => {this.setState(() => {return {width: dimensions.window.width,
+																							height: dimensions.window.height }});} )
 
 	}
 
@@ -592,37 +594,47 @@ export default class Pdf_Renderer extends Component {
 
 	async update_page_homescreen (page) {
 		//Updates the homescreen value of the pages read when user starts new page
-		this.setState((state) => {return {can_leave: false}});
 
-		const filepath = this.state.filepath;
+		if (this.state.is_page_updating == false) {
+			console.log(page);
 
-		const path = RNFS.DocumentDirectoryPath; //Main path of the App
-      
-		const library_json = path + 'library.json';
+			this.setState((state) => {return {can_leave: false,
+												is_page_updating: true}}); //Locking
 
-		var json = await RNFS.readFile(library_json);
+			const filepath = this.state.filepath;
 
-		var library = await JSON.parse(json);
+			const path = RNFS.DocumentDirectoryPath; //Main path of the App
+		
+			const library_json = path + 'library.json';
 
-		for (var i = 0; i<library.books.length; i++){
-			
-			//Finding the right book
+			var json = await RNFS.readFile(library_json);
 
-			if (library.books[i].source.uri == filepath) {
+			var library = await JSON.parse(json);
+
+			for (var i = 0; i<library.books.length; i++){
 				
-				//Now editing the file
-				library.books[i].current_page = page;
+				//Finding the right book
 
+				if (library.books[i].source.uri == filepath) {
+					
+					//Now editing the file
+					library.books[i].current_page = page;
+
+				}
 			}
+
+			//Now saving file:
+			var saving_library = JSON.stringify(library);
+
+			await RNFS.unlink(library_json);
+			await RNFS.writeFile(library_json, saving_library, 'utf8');
+
+			this.setState((state) => {return {can_leave: true, is_page_updating: true}}); //Unlocking 
 		}
 
-		//Now saving file:
-		var saving_library = JSON.stringify(library);
-
-		await RNFS.unlink(library_json);
-		await RNFS.writeFile(library_json, saving_library, 'utf8');
-
-		this.setState((state) => {return {can_leave: true}});
+		else {
+			setTimeout(this.update_page_homescreen(page), 100)
+		}
 
 	}
 	
@@ -977,14 +989,16 @@ export default class Pdf_Renderer extends Component {
 					chaimager_adder_popup_visible: false
 				};
 			})}}>
-			
+			<ScrollView>
 			<View style = {{flex: 1,
 						justifyContent: "center",
-						alignItems: "center"
+						alignItems: "center",
+							flexDirection: "column"
 						}}>
 			
 				<View style = {{margin: 20,
 								backgroundColor: "white",
+								flexDirection: "column",
 								borderRadius: 20,
 								padding: 35,
 								alignItems: "center",
@@ -1014,7 +1028,7 @@ export default class Pdf_Renderer extends Component {
 						/>
 					</View>
 
-					<View 	style = {{height: Dimensions.get('window').height/6, }}>
+					<View 	style = {{height:this.state.height/6, }}>
 					<ColorPicker
 						onColorChangeComplete={(color) => this.chaimager_chache_color(color)}
 						thumbSize={40}
@@ -1049,6 +1063,7 @@ export default class Pdf_Renderer extends Component {
 
 				</View>
 			</View>
+			</ScrollView>
 
 
 	</Modal>
@@ -1075,6 +1090,7 @@ export default class Pdf_Renderer extends Component {
 				enableRTL={true}
 
 				maxScale={10}
+				minScale={0.1}
 
 				fitPolicy={0}
 

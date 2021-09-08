@@ -3,8 +3,7 @@ import * as eva from '@eva-design/eva';
 import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card, Modal} from '@ui-kitten/components';
 import { Image, StyleSheet, SafeAreaView, Dimensions, View} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-import ColorPicker from 'react-native-wheel-color-picker'
-import DocumentPicker from 'react-native-document-picker';
+import ColorPicker from 'react-native-wheel-color-picker';
 
 var RNFS = require('react-native-fs');
 

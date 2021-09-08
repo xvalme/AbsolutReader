@@ -19,10 +19,13 @@ export default class Homescreen extends Component {
     this.path = RNFS.DocumentDirectoryPath; //Main path of app
 
     this.state={library: [],
+                chaimager_list: [],
+                chaimager_list_loaded: false,
                 library_loaded: false,
                 edit_modal_visible: false,
                 edit_modal_info: {},
                 welcome_modal_visible: true,
+                chaimager_list_modal_visible: false,
                 }
   }
   
@@ -54,6 +57,29 @@ export default class Homescreen extends Component {
     //Adding file to the library:
     this.add_pdf_to_library(filepath, filename);
   };
+
+  create_chaimager = async (name) => {
+    //Creates a new chaimager file to be added to the PDF
+    //Moves to the adder screen
+    
+    //Making modal invisible:
+    this.setState((state) => {return {
+      chaimager_list_modal_visible: false}
+      ;}
+    );
+
+
+    this.props.navigation.navigate('Chaimager_adder', {name:name});
+  }
+
+  chaimager_button = async () => {
+    //Handles the click of the chaimager button, showing a modal with all chaimager files that exist in the app
+
+    this.setState((state) => {return {chaimager_list_modal_visible: true}});
+
+
+    
+  }
 
   file_selector = async () => {
 
@@ -268,8 +294,48 @@ export default class Homescreen extends Component {
 
     return library_list; }
   }
+
+  async load_chaimager_list () {
+    //Will search for chaimager files and updates the state with a list of dictinaries with info for each one found.
+    
+    if (this.state.chaimager_list_loaded == false) {
+    console.log("Loading chaimager list");
+
+    await this.requestStoragePermission();
+  
+    const path = RNFS.DocumentDirectoryPath; //Main path of the App
+  
+    const chaimager_dir = path + '/chaimager_files/';
+
+    var files = await RNFS.readDir(chaimager_dir);
+
+    var chaimager_list = []; //Variable to then update with the values
+
+    files.forEach(file => {
+
+      var name = file.name;
+
+      //Checking if is json:
+
+      if (name.includes('.json')) {
+
+        //Appends:
+
+        chaimager_list.push (name.split('.json')[0])
+
+      }
+
+    })
+
+    //Now updating the state:
+    this.setState(() => {return {chaimager_list: chaimager_list, chaimager_list_loaded: true}})
+
+   }
+      
+  }
   
   render() {
+  this.load_chaimager_list();
   this.load_library(); //Loading the library. Async function.
 
   //Icons and images:
@@ -338,6 +404,29 @@ export default class Homescreen extends Component {
           </View>
 
     </Card>
+  );
+
+  const renderChaimagerItem = (info) => (
+    <Card
+      status='basic'
+      style= {{  
+                  margin: 1}}
+      >
+        <View style = {{flexDirection:'row', flex:1}}>
+
+          <View style={{flex: 6}}>
+              <Text style={{}}>
+                {info.item}
+              </Text>
+          </View>
+
+          <View style={{flex: 4}}>
+              <Button style={{}}  onPress={() => {this.create_chaimager(info.item)}}>Edit</Button>
+          </View>
+
+        </View>
+
+      </Card>
   );
 
   const renderDropDown = async (info) => {
@@ -506,6 +595,71 @@ export default class Homescreen extends Component {
 
     </Modal>
   
+    <Modal 
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {this.setState((state) => {return {
+                                                          chaimager_list_modal_visible: false}
+                                                          ;}
+                                              );
+                                }
+                        }
+        visible={this.state.chaimager_list_modal_visible}>
+
+        <View style = {{flex: 1,
+              justifyContent: "center",
+              alignItems: "center"
+              }}>
+        
+          <View style = {{margin: 20,
+                  backgroundColor: "white",
+                  borderRadius: 20,
+                  padding: 35,
+                  alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOffset: {
+                  width: 0,
+                  height: 2
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 4,
+                  elevation: 5}} >
+
+          
+            <View>
+                <Text style={{textAlign:'center'}}>Chaimager files in your device</Text>
+
+                          <List
+                  data={this.state.chaimager_list}
+                  renderItem={renderChaimagerItem}
+                  numColumns={1}
+                />
+                
+                <View style={{flexDirection: 'row'}}>
+                  <Button onPress={() => {this.create_chaimager('NEW')}} style={{marginTop:10, marginLeft:10 }}>Create new Chaimager file</Button>
+
+                  <Button onPress={() => {this.setState((state) => {return {
+                                                          chaimager_list_modal_visible: false}
+                                                          ;}
+                                              );
+                                }} 
+                          style={{marginTop:10, marginLeft:10 }} 
+                          status='danger'>Exit</Button>
+
+                  <Button>Import</Button>
+
+
+                </View>
+                  
+            </View>
+
+          </View>
+
+        </View>
+
+
+    </Modal>
+  
 
 		<TopNavigation style={{height:Dimensions.get('window').height / 12}}
 						alignment='center'
@@ -530,8 +684,9 @@ export default class Homescreen extends Component {
 
         </View>
 
-        <View style={{flex: 1}}> 
+        <View style={{flex: 1, flexDirection:'row'}}> 
           <Button onPress={this.load_file} style={{marginTop:10}}>Add PDF</Button>
+          <Button onPress={this.chaimager_button} style={{marginTop:10, marginLeft:10 }}>Chaimager</Button>
       </View>
       
     </Layout>
