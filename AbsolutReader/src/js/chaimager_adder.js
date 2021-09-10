@@ -36,6 +36,9 @@ export default class Chaimager_adder extends Component {
 
     handleBackButton = async () => {
 
+        //Closing possible modals:
+        this.setState(() => { return {chaimager_adder_popup_visible: false}});
+
 		this.props.navigation.navigate('Homescreen', {back_action: true});
 		
 	}
@@ -369,6 +372,15 @@ export default class Chaimager_adder extends Component {
                                 </View>
 
                                 <View 	style = {{height:this.state.height/6, }}>
+
+                                <ColorPicker
+                                        onColorChangeComplete={(color) => this.chaimager_chache_color(color)}
+                                        thumbSize={40}
+                                        sliderSize={40}
+                                        noSnap={true}
+                                        row={false}
+                                        discrete={true}
+                                    />
                                     
                                 </View>
 
