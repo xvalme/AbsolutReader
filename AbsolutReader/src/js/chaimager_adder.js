@@ -227,6 +227,7 @@ export default class Chaimager_adder extends Component {
     }
 
     render () {
+        this.populator();
 
         const renderChaimagerList = (info) => (
             <Card
