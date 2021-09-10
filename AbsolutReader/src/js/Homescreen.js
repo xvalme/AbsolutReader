@@ -210,6 +210,7 @@ export default class Homescreen extends Component {
   }
 
   requestStoragePermission = async () => {
+    console.log("Asking for permissions.")
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
@@ -234,6 +235,51 @@ export default class Homescreen extends Component {
     }
   };
 
+  load_first_time = async () => {
+
+    //Function to load when the user makes the 1st lauch of the app
+
+    //Picks information about the user and saves it, to then send to server if user accepts
+    //TODO #8
+
+    //Checking if information file exists:
+
+    var run = await RNFS.exists(this.path + 'info.json');
+
+    if (run == false) {
+      //First run
+
+      //Creating the chaimager dir
+
+      console.log('1st run. Creating necessary files.');
+            
+      //Permissions
+      await this.requestStoragePermission();
+
+      //Chaimager
+      await RNFS.mkdir(this.path + '/chaimager_files/');
+
+      //Library:
+      await RNFS.writeFile(this.path + 'library.json', '{"books": []}', 'utf8');
+
+      //Info file:
+      await RNFS.writeFile(this.path + 'info.json', '');
+
+      this.load_library();
+      this.load_chaimager_list();
+
+    }
+
+    else {
+
+    //Just loads everything because is not 1st launch.
+    this.load_library();
+    this.load_chaimager_list();
+
+    }
+
+  }
+
   async load_library () {
     //Will load the pdf library based on a stored json. Returns an array with the info to render
 
@@ -251,7 +297,6 @@ export default class Homescreen extends Component {
       this.props.route.params["back_action"] = false }
       catch {}
 
-    await this.requestStoragePermission();
   
     const path = RNFS.DocumentDirectoryPath; //Main path of the App
   
@@ -260,17 +305,11 @@ export default class Homescreen extends Component {
     var library = {"books": []} //While not loaded
   
     //Loading the json
-    try{
+
     var json = await RNFS.readFile(library_json)
       
-    var library = await JSON.parse(json);}
+    var library = await JSON.parse(json);
 
-    catch {
-      console.log('Creating new library.');
-
-      await RNFS.writeFile(library_json, '{"books": []}', 'utf8')
-    }
-   
     var library_list = [];
 
     for (var i = 0; i < library["books"].length; i++) {
@@ -335,8 +374,7 @@ export default class Homescreen extends Component {
   }
   
   render() {
-  this.load_chaimager_list();
-  this.load_library(); //Loading the library. Async function.
+  this.load_first_time(); //Loading everything. library and chaimager.
 
   //Icons and images:
   const render_top_logo = () => (
@@ -636,7 +674,7 @@ export default class Homescreen extends Component {
                 />
                 
                 <View style={{flexDirection: 'row'}}>
-                  <Button onPress={() => {this.create_chaimager('NEW')}} style={{marginTop:10, marginLeft:10 }}>Create new Chaimager file</Button>
+                  <Button onPress={() => {this.create_chaimager('#kofokfekowf#NEW7951')}} style={{marginTop:10, marginLeft:10 }}>Create new Chaimager file</Button>
 
                   <Button onPress={() => {this.setState((state) => {return {
                                                           chaimager_list_modal_visible: false}
