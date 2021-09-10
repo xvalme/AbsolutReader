@@ -153,7 +153,8 @@ export default class Chaimager_adder extends Component {
 	}
 
     chaimager_cache_filename(filename) {
-		this.setState((state) => {return {filename: filename}});
+		this.setState((state) => {return {filename_cache: filename}});
+
 	}
 
 	chaimager_chache_color (color) {
@@ -211,6 +212,8 @@ export default class Chaimager_adder extends Component {
 
         var path = RNFS.DocumentDirectoryPath + '/chaimager_files/' + filename + '.json'
 
+        console.log(path);
+
         if (RNFS.exists(path) == true) {
 
             await RNFS.unlink(path);  //Removing
@@ -219,6 +222,8 @@ export default class Chaimager_adder extends Component {
 
         //Saving
 		await RNFS.writeFile(path, JSON.stringify(this.state.chaimager), 'utf8');
+
+        console.log("Saved.");
     }
 
     render () {
@@ -226,7 +231,7 @@ export default class Chaimager_adder extends Component {
         const renderChaimagerList = (info) => (
             <Card
               status='basic'
-              style={{width: Dimensions.get('window').width *  0.8,  borderColor: info.item.color}}
+              style={{width: Dimensions.get('window').width *  0.95,  borderColor: info.item.color, alignSelf: 'center'}}
               >
             
                 <View style={{flexDirection: 'row', 

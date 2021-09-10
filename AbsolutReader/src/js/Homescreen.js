@@ -266,7 +266,6 @@ export default class Homescreen extends Component {
       await RNFS.writeFile(this.path + 'info.json', '');
 
       this.load_library();
-      this.load_chaimager_list();
 
     }
 
@@ -274,7 +273,6 @@ export default class Homescreen extends Component {
 
     //Just loads everything because is not 1st launch.
     this.load_library();
-    this.load_chaimager_list();
 
     }
 
@@ -324,26 +322,10 @@ export default class Homescreen extends Component {
     console.log("Library found with " + library_list.length + ' elements.');
   
       //Loading library to state
-  
-    this.setState((state) => {return {
-      library: library_list,
-      library_loaded: true};});
 
-      //this.props.route.params["back_action"] = false; //So that it does not repeat itself to the end of the universe
-
-    return library_list; }
-  }
-
-  async load_chaimager_list () {
-    //Will search for chaimager files and updates the state with a list of dictinaries with info for each one found.
-    
-    if (this.state.chaimager_list_loaded == false) {
+    //Loading chaimager
     console.log("Loading chaimager list");
 
-    await this.requestStoragePermission();
-  
-    const path = RNFS.DocumentDirectoryPath; //Main path of the App
-  
     const chaimager_dir = path + '/chaimager_files/';
 
     var files = await RNFS.readDir(chaimager_dir);
@@ -365,14 +347,18 @@ export default class Homescreen extends Component {
       }
 
     })
-
-    //Now updating the state:
-    this.setState(() => {return {chaimager_list: chaimager_list, chaimager_list_loaded: true}})
-
-   }
-      
-  }
   
+    this.setState((state) => {return {
+      library: library_list,
+      library_loaded: true,
+      chaimager_list: chaimager_list, 
+      chaimager_list_loaded: true};});
+
+      //this.props.route.params["back_action"] = false; //So that it does not repeat itself to the end of the universe
+
+    return library_list; }
+  }
+
   render() {
   this.load_first_time(); //Loading everything. library and chaimager.
 
