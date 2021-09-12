@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card, Modal} from '@ui-kitten/components';
-import { Image, StyleSheet, SafeAreaView, Dimensions, View, PermissionsAndroid} from 'react-native';
+import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card} from '@ui-kitten/components';
+import { Image, StyleSheet, SafeAreaView, Dimensions, View, PermissionsAndroid, Modal} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { pdf_pagenumber_getter } from './pdf_tools/pdf_info_getter';
 import Pdf from 'react-native-pdf'; //Rendering
@@ -26,6 +26,7 @@ export default class Homescreen extends Component {
                 edit_modal_info: {},
                 welcome_modal_visible: true,
                 chaimager_list_modal_visible: false,
+                first_time_book_opened: false,
                 }
   }
   
@@ -72,6 +73,207 @@ export default class Homescreen extends Component {
     this.props.navigation.navigate('Chaimager_adder', {name:name});
   }
 
+  merge_chaimager = async (filename, chaimager_file) => {
+
+    //Runs if user ask to merge a skin with a pdf. Saves the pdf in the end in a folder
+    //So that when user returns to it he does not have to wait.
+    console.log("[MERGER] Starting merger.")
+
+    //Opening file first:
+    var base64_pdf = await RNFS.readFile(filepath, 'base64');
+
+    //Opening chaimager:
+    var json = await RNFS.readFile(chaimager_file);
+		var chaimager_json = await JSON.parse(json);
+
+    var pdfDoc = base64js.toByteArray(base64_pdf); //PDF as byte array so pdf.js library can understand it
+
+    console.log("[MERGER] Files opened.")
+
+		//Getting the coords
+
+    async function get_pdf_coordinates (pdfDoc, keywords){
+			
+      /*Given a file (Already opened by fs), it uses Pdfjs library to get the coordinates of the keywords
+      that exist in every single page, and returns an array of dictionarys with the coords and pages
+      for the link adder.
+      */
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;  //Setting stuff for running the pdfjs library
+      
+      var coords_array = [];
+    
+      const loadingTask = pdfjsLib.getDocument({data: pdfDoc});  //Conversts base64 to something pdfjs understands
+      
+      const doc = await loadingTask.promise;
+    
+      var numPages = doc.numPages;
+  
+      for (let i = 1; i <= numPages; i++){
+
+        var page = await doc.getPage(i);
+    
+        var content = await page.getTextContent();
+              
+        var items = (content["items"]);
+    
+        for (let p = 0; p < items.length; p++){
+
+          for (let z = 0; z < keywords.ids.length; z++){
+    
+            if (items[p]["str"].includes(keywords.ids[z].name)){
+      
+              var transform = items[p]["transform"];
+              var width = items[p]["width"];
+              var height = items[p]["height"];
+              var text = items[p]["str"];
+      
+              var coords = calculate_coords(i, transform, width, height, text, keywords.ids[z].name, keywords.ids[z].color);
+              //sends the page, transform with the x and y elements, size, the complete sentence and the keywords we want in a array.
+      
+              for (const v of coords) {
+                coords_array.push(v);
+              };
+            }
+    
+                      
+          }
+        }
+      };
+      return coords_array;
+    }  
+
+    var array_coordinate_dic = await get_pdf_coordinates (pdfDoc, chaimager_json);
+
+    console.log("[MERGER] Coordinate array gotten.");
+
+    async function make_links(pdfDoc, array_coordinate_dic) {
+
+      if (array_coordinate_dic != 0) { //Empty. No characters.
+
+        var pdfDoc = await PDFDocument.load(pdfDoc, { ignoreEncryption: true });
+        //TODO #5
+        const pages = await pdfDoc.getPages();
+
+        for (let i = 0; i < array_coordinate_dic.length; i++) {
+
+          var rgb_color = hexToRgb(array_coordinate_dic[i].color);
+          var id = array_coordinate_dic[i].name;
+
+          var page_number = array_coordinate_dic[i]["page"];
+
+          var page = pages[page_number - 1]; //Loading page
+
+          const coordinate_dic = array_coordinate_dic[i];
+
+          //Drawing rectangle of the link
+          page.drawRectangle({
+            x: coordinate_dic["x"],
+            y: coordinate_dic["y"],
+            width: coordinate_dic["right_x"] - coordinate_dic["x"],
+            height: coordinate_dic["right_y"] - coordinate_dic["y"],
+            color: rgb(rgb_color.r / 255, rgb_color.g / 255, rgb_color.b / 255),
+            opacity: 0.5,
+          });
+
+          var linkAnnotation = pdfDoc.context.obj({
+            //Link adding information comes here
+            Type: 'Annot',
+            Subtype: 'Link',
+            Rect: [coordinate_dic["x"], coordinate_dic["y"], coordinate_dic["right_x"], coordinate_dic["right_y"]],
+
+            Border: [0, 0, 0],
+            C: [0, 0, 1],
+            A: {
+              Type: 'Action',
+              S: 'URI',
+              URI: PDFString.of('https://absolutreader.works/chaimager/[' + coordinate_dic.keywords + ']'), //It does not add if is not a valid url
+            },
+          });
+
+          var linkAnnotationRef = pdfDoc.context.register(linkAnnotation);
+
+          const annots = page.node.lookupMaybe(PDFName.of('Annots'), PDFArray);
+
+          if (annots) { //IF there are already annotations we just add a new one
+
+            annots.push(linkAnnotationRef);
+          }
+
+          else { //Need to create a new array of annotations
+            page.node.set(PDFName.of('Annots'), pdfDoc.context.obj([linkAnnotationRef]));
+          };
+
+        }
+
+        const pdfBytes = await pdfDoc.save();
+
+        return encodeToBase64(pdfBytes);
+      }
+
+      else { //Speeding up. use already given value
+        return (base64_pdf);
+      }
+    }
+
+    var base64_pdf =  await make_links(pdfDoc, array_coordinate_dic);
+
+    console.log("[MERGER] Links built.");
+
+    function hexToRgb(hex) {
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    function calculate_coords (page, transform, width, height, text, keywords, color){
+
+      //Size (x coordinate system) of each letter
+      var len_of_charachter = width / text.length;
+    
+      //Positions of beggining of string we want
+      var startIndex = 0;
+      var indices = [];
+      var index;
+      var coords = [];
+    
+      while ((index = text.indexOf(keywords, startIndex)) > -1) {
+        indices.push(index);
+        startIndex = index + keywords.length;
+      };
+      
+      for (const v of indices) {
+    
+        var start_position = v * len_of_charachter;
+    
+        var x = transform[4] + start_position
+        var y = transform[5];
+    
+        //Postions of the ending
+    
+        var right_y = y + height;
+    
+        var right_x = x + (keywords.length * len_of_charachter); 
+    
+        coords.push({page:page, x: x, y:y, right_x:right_x, right_y: right_y, color:color, keywords:keywords}); };
+      
+      return (coords);
+    }
+
+    //Now saving the file:
+
+    //Editing the library info to run book from new path and the skin Applied
+
+
+
+
+
+
+  }
+
   chaimager_button = async () => {
     //Handles the click of the chaimager button, showing a modal with all chaimager files that exist in the app
 
@@ -114,7 +316,7 @@ export default class Homescreen extends Component {
 
     var source = {uri: filepath, cache:true};
 
-    var info = {title: title, pages: pagenumber, current_page: 1, source:source};
+    var info = {title: title, pages: pagenumber, current_page: 1, source:source, times_opened: 0};
 
     var new_library = this.state.library;
     
@@ -177,36 +379,22 @@ export default class Homescreen extends Component {
     }
   }
 
-  reset_chaimager_from_book = async () => {
-
-    var info = this.state.edit_modal_info;
-
-    var library = this.state.library;
-
-    for (let i = 0; i < library.length; i++){
-      //Locating book in library list
-      if (library[i].source == info.source){
-
-        const filepath = library[i].source.uri;
-
-        const chaimager_file_name = filepath.split('\\').pop().split('/').pop().split('.').slice(0, -1).join('.') + '.json';
-			  
-        const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name;
-
-        try {
-        await RNFS.unlink(chaimager_file_path); }
-        catch {}
-
-        this.setState(() => {return {edit_modal_visible: false}})
-        }
-    };
-      
-  }
-
-  read_book = async (source, page) => {
+  read_book = async (source, page, times_opened) => {
     var filepath = source.uri;
+
+    //Updating number of times book was opened:
+    //TODO
+
+    //Checks if is 1st time loading:
+    //TODO #9
+
+    if (times_opened == 0){
+      this.setState(() => { return {first_time_book_opened: true }})
+    }
     
+    else{
     this.props.navigation.navigate('Pdf_renderer', {filepath: filepath, current_page: page});
+    }
   }
 
   requestStoragePermission = async () => {
@@ -258,6 +446,9 @@ export default class Homescreen extends Component {
 
       //Chaimager
       await RNFS.mkdir(this.path + '/chaimager_files/');
+
+      //Chaimager edited pdfs
+      await RNFS.mkdir(this.path + '/edited_pdfs/');
 
       //Library:
       await RNFS.writeFile(this.path + 'library.json', '{"books": []}', 'utf8');
@@ -316,8 +507,9 @@ export default class Homescreen extends Component {
       var current_page = library.books[i].current_page;
   
       var source = library.books[i].source;
+      var times_opened = library.books[i].times_opened;
 
-      library_list.push({title: title, pages: total_page, current_page: current_page, source: source});
+      library_list.push({title: title, pages: total_page, current_page: current_page, source: source, times_opened: times_opened});
     };
     console.log("Library found with " + library_list.length + ' elements.');
   
@@ -395,7 +587,7 @@ export default class Homescreen extends Component {
                   margin: 1}}
                   
 
-      onPress={() => {this.read_book(info.item.source, info.item.current_page)}}
+      onPress={() => {this.read_book(info.item.source, info.item.current_page, info.item.times_opened)}}
       onLongPress={() => {renderDropDown(info.item)}}
       >
       
@@ -555,8 +747,8 @@ export default class Homescreen extends Component {
             <Button title='Reset' 
             style={{margin: 2, width: Dimensions.get('window').width * 0.8}}
             status='success'
-            onPress={() => {this.reset_chaimager_from_book()}} 
-            >Reset chaimager</Button>
+            onPress={() => {}} 
+            >Chaimager skin</Button>
 
             <Button title='Share Chaimager file' 
             style={{margin: 2, width: Dimensions.get('window').width * 0.8}}
@@ -684,6 +876,75 @@ export default class Homescreen extends Component {
 
     </Modal>
   
+    <Modal 
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {this.setState((state) => {return {
+          first_time_book_opened: false}
+                                                          ;}
+                                              );
+                                }
+                        }
+        visible={this.state.first_time_book_opened}>
+
+        <View style = {{flex: 1,
+              justifyContent: "center",
+              alignItems: "center"
+              }}>
+        
+          <View style = {{margin: 20,
+                  backgroundColor: "white",
+                  borderRadius: 20,
+                  padding: 35,
+                  alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOffset: {
+                  width: 0,
+                  height: 2
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 4,
+                  elevation: 5}} >
+
+          
+            <View>
+                <Text style={{textAlign:'center'}}>It seems that this is your first time loading this book. 
+                Would you like to add a Chaimager Skin?</Text>
+                <Text>(It takes some time)</Text>
+
+                <Text style={{textAlign:'center'}}>Chaimager files in your device:</Text>
+
+                          <List
+                  data={this.state.chaimager_list}
+                  renderItem={renderChaimagerItem}
+                  numColumns={1}
+                />
+
+                <Button>Read without Chaimager skin</Button>
+                
+                <View style={{flexDirection: 'row'}}>
+
+                  <Button onPress={() => {this.setState((state) => {return {
+                                                          first_time_book_opened: false}
+                                                          ;}
+                                              );
+                                }} 
+                          style={{marginTop:10, marginLeft:10 }} 
+                          status='danger'>Exit</Button>
+
+
+
+                </View>
+                  
+            </View>
+
+          </View>
+
+        </View>
+
+
+    </Modal>
+
 
 		<TopNavigation style={{height:Dimensions.get('window').height / 12}}
 						alignment='center'
