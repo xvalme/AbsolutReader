@@ -2,14 +2,8 @@ import React, {Component} from 'react';
 import Pdf from 'react-native-pdf'; //Rendering
 import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput, BackHandler, ScrollView} from 'react-native';
 import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem, Card} from '@ui-kitten/components';
-import ColorPicker from 'react-native-wheel-color-picker'
-import DocumentPicker from 'react-native-document-picker';
-import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
-import { encodeToBase64, PDFDocument, PDFName, PDFString, PDFArray, rgb } from "pdf-lib"; //Adding links
 
 var RNFS = require('react-native-fs');
-var base64js = require('base64-js');
 
 export default class Pdf_Renderer extends Component {
 
