@@ -5,6 +5,8 @@ import { Image, StyleSheet, SafeAreaView, Dimensions, View, PermissionsAndroid, 
 import DocumentPicker from 'react-native-document-picker';
 import { pdf_pagenumber_getter } from './pdf_tools/pdf_info_getter';
 import Pdf from 'react-native-pdf'; //Rendering
+import { showMessage, hideMessage } from "react-native-flash-message";
+import FlashMessage from "react-native-flash-message";
 
 var RNFS = require('react-native-fs');
 
@@ -20,7 +22,6 @@ export default class Homescreen extends Component {
 
     this.state={library: [],
                 chaimager_list: [],
-                chaimager_list_loaded: false,
                 library_loaded: false,
                 edit_modal_visible: false,
                 edit_modal_info: {},
@@ -67,12 +68,31 @@ export default class Homescreen extends Component {
     
     //Making modal invisible:
     this.setState((state) => {return {
-      chaimager_list_modal_visible: false}
+      chaimager_list_modal_visible: false,
+      chaimager_info_modal_visible: false}
       ;}
     );
 
 
     this.props.navigation.navigate('Chaimager_adder', {name:name});
+  }
+
+  delete_chaimager = async (name) => {
+
+    var path = this.path + '/chaimager_files/' + name + '.json';
+
+    await RNFS.unlink(path);
+
+     //Reloading library:
+
+    this.setState(()=> {return {library_loaded: false,
+                                edit_modal_visible: false,
+                                chaimager_info_modal_visible: false, }})
+
+  }
+
+  share_chaimager = async (name) => {
+
   }
 
   merge_chaimager = async (filepath, chaimager_file) => {
@@ -566,8 +586,7 @@ export default class Homescreen extends Component {
     this.setState((state) => {return {
       library: library_list,
       library_loaded: true,
-      chaimager_list: chaimager_list, 
-      chaimager_list_loaded: true};});
+      chaimager_list: chaimager_list};});
 
       //this.props.route.params["back_action"] = false; //So that it does not repeat itself to the end of the universe
 
@@ -1021,7 +1040,8 @@ export default class Homescreen extends Component {
               <Image source={{uri: this.state.chaimager_info_modal_information.thumbnail}}  
                 style={{
                 width: Dimensions.get('window').width / 2,
-                height: Dimensions.get('window').width / 2}}/>
+                height: Dimensions.get('window').width / 2}}
+                 />
 
               <Text>{this.state.chaimager_info_modal_information.filename}</Text>
 
@@ -1032,6 +1052,16 @@ export default class Homescreen extends Component {
               <Text>For volume: {this.state.chaimager_info_modal_information.volume}</Text>
 
             </View>
+
+            <View sytle={{alignItems: "center", marginTop: Dimensions.get('window').width / 50, flexDirection:"row" }}>
+
+              <Button status="success" onPress={() => {this.create_chaimager(this.state.chaimager_info_modal_information.filename)}}>Edit</Button>
+              <Button status="danger" onPress={() => {this.delete_chaimager(this.state.chaimager_info_modal_information.filename)}}>Delete</Button>
+              <Button status="info" onPress={() => {this.share_chaimager(this.state.chaimager_info_modal_information.filename)}}>Share</Button>
+
+            </View>
+
+            <Button onPress={() => {this.setState(() =>{ return {chaimager_info_modal_visible: false }})}}>Return</Button>
 
           </View>
 
@@ -1069,7 +1099,9 @@ export default class Homescreen extends Component {
           <Button onPress={this.chaimager_button} style={{marginTop:10, marginLeft:10 }}>Chaimager</Button>
       </View>
       
+      <FlashMessage position="bottom"/>
     </Layout>
+            
   </SafeAreaView>
   );
   }}
