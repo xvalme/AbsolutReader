@@ -24,6 +24,8 @@ export default class Homescreen extends Component {
                 library_loaded: false,
                 edit_modal_visible: false,
                 edit_modal_info: {},
+                chaimager_info_modal_information: {},
+                chaimager_info_modal_visible: false,
                 welcome_modal_visible: true,
                 chaimager_list_modal_visible: false,
                 first_time_book_opened: false,
@@ -530,7 +532,7 @@ export default class Homescreen extends Component {
 
     var chaimager_list = []; //Variable to then update with the values
 
-    files.forEach(file => {
+    for (const file of files) {
 
       var name = file.name;
 
@@ -538,13 +540,28 @@ export default class Homescreen extends Component {
 
       if (name.includes('.json')) {
 
-        //Appends:
+        //Opening file and getting all the information:
 
-        chaimager_list.push (name.split('.json')[0])
+        var file_info = await RNFS.readFile (file.path);
+
+        //Now converting to json
+        var json = await JSON.parse(file_info);
+
+        //Information:
+
+        var filename = json.filename;
+        var creator = json.creator;
+        var thumbnail = json.thumbnail;
+        var reccomended_book = json.reccomended_book;
+        var volume = json.volume;
+
+        //Appends information:
+
+        chaimager_list.push({filename: filename, creator: creator, thumbnail:thumbnail, reccomended_book:reccomended_book, volume: volume});
 
       }
 
-    })
+    };
   
     this.setState((state) => {return {
       library: library_list,
@@ -633,17 +650,34 @@ export default class Homescreen extends Component {
       status='basic'
       style= {{  
                   margin: 1}}
+      
+      onPress = {() => {this.setState(() => {return {
+        chaimager_info_modal_visible: true,
+        chaimager_info_modal_information: info.item,
+      }})}}
       >
         <View style = {{flexDirection:'row', flex:1}}>
 
-          <View style={{flex: 6}}>
-              <Text style={{}}>
-                {info.item}
-              </Text>
+          <View>
+
+            <Image source={{uri: info.item.thumbnail}}  
+            style={{
+              width: Dimensions.get('window').width / 5,
+              height: Dimensions.get('window').width / 5}}/>
+
           </View>
 
           <View style={{flex: 4}}>
-              <Button style={{}}  onPress={() => {this.create_chaimager(info.item)}}>Edit</Button>
+              <Text style={{marginLeft: Dimensions.get('window').width / 50}}>
+                {info.item.filename}
+              </Text>
+          </View>
+
+          <View style={{flex: 4, flexDirection: "row-reverse"}}>
+              <Button  style={{}} size='small'  onPress={() => {this.setState(() => {return {
+                chaimager_info_modal_visible: true,
+                chaimager_info_modal_information: info.item,
+              }})}}>More...</Button>
           </View>
 
         </View>
@@ -848,8 +882,8 @@ export default class Homescreen extends Component {
                   elevation: 5}} >
 
           
-            <View>
-                <Text style={{textAlign:'center'}}>Chaimager files in your device</Text>
+            <View style={{width: Dimensions.get('window').width * 0.95}}>
+                <Text style={{textAlign:'center', marginBottom: Dimensions.get('window').width / 50}}>Chaimager files in your device</Text>
 
                           <List
                   data={this.state.chaimager_list}
@@ -942,6 +976,61 @@ export default class Homescreen extends Component {
 
                 </View>
                   
+            </View>
+
+          </View>
+
+        </View>
+
+
+    </Modal>
+
+    <Modal 
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {this.setState((state) => {return {
+          chaimager_info_modal_visible: false}
+                                                          ;}
+                                              );
+                                }
+                        }
+        visible={this.state.chaimager_info_modal_visible}>
+
+        <View style = {{flex: 1,
+              justifyContent: "center",
+              alignItems: "center"
+              }}>
+        
+          <View style = {{margin: 20,
+                  backgroundColor: "white",
+                  borderRadius: 20,
+                  padding: 35,
+                  alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOffset: {
+                  width: 0,
+                  height: 2
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 4,
+                  elevation: 5}} >
+
+          
+            <View style={{alignItems: "center"}}>
+
+              <Image source={{uri: this.state.chaimager_info_modal_information.thumbnail}}  
+                style={{
+                width: Dimensions.get('window').width / 2,
+                height: Dimensions.get('window').width / 2}}/>
+
+              <Text>{this.state.chaimager_info_modal_information.filename}</Text>
+
+              <Text style={{marginTop: Dimensions.get('window').width / 50}}>Created by: {this.state.chaimager_info_modal_information.creator}</Text>
+
+              <Text>Reccomended book: {this.state.chaimager_info_modal_information.reccomended_book}</Text>
+                  
+              <Text>For volume: {this.state.chaimager_info_modal_information.volume}</Text>
+
             </View>
 
           </View>

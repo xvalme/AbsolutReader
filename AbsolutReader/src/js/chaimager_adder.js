@@ -365,7 +365,7 @@ export default class Chaimager_adder extends Component {
                 "chaimager": this.state.chaimager,
                 "volume":this.state.volume,
                 "creator": this.state.creator,
-                "thubmanil": this.state.thumbnail,
+                "thumbnail": this.state.thumbnail,
                 "reccomended_book":this.state.reccomended_book,
 
             }
