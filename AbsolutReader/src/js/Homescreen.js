@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card} from '@ui-kitten/components';
+import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card, TabView, Tab} from '@ui-kitten/components';
 import { Image, StyleSheet, SafeAreaView, Dimensions, View, PermissionsAndroid, Modal} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { pdf_pagenumber_getter } from './pdf_tools/pdf_info_getter';
@@ -20,7 +20,8 @@ export default class Homescreen extends Component {
 
     this.path = RNFS.DocumentDirectoryPath; //Main path of app
 
-    this.state={library: [],
+    this.state={top_index:0,
+                library: [],
                 chaimager_list: [],
                 library_loaded: false,
                 edit_modal_visible: false,
@@ -28,7 +29,6 @@ export default class Homescreen extends Component {
                 chaimager_info_modal_information: {},
                 chaimager_info_modal_visible: false,
                 welcome_modal_visible: true,
-                chaimager_list_modal_visible: false,
                 first_time_book_opened: false,
                 }
   }
@@ -92,7 +92,6 @@ export default class Homescreen extends Component {
   }
 
   share_chaimager = async (name) => {
-
   }
 
   merge_chaimager = async (filepath, chaimager_file) => {
@@ -667,8 +666,8 @@ export default class Homescreen extends Component {
   const renderChaimagerItem = (info) => (
     <Card
       status='basic'
-      style= {{  
-                  margin: 1}}
+      style= {{  width:Dimensions.get('window').width,
+                  margin: 1,}}
       
       onPress = {() => {this.setState(() => {return {
         chaimager_info_modal_visible: true,
@@ -681,8 +680,8 @@ export default class Homescreen extends Component {
 
             <Image source={{uri: info.item.thumbnail}}  
             style={{
-              width: Dimensions.get('window').width / 5,
-              height: Dimensions.get('window').width / 5}}/>
+              width: Dimensions.get('window').width / 4,
+              height: Dimensions.get('window').width / 4}}/>
 
           </View>
 
@@ -874,71 +873,6 @@ export default class Homescreen extends Component {
         animationType="slide"
         transparent={true}
         onRequestClose={() => {this.setState((state) => {return {
-                                                          chaimager_list_modal_visible: false}
-                                                          ;}
-                                              );
-                                }
-                        }
-        visible={this.state.chaimager_list_modal_visible}>
-
-        <View style = {{flex: 1,
-              justifyContent: "center",
-              alignItems: "center"
-              }}>
-        
-          <View style = {{margin: 20,
-                  backgroundColor: "white",
-                  borderRadius: 20,
-                  padding: 35,
-                  alignItems: "center",
-                  shadowColor: "#000",
-                  shadowOffset: {
-                  width: 0,
-                  height: 2
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 4,
-                  elevation: 5}} >
-
-          
-            <View style={{width: Dimensions.get('window').width * 0.95}}>
-                <Text style={{textAlign:'center', marginBottom: Dimensions.get('window').width / 50}}>Chaimager files in your device</Text>
-
-                          <List
-                  data={this.state.chaimager_list}
-                  renderItem={renderChaimagerItem}
-                  numColumns={1}
-                />
-                
-                <View style={{flexDirection: 'row'}}>
-                  <Button onPress={() => {this.create_chaimager('#kofokfekowf#NEW7951')}} style={{marginTop:10, marginLeft:10 }}>Create new Chaimager file</Button>
-
-                  <Button onPress={() => {this.setState((state) => {return {
-                                                          chaimager_list_modal_visible: false}
-                                                          ;}
-                                              );
-                                }} 
-                          style={{marginTop:10, marginLeft:10 }} 
-                          status='danger'>Exit</Button>
-
-                  <Button>Import</Button>
-
-
-                </View>
-                  
-            </View>
-
-          </View>
-
-        </View>
-
-
-    </Modal>
-  
-    <Modal 
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => {this.setState((state) => {return {
           first_time_book_opened: false}
                                                           ;}
                                               );
@@ -1070,7 +1004,6 @@ export default class Homescreen extends Component {
 
     </Modal>
 
-
 		<TopNavigation style={{height:Dimensions.get('window').height / 12}}
 						alignment='center'
 						title='Absolut Reader'
@@ -1078,9 +1011,17 @@ export default class Homescreen extends Component {
             accessoryRight={render_top_logo}
             accessoryLeft={renderMenu}/>
 
-            <Divider />
+    <TabView selectedIndex={this.state.top_index} onSelect={(index) => {this.setState((state) => {return {
+          top_index: index}
+                                                          ;}
+                                              );
+                                }
+                        }>
+
+      <Tab title="Library">
       
-      <Layout style={{flex: 1,
+      <Layout style={{ 
+                      height:Dimensions.get('window').height / 12 * 10.4,
                       justifyContent: 'center', 
                       alignItems: 'center',}}>
 
@@ -1096,11 +1037,40 @@ export default class Homescreen extends Component {
 
         <View style={{flex: 1, flexDirection:'row'}}> 
           <Button onPress={this.load_file} style={{marginTop:10}}>Add PDF</Button>
-          <Button onPress={this.chaimager_button} style={{marginTop:10, marginLeft:10 }}>Chaimager</Button>
       </View>
       
       <FlashMessage position="bottom"/>
     </Layout>
+
+    </Tab>
+
+      <Tab title="Chaimager">
+
+        <Layout style={{ 
+                        height:Dimensions.get('window').height / 12 * 10.4,
+                        justifyContent: 'center', 
+                        alignItems: 'center',}}>
+
+          <View style={{flex: 9}}>
+
+          <List
+                  data={this.state.chaimager_list}
+                  renderItem={renderChaimagerItem}
+                  numColumns={1}
+          />
+
+          </View>
+
+          <View style={{flex: 1, flexDirection:'row'}}> 
+          <Button onPress={() => {this.create_chaimager('#kofokfekowf#NEW7951')}} style={{marginTop:10, marginLeft:10 }}>Create new Chaimager file</Button>
+        </View>
+        
+      </Layout>
+
+      </Tab>
+
+
+    </TabView>
             
   </SafeAreaView>
   );
