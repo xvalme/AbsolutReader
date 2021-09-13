@@ -123,10 +123,10 @@ export default class Chaimager_adder extends Component {
 
 				var image = await RNFS.readFile(image_path, 'base64');
 
-				await this.setState((state) => {return {chaimager_main_image_cache: 'data:image/png;base64,'+image,
-                                                        chaimager: {"ids":this.state.chaimager.ids, "thumbnail": 'data:image/png;base64,'+image, } 
+				await this.setState((state) => {return {thumbnail: 'data:image/png;base64,'+image
+                                                        } 
                                                     
-                                                    }});
+                                                    });
 
 				this.forceUpdate();
 
@@ -319,9 +319,38 @@ export default class Chaimager_adder extends Component {
 
         var filename = this.state.filename;
 
-        var path = RNFS.DocumentDirectoryPath + '/chaimager_files/' + filename + '.json'
+        var path = RNFS.DocumentDirectoryPath + '/chaimager_files/' + filename + '.json';
 
-        console.log(path);
+        var forbidden_charachters = ["|", '\\', "\\\\", "?", "*", "<", '"', ':', ">", "+", "[", "]", "/" ]
+
+        //Checking if filename is invalid:
+
+        for (const a of forbidden_charachters){
+            
+            if (filename.includes(a)) {
+
+                //Error, cancels saving
+
+                console.log("Invalid filename.");
+
+                showMessage(
+                    {
+                        message: "Invalid file name. Remove any '|\\?*<:>'+[]/' characters. ",
+                        type: "danger",
+                        durantion: 5000,
+                        floating: true,
+                        icon: "auto",
+        
+        
+                    }
+                );
+
+                return 0
+
+
+            }
+
+        }
 
         if (RNFS.exists(path) == true) {
 
