@@ -73,7 +73,7 @@ export default class Homescreen extends Component {
     this.props.navigation.navigate('Chaimager_adder', {name:name});
   }
 
-  merge_chaimager = async (filename, chaimager_file) => {
+  merge_chaimager = async (filepath, chaimager_file) => {
 
     //Runs if user ask to merge a skin with a pdf. Saves the pdf in the end in a folder
     //So that when user returns to it he does not have to wait.
@@ -265,9 +265,15 @@ export default class Homescreen extends Component {
 
     //Now saving the file:
 
+    var title = filepath.split('.').slice(0, -1).join('.');
+
+    await RNFS.writeFile(RNFS.DocumentDirectoryPath + '/edited_pdfs/' + title + '.pdf' ,base64_pdf, 'base64');
+
+    console.log("[MERGER] New Pdf saved");
+
     //Editing the library info to run book from new path and the skin Applied
 
-
+    
 
 
 
