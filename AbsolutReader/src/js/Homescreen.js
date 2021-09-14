@@ -30,6 +30,10 @@ export default class Homescreen extends Component {
                 chaimager_info_modal_visible: false,
                 welcome_modal_visible: true,
                 first_time_book_opened: false,
+                forge_chaimager_modal: false,
+                forge_library_modal: false,
+                forge_selected_book: {},
+                forge_selected_chaimager: {},
                 }
   }
   
@@ -668,6 +672,37 @@ export default class Homescreen extends Component {
     </Card>
   );
 
+  const forge_renderItem = (info) => (
+    <Card
+      status='basic'
+      onPress={() => {this.setState((state) => {return {
+        forge_selected_book: info.item,
+        forge_library_modal: false}
+                                            ;}
+                                );
+                  }
+          }
+      style= {{ 
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  margin: 1,}}
+      >
+      
+      <View style={{alignItems: "center"}}>
+
+          <Pdf
+            source={info.item.source}
+            style={{width:Dimensions.get('window').width / 2 * 0.8, height:Dimensions.get('window').height / 4}}
+            fitPolicy={1}
+            singlePage={true}
+            
+          />
+
+          <Text style={{textAlign: "center"}}>{info.item.title}</Text>
+        </View>
+    </Card>
+  );
+
   const renderChaimagerItem = (info) => (
     <Card
       status='basic'
@@ -707,6 +742,32 @@ export default class Homescreen extends Component {
           </View>
 
         </View>
+
+      </Card>
+  );
+
+  const forge_renderChaimagerItem = (info) => (
+    <Card
+      status='basic'
+      onPress={() => {this.setState((state) => {return {
+            forge_selected_chaimager: info.item,
+            forge_chaimager_modal: false,}
+                                                ;}
+                                    );
+                      }
+              }
+      
+      >
+          <View style={{alignItems:"center"}}>
+
+            <Image source={{uri: info.item.thumbnail}}  
+            style={{
+              width: Dimensions.get('window').width / 4,
+              height: Dimensions.get('window').width / 4}}/>
+
+            <Text style={{textAlign:"center"}}>{info.item.filename}</Text>
+
+          </View>
 
       </Card>
   );
@@ -1012,6 +1073,112 @@ export default class Homescreen extends Component {
 
     </Modal>
 
+    <Modal 
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {this.setState((state) => {return {
+          forge_chaimager_modal: false}
+                                                          ;}
+                                              );
+                                }
+                        }
+        visible={this.state.forge_chaimager_modal}>
+
+        <View style = {{flex: 1,
+              justifyContent: "center",
+              alignItems: "center"
+              }}>
+        
+          <View style = {{margin: 20,
+                  backgroundColor: "white",
+                  borderRadius: 20,
+                  padding: 35,
+                  alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOffset: {
+                  width: 0,
+                  height: 2
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 4,
+                  elevation: 5}} >
+
+          
+            <View style={{alignItems: "center"}}>
+
+              <Text style= {{textAlign: "center"}}>Select the Chaimager skin you want to add to the forge</Text>
+
+
+            <List
+                data={this.state.chaimager_list}
+                renderItem={forge_renderChaimagerItem}
+                numColumns={2}
+                  />
+
+            </View>
+
+            <Button style={{alignSelf: "center"}} onPress={() => {this.setState(() =>{ return {forge_chaimager_modal: false }})}}>Return</Button>
+
+          </View>
+
+        </View>
+
+
+    </Modal>
+
+    <Modal 
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {this.setState((state) => {return {
+          forge_library_modal: false}
+                                                          ;}
+                                              );
+                                }
+                        }
+        visible={this.state.forge_library_modal}>
+
+        <View style = {{flex: 1,
+              justifyContent: "center",
+              alignItems: "center"
+              }}>
+        
+          <View style = {{margin: 20,
+                  backgroundColor: "white",
+                  borderRadius: 20,
+                  padding: 35,
+                  alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOffset: {
+                  width: 0,
+                  height: 2
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 4,
+                  elevation: 5}} >
+
+          
+            <View style={{alignItems: "center"}}>
+
+              <Text style= {{textAlign: "center"}}>Select the book you want to add to the forge</Text>
+
+
+            <List
+                data={this.state.library}
+                renderItem={forge_renderItem}
+                numColumns={1}
+                  />
+
+            </View>
+
+            <Button style={{alignSelf: "center"}} onPress={() => {this.setState(() =>{ return {forge_library_modal: false }})}}>Return</Button>
+
+          </View>
+
+        </View>
+
+
+    </Modal>
+
 		<TopNavigation style={{height:Dimensions.get('window').height / 12}}
 						alignment='center'
 						title='Absolut Reader'
@@ -1019,7 +1186,7 @@ export default class Homescreen extends Component {
             accessoryRight={render_top_logo}
             accessoryLeft={renderMenu}/>
 
-    <TabView selectedIndex={this.state.top_index} onSelect={(index) => {this.setState((state) => {return {
+    <TabView selectedIndex={2} onSelect={(index) => {this.setState((state) => {return {
           top_index: index}
                                                           ;}
                                               );
@@ -1077,7 +1244,59 @@ export default class Homescreen extends Component {
 
       </Tab>
 
+      <Tab title="The forge">
 
+      <Layout style={{ 
+                      height:Dimensions.get('window').height / 12 * 10.4,
+                      justifyContent: 'center', 
+                      alignItems: 'center',}}>
+
+        <View style={{flex: 9}}>
+
+          <Text style={{alignSelf:"center", textAlign:"center"}}>Here you can merge a book that you have with a Chaimager skin. Choose the book and skin you want, and press Forge! </Text>
+          <Text style={{alignSelf:"center", textAlign:"center"}}> This might take some time! </Text>
+
+          <View style={{flex:1, flexDirection:'row'}}>
+
+            <View style={{width: Dimensions.get('window').width / 2}}>
+
+              <Button onPress={() => {this.setState((state) => {return {
+                    forge_library_modal: true}
+                                                            ;}
+                                                );
+                                  }
+                          }>Select Book</Button>
+
+
+                            
+                    
+            </View>
+            
+            <View style={{width: Dimensions.get('window').width / 2}}>
+                
+              <Button onPress={() => {this.setState((state) => {return {
+                    forge_chaimager_modal: true}
+                                                            ;}
+                                                );
+                                  }
+                          }>Select skin</Button>
+
+          </View>
+
+
+
+          </View>
+
+        </View>
+
+        <View style={{flex: 1, flexDirection:'row'}}> 
+
+      </View>
+
+      </Layout>
+
+      </Tab>
+        
     </TabView>
             
   </SafeAreaView>
