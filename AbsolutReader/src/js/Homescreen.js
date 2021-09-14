@@ -622,44 +622,49 @@ export default class Homescreen extends Component {
   const renderItem = (info) => (
     <Card
       status='basic'
-      style= {{   width: Dimensions.get('window').width / 2,
+      style= {{   width: Dimensions.get('window').width,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  margin: 1}}
+                  margin: 1,}}
                   
 
       onPress={() => {this.read_book(info.item.source, info.item.current_page, info.item.times_opened)}}
       onLongPress={() => {renderDropDown(info.item)}}
       >
       
-      <View>
-      <Pdf
-				source={info.item.source}
-        style={{width:Dimensions.get('window').width / 2 * 0.8, height:Dimensions.get('window').height / 4}}
-        singlePage={true}
-        
-      />
+      <View style={{flexDirection: 'row'}}>
+        <View>
+
+          <Pdf
+            source={info.item.source}
+            style={{width:Dimensions.get('window').width / 2 * 0.8, height:Dimensions.get('window').height / 4}}
+            fitPolicy={1}
+            singlePage={true}
+            
+          />
+        </View>
+
+            <View>
+              <Text style={{   justifyContent: 'center',
+                              textAlign: 'center',}}>
+                  {info.item.title}
+                </Text>
+                  <View style={{flexDirection: 'row', alignItems:'center', justifyContent: 'center',}}>
+                        <Text>
+                          {info.item.current_page} / {info.item.pages} Pages
+                        </Text>
+
+                        <Button 
+                        appearance='ghost'
+                        onPress={() => {renderDropDown(info.item)}}
+                        accessoryLeft={DropDownIcon}
+                        size='small' />
+
+                  </View>
+
+            </View>
+
       </View>
-
-          <View>
-            <Text style={{   justifyContent: 'center',
-                             textAlign: 'center',}}>
-                {info.item.title}
-              </Text>
-                <View style={{flexDirection: 'row', alignItems:'center', justifyContent: 'center',}}>
-                      <Text>
-                        {info.item.current_page} / {info.item.pages} Pages
-                      </Text>
-
-                      <Button 
-                      appearance='ghost'
-                      onPress={() => {renderDropDown(info.item)}}
-                      accessoryLeft={DropDownIcon}
-                      size='small' />
-
-                 </View>
-          </View>
-
     </Card>
   );
 
@@ -689,10 +694,13 @@ export default class Homescreen extends Component {
               <Text style={{marginLeft: Dimensions.get('window').width / 50}}>
                 {info.item.filename}
               </Text>
+              <Text style={{marginLeft: Dimensions.get('window').width / 50}}>
+                Created by: {info.item.creator}
+              </Text>
           </View>
 
-          <View style={{flex: 4, flexDirection: "row-reverse"}}>
-              <Button  style={{}} size='small'  onPress={() => {this.setState(() => {return {
+          <View style={{ flexDirection: "row-reverse"}}>
+              <Button  style={{height:  Dimensions.get('window').width / 8}} size='small'  onPress={() => {this.setState(() => {return {
                 chaimager_info_modal_visible: true,
                 chaimager_info_modal_information: info.item,
               }})}}>More...</Button>
@@ -987,7 +995,7 @@ export default class Homescreen extends Component {
 
             </View>
 
-            <View sytle={{alignItems: "center", marginTop: Dimensions.get('window').width / 50, flexDirection:"row" }}>
+            <View style={{marginTop: Dimensions.get('window').width / 50, flexDirection: "row" }}>
 
               <Button status="success" onPress={() => {this.create_chaimager(this.state.chaimager_info_modal_information.filename)}}>Edit</Button>
               <Button status="danger" onPress={() => {this.delete_chaimager(this.state.chaimager_info_modal_information.filename)}}>Delete</Button>
@@ -995,7 +1003,7 @@ export default class Homescreen extends Component {
 
             </View>
 
-            <Button onPress={() => {this.setState(() =>{ return {chaimager_info_modal_visible: false }})}}>Return</Button>
+            <Button style={{alignSelf: "center"}} onPress={() => {this.setState(() =>{ return {chaimager_info_modal_visible: false }})}}>Return</Button>
 
           </View>
 
@@ -1030,7 +1038,7 @@ export default class Homescreen extends Component {
           <List
         data={this.state.library}
         renderItem={renderItem}
-        numColumns={2}
+        numColumns={1}
       />
 
         </View>
