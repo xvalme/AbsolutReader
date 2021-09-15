@@ -1256,9 +1256,9 @@ export default class Homescreen extends Component {
           <Text style={{alignSelf:"center", textAlign:"center"}}>Here you can merge a book that you have with a Chaimager skin. Choose the book and skin you want, and press Forge! </Text>
           <Text style={{alignSelf:"center", textAlign:"center"}}> This might take some time! </Text>
 
-          <View style={{flex:1, flexDirection:'row'}}>
+          <View style={{flexDirection:'row'}}>
 
-            <View style={{width: Dimensions.get('window').width / 2}}>
+            <View style={{width: Dimensions.get('window').width / 2,}}>
 
               <Button onPress={() => {this.setState((state) => {return {
                     forge_library_modal: true}
@@ -1267,12 +1267,12 @@ export default class Homescreen extends Component {
                                   }
                           }>Select Book</Button>
 
+              <Text style={{textAlign:"center"}}>Selected Book:</Text>
+              <Text style={{textAlign:"center", backgroundColor:"cyan"}}>{this.state.forge_selected_book.title}</Text>
 
-                            
-                    
             </View>
             
-            <View style={{width: Dimensions.get('window').width / 2}}>
+            <View style={{width: Dimensions.get('window').width / 2,}}>
                 
               <Button onPress={() => {this.setState((state) => {return {
                     forge_chaimager_modal: true}
@@ -1281,10 +1281,16 @@ export default class Homescreen extends Component {
                                   }
                           }>Select skin</Button>
 
+              <Text style={{textAlign:"center"}} >Selected Chaimager: </Text>
+              <Text style={{textAlign:"center", backgroundColor:"cyan"}} >{this.state.forge_selected_chaimager.filename}</Text>
+
           </View>
 
+          </View>
 
-
+          <View style={{alignItems: "center"}}>
+                
+                <Button status="success">Forge!</Button>
           </View>
 
         </View>
