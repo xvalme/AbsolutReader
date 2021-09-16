@@ -7,8 +7,13 @@ import { pdf_pagenumber_getter } from './pdf_tools/pdf_info_getter';
 import Pdf from 'react-native-pdf'; //Rendering
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
+import { pdfjsWorker } from "pdfjs-dist/legacy/build/pdf.worker.entry";
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf'; //Getting coordinates of text in pdf
+import { encodeToBase64, PDFDocument, PDFName, PDFString, PDFArray, rgb } from "pdf-lib"; //Adding links
+
 
 var RNFS = require('react-native-fs');
+var base64js = require('base64-js')
 
 export default class Homescreen extends Component {
 
@@ -34,7 +39,9 @@ export default class Homescreen extends Component {
                 forge_library_modal: false,
                 forge_selected_book: {},
                 forge_selected_chaimager: {},
+                forge_progress:0,
                 }
+
   }
   
   async load_welcome_page () {
@@ -98,22 +105,51 @@ export default class Homescreen extends Component {
   share_chaimager = async (name) => {
   }
 
-  merge_chaimager = async (filepath, chaimager_file) => {
+  forge_chaimager = async (selected_book, chaimager_file) => {
 
     //Runs if user ask to merge a skin with a pdf. Saves the pdf in the end in a folder
     //So that when user returns to it he does not have to wait.
-    console.log("[MERGER] Starting merger.")
+    console.log("[MERGER] Starting merger.");
+
+    //Checks 1st if values exist:
+
+    try {
+      var filepath = selected_book.source.uri;
+      var chaimager_json = chaimager_file.chaimager;
+    }
+
+    catch {
+
+      showMessage(
+        {
+            message: "You did not select a Book and a Chaimager file to merge!",
+            type: "danger",
+            durantion: 3000,
+            floating: true,
+            icon: "auto",
+          }
+      );
+
+        return 0;
+
+    }
 
     //Opening file first:
     var base64_pdf = await RNFS.readFile(filepath, 'base64');
 
-    //Opening chaimager:
-    var json = await RNFS.readFile(chaimager_file);
-		var chaimager_json = await JSON.parse(json);
-
     var pdfDoc = base64js.toByteArray(base64_pdf); //PDF as byte array so pdf.js library can understand it
 
-    console.log("[MERGER] Files opened.")
+    console.log("[MERGER] Files opened.");
+
+    showMessage(
+      {
+          message: "Forge started and files were collected sucessfully. Please wait.",
+          type: "success",
+          durantion: 3000,
+          floating: true,
+          icon: "auto",
+        }
+    );
 
 		//Getting the coords
 
@@ -244,6 +280,7 @@ export default class Homescreen extends Component {
     var base64_pdf =  await make_links(pdfDoc, array_coordinate_dic);
 
     console.log("[MERGER] Links built.");
+    return 0
 
     function hexToRgb(hex) {
       var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -302,6 +339,14 @@ export default class Homescreen extends Component {
 
 
 
+
+  }
+
+  forge_change_progress = (value) => {
+
+    this.setState(() => {return {forge_progress: value}})
+
+    return 0
 
   }
 
@@ -418,14 +463,9 @@ export default class Homescreen extends Component {
 
     //Checks if is 1st time loading:
     //TODO #9
-
-    if (times_opened == 0){
-      this.setState(() => { return {first_time_book_opened: true }})
-    }
     
-    else{
     this.props.navigation.navigate('Pdf_renderer', {filepath: filepath, current_page: page});
-    }
+    
   }
 
   requestStoragePermission = async () => {
@@ -573,6 +613,7 @@ export default class Homescreen extends Component {
         //Information:
 
         var filename = json.filename;
+        var chaimager = json.chaimager;
         var creator = json.creator;
         var thumbnail = json.thumbnail;
         var reccomended_book = json.reccomended_book;
@@ -580,7 +621,7 @@ export default class Homescreen extends Component {
 
         //Appends information:
 
-        chaimager_list.push({filename: filename, creator: creator, thumbnail:thumbnail, reccomended_book:reccomended_book, volume: volume});
+        chaimager_list.push({chaimager:chaimager, filename: filename, creator: creator, thumbnail:thumbnail, reccomended_book:reccomended_book, volume: volume});
 
       }
 
@@ -942,75 +983,6 @@ export default class Homescreen extends Component {
         animationType="slide"
         transparent={true}
         onRequestClose={() => {this.setState((state) => {return {
-          first_time_book_opened: false}
-                                                          ;}
-                                              );
-                                }
-                        }
-        visible={this.state.first_time_book_opened}>
-
-        <View style = {{flex: 1,
-              justifyContent: "center",
-              alignItems: "center"
-              }}>
-        
-          <View style = {{margin: 20,
-                  backgroundColor: "white",
-                  borderRadius: 20,
-                  padding: 35,
-                  alignItems: "center",
-                  shadowColor: "#000",
-                  shadowOffset: {
-                  width: 0,
-                  height: 2
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 4,
-                  elevation: 5}} >
-
-          
-            <View>
-                <Text style={{textAlign:'center'}}>It seems that this is your first time loading this book. 
-                Would you like to add a Chaimager Skin?</Text>
-                <Text>(It takes some time)</Text>
-
-                <Text style={{textAlign:'center'}}>Chaimager files in your device:</Text>
-
-                          <List
-                  data={this.state.chaimager_list}
-                  renderItem={renderChaimagerItem}
-                  numColumns={1}
-                />
-
-                <Button>Read without Chaimager skin</Button>
-                
-                <View style={{flexDirection: 'row'}}>
-
-                  <Button onPress={() => {this.setState((state) => {return {
-                                                          first_time_book_opened: false}
-                                                          ;}
-                                              );
-                                }} 
-                          style={{marginTop:10, marginLeft:10 }} 
-                          status='danger'>Exit</Button>
-
-
-
-                </View>
-                  
-            </View>
-
-          </View>
-
-        </View>
-
-
-    </Modal>
-
-    <Modal 
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => {this.setState((state) => {return {
           chaimager_info_modal_visible: false}
                                                           ;}
                                               );
@@ -1186,7 +1158,7 @@ export default class Homescreen extends Component {
             accessoryRight={render_top_logo}
             accessoryLeft={renderMenu}/>
 
-    <TabView selectedIndex={2} onSelect={(index) => {this.setState((state) => {return {
+    <TabView selectedIndex={this.state.top_index} onSelect={(index) => {this.setState((state) => {return {
           top_index: index}
                                                           ;}
                                               );
@@ -1214,7 +1186,6 @@ export default class Homescreen extends Component {
           <Button onPress={this.load_file} style={{marginTop:10}}>Add PDF</Button>
       </View>
       
-      <FlashMessage position="bottom"/>
     </Layout>
 
     </Tab>
@@ -1251,14 +1222,14 @@ export default class Homescreen extends Component {
                       justifyContent: 'center', 
                       alignItems: 'center',}}>
 
-        <View style={{flex: 9}}>
+        <View style={{}}>
 
           <Text style={{alignSelf:"center", textAlign:"center"}}>Here you can merge a book that you have with a Chaimager skin. Choose the book and skin you want, and press Forge! </Text>
           <Text style={{alignSelf:"center", textAlign:"center"}}> This might take some time! </Text>
 
-          <View style={{flexDirection:'row'}}>
+          <View style={{flexDirection:'row', flex:4}}>
 
-            <View style={{width: Dimensions.get('window').width / 2,}}>
+            <View style={{width: Dimensions.get('window').width / 2, flex: 8}}>
 
               <Button onPress={() => {this.setState((state) => {return {
                     forge_library_modal: true}
@@ -1268,7 +1239,7 @@ export default class Homescreen extends Component {
                           }>Select Book</Button>
 
               <Text style={{textAlign:"center"}}>Selected Book:</Text>
-              <Text style={{textAlign:"center", backgroundColor:"cyan"}}>{this.state.forge_selected_book.title}</Text>
+              <Text style={{textAlign:"center", backgroundColor:"cyan", height:Dimensions.get('window').height / 12, justifyContent:"center" }}>{this.state.forge_selected_book.title}</Text>
 
             </View>
             
@@ -1282,15 +1253,20 @@ export default class Homescreen extends Component {
                           }>Select skin</Button>
 
               <Text style={{textAlign:"center"}} >Selected Chaimager: </Text>
-              <Text style={{textAlign:"center", backgroundColor:"cyan"}} >{this.state.forge_selected_chaimager.filename}</Text>
+              <Text style={{textAlign:"center", backgroundColor:"cyan", height:Dimensions.get('window').height / 12, justifyContent:"center"}} >{this.state.forge_selected_chaimager.filename}</Text>
 
           </View>
 
           </View>
 
-          <View style={{alignItems: "center"}}>
+          <View style={{alignItems:"center", flex:4}}>
+
+          </View>
+
+          <View style={{alignItems: "center", flex:1}}>
                 
-                <Button status="success">Forge!</Button>
+                <Button status="success" onPress={()=> {this.forge_chaimager(this.state.forge_selected_book, this.state.forge_selected_chaimager)}}>Forge!</Button>
+
           </View>
 
         </View>
@@ -1304,6 +1280,8 @@ export default class Homescreen extends Component {
       </Tab>
         
     </TabView>
+
+    <FlashMessage position="bottom"/>
             
   </SafeAreaView>
   );
