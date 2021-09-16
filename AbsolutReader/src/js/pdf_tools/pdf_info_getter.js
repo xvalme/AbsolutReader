@@ -10,6 +10,8 @@ export async function pdf_pagenumber_getter (filePath) {
     //on the json
     
     //Reading file:
+    console.log("GEtting pages");
+
     var base64_pdf = await RNFS.readFile(filePath, 'base64');
 
     var pdfDoc = base64js.toByteArray(base64_pdf);

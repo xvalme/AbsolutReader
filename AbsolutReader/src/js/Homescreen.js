@@ -141,16 +141,6 @@ export default class Homescreen extends Component {
 
     console.log("[MERGER] Files opened.");
 
-    showMessage(
-      {
-          message: "Forge started and files were collected sucessfully. Please wait.",
-          type: "success",
-          durantion: 3000,
-          floating: true,
-          icon: "auto",
-        }
-    );
-
 		//Getting the coords
 
     async function get_pdf_coordinates (pdfDoc, keywords){
@@ -280,7 +270,6 @@ export default class Homescreen extends Component {
     var base64_pdf =  await make_links(pdfDoc, array_coordinate_dic);
 
     console.log("[MERGER] Links built.");
-    return 0
 
     function hexToRgb(hex) {
       var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -327,19 +316,28 @@ export default class Homescreen extends Component {
 
     //Now saving the file:
 
-    var title = filepath.split('.').slice(0, -1).join('.');
+    var title = filepath.split('\\').pop().split('/').pop();
+    var path = RNFS.DocumentDirectoryPath + '/edited_pdfs/' + title + '.pdf';
 
-    await RNFS.writeFile(RNFS.DocumentDirectoryPath + '/edited_pdfs/' + title + '.pdf' ,base64_pdf, 'base64');
+    await RNFS.writeFile(path ,base64_pdf, 'base64');
 
-    console.log("[MERGER] New Pdf saved");
+    console.log("[MERGER] New Pdf being saved.");
 
     //Editing the library info to run book from new path and the skin Applied
 
-    
+    await this.add_pdf_to_library(path, title);
 
+    console.log("[MERGER] Saved");
 
-
-
+    showMessage(
+      {
+          message: "Success! Your edited book was added to your library.",
+          type: "success",
+          durantion: 3000,
+          floating: true,
+          icon: "auto",
+        }
+    );
   }
 
   forge_change_progress = (value) => {
