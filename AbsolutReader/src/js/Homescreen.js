@@ -26,6 +26,7 @@ export default class Homescreen extends Component {
     this.path = RNFS.DocumentDirectoryPath; //Main path of app
 
     this.state={top_index:0,
+                library_forge_color: "#ffe23b",
                 library: [],
                 chaimager_list: [],
                 library_loaded: false,
@@ -325,7 +326,7 @@ export default class Homescreen extends Component {
 
     //Editing the library info to run book from new path and the skin Applied
 
-    await this.add_pdf_to_library(path, title);
+    await this.add_pdf_to_library(path, title, true);
 
     console.log("[MERGER] Saved");
 
@@ -380,9 +381,10 @@ export default class Homescreen extends Component {
       }
   }
 
-  add_pdf_to_library = async (filepath, filename) => {
+  add_pdf_to_library = async (filepath, filename, forged=false) => {
     //Gets information about pdf and adds it to the database
     //Picks up the title, pages, and thumbnail
+    console.log("Saving new book to library");
 
     var title = filename.split('.').slice(0, -1).join('.');
 
@@ -390,7 +392,7 @@ export default class Homescreen extends Component {
 
     var source = {uri: filepath, cache:true};
 
-    var info = {title: title, pages: pagenumber, current_page: 1, source:source, times_opened: 0};
+    var info = {title: title, pages: pagenumber, current_page: 1, source:source, times_opened: 0, forged:forged};
 
     var new_library = this.state.library;
     
@@ -574,11 +576,11 @@ export default class Homescreen extends Component {
       var title = library.books[i].title;
       var total_page = library.books[i].pages;
       var current_page = library.books[i].current_page;
-  
+      var forged = library.books[i].forged;
       var source = library.books[i].source;
       var times_opened = library.books[i].times_opened;
 
-      library_list.push({title: title, pages: total_page, current_page: current_page, source: source, times_opened: times_opened});
+      library_list.push({title: title, pages: total_page, current_page: current_page, source: source, times_opened: times_opened, forged: forged});
     };
     console.log("Library found with " + library_list.length + ' elements.');
   
@@ -668,7 +670,9 @@ export default class Homescreen extends Component {
       style= {{   width: Dimensions.get('window').width,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  margin: 1,}}
+                  margin: 1,
+                  backgroundColor: info.item.forged ? this.state.library_forge_color : "#ffffff", 
+                  }}
                   
 
       onPress={() => {this.read_book(info.item.source, info.item.current_page, info.item.times_opened)}}
