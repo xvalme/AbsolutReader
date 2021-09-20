@@ -18,7 +18,6 @@ export default class Pdf_Renderer extends Component {
 		this.state = {chaimager: {"ids": [{}]}, 
 					chaimager_loaded: false, 
 					source:{uri:props.route.params["filepath"],cache:true},
-					filepath:props.route.params["filepath"],
 					current_page: props.route.params["current_page"],
 					filename:'Chaimager is loading', //Added after PDF is loaded
 					can_leave: true, //If is everything ready to move screen
@@ -36,9 +35,25 @@ export default class Pdf_Renderer extends Component {
 	}
 
 	componentDidMount() {
+
+		//Adding listeners:
 		BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
 		Dimensions.addEventListener('change', (dimensions) => {this.setState(() => {return {width: dimensions.window.width,
 																							height: dimensions.window.height }});} )
+
+		//Updating state with chaimager values (if they exist):
+
+		if (this.props.route.params["forged"] == true) {
+
+			//Chaimager is active in this file, so loading it to state
+
+			var chaimager = this.props.route.params["chaimager"];
+
+			this.setState(() => {return{chaimager:chaimager}});
+
+		}
+
+
 
 	}
 
@@ -97,29 +112,6 @@ export default class Pdf_Renderer extends Component {
 
 	}
 
-	async load_chaimager (filepath) {
-
-		if (this.state.chaimager_loaded == false) {
-			//TODO #10
-
-			//We pick the file name and check if it exists at library:
-			const chaimager_file_name = this.state.chaimager_file_name;
-			const chaimager_file_path = this.path + '/chaimager_files/' + chaimager_file_name; 
-
-			this.setState((state) => {return {chaimager_file_path: chaimager_file_path,
-												filename:'Chaimager is loading', }});
-
-
-			//Loads json
-
-				var json = await RNFS.readFile(chaimager_file_path);
-
-				var chaimager_json = await JSON.parse(json);
-
-				await this.setState((state) => {return {chaimager: chaimager_json}}); }
-
-	}
-
 	async update_page_homescreen (page) {
 		//Updates the homescreen value of the pages read when user starts new page
 
@@ -129,7 +121,7 @@ export default class Pdf_Renderer extends Component {
 			this.setState((state) => {return {can_leave: false,
 												is_page_updating: true}}); //Locking
 
-			const filepath = this.state.filepath;
+			const filepath = this.state.source.uri;
 
 			const path = RNFS.DocumentDirectoryPath; //Main path of the App
 		
@@ -223,17 +215,7 @@ export default class Pdf_Renderer extends Component {
 													height: Dimensions.get('window').height / 12,}}
 											/>
 
-					<Text>{info.item.name.slice(0, 10)}</Text>
-
-				</View>
-
-				<View style={{
-				flex:1,
-				flexDirection: 'row-reverse', 
-				}}>
-
-					<Button size='small' appearance={'ghost'}  onPress={() => this.delete_chaimager(info.item.name)}>X</Button>
-					<Button size='small' onPress={() => this.chaimager_edit(info.item)}>Edit</Button>
+					<Text>{info.item.name}</Text>
 
 				</View>
 
@@ -254,14 +236,6 @@ export default class Pdf_Renderer extends Component {
 						accessoryRight={renderRightActions}/>
 
 		<Divider />
-		
-		<View
-			style={{ 
-				borderBottomColor: 'blue',
-				borderBottomWidth: 1,
-				width: Dimensions.get('window').width * this.state.chaimager_stage / 100 
-			}}
-			/>
 
 		<Modal 
 			animationType="slide"
@@ -368,7 +342,7 @@ export default class Pdf_Renderer extends Component {
 			<Pdf
 				source={this.state.source}
 				onLoadComplete={(numberOfPages,filePath)=>{
-					this.load_chaimager(filePath);
+					
 				}}
 				onPageChanged={(page,numberOfPages)=>{
 					this.update_page_homescreen(page);
