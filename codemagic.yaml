@@ -1,1 +1,18 @@
-
+workflows:
+  android:
+    scripts:
+      - name: Android APK build.
+        working_directory: AbsolutReader/android
+        script: ./gradlew assembleRelease
+    artifacts:
+      - app/build/outputs/**/**/*.apk
+    environment:
+      groups:
+        - emails
+    publishing:
+          email:
+            recipients:
+              - $build_email
+    cache:
+          cache_paths:
+            - AbsolutReader/node_modules
