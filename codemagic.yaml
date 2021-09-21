@@ -11,6 +11,10 @@ workflows:
           script: |
             npm install
 
+        - name: Install jetifier
+          script: |
+            npm i jetifier
+
         - name: Set Android SDK location
           script: |
             echo "sdk.dir=$ANDROID_SDK_ROOT" > "$FCI_BUILD_DIR/AbsolutReader/android/local.properties"
