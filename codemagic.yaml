@@ -18,4 +18,4 @@ workflows:
       cache:
         cache_paths:
           - $HOME/.gradle/caches
-          - $FCI_BUILD_DIR/node_modules	
+          - $FCI_BUILD_DIR/node_modules
