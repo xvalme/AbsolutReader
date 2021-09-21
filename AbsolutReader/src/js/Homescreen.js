@@ -55,7 +55,6 @@ import {
 }
 from "pdf-lib"; //Adding links
 
-
 var RNFS = require('react-native-fs');
 var base64js = require('base64-js')
 
@@ -777,12 +776,20 @@ export default class Homescreen extends Component {
     <Icon {...props} name='menu'/>
     );
 
+  const BugIcon = (props) => (
+    <Icon {...props} name='alert-triangle-outline' />
+  );
+
   const DropDownIcon = (props) => (
     <Icon {...props} name='more-vertical-outline'/>
   )
 
   const CloseIcon = (props) => (
     <Icon {...props} name='close'/>
+  );
+
+  const HelpIcon = (props) => (
+    <Icon {... props} name='question-mark' />
   );
   //Rendering things
   const renderMenu = () => (
@@ -812,6 +819,7 @@ export default class Homescreen extends Component {
             style={{width:Dimensions.get('window').width / 2 * 0.8, height:Dimensions.get('window').height / 4}}
             fitPolicy={1}
             singlePage={true}
+            onError={() => {}}
             
           />
         </View>
@@ -948,6 +956,14 @@ export default class Homescreen extends Component {
     );
   };
 
+  const renderRightActions = () => (
+    <React.Fragment>
+      <TopNavigation icon={HelpIcon} />
+      <TopNavigationAction icon={BugIcon} />
+      <TopNavigationAction icon={render_top_logo} />
+    </React.Fragment>
+  );
+
   if (this.state.library_loaded == false) { //Is still loading the library
     return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -986,6 +1002,13 @@ export default class Homescreen extends Component {
 
   return (
     <SafeAreaView style={{ flex: 1 }} >
+
+    <TopNavigation style={{height:Dimensions.get('window').height / 12}}
+                alignment='center'
+                title='Absolut Reader'
+                subtitle={'Version Alpha ' + this.version}
+                accessoryRight={renderRightActions}
+                accessoryLeft={renderMenu}/>
 
     <Modal 
 			animationType="slide"
@@ -1278,12 +1301,6 @@ export default class Homescreen extends Component {
 
     </Modal>
 
-		<TopNavigation style={{height:Dimensions.get('window').height / 12}}
-						alignment='center'
-						title='Absolut Reader'
-            subtitle={'Version Alpha ' + this.version}
-            accessoryRight={render_top_logo}
-            accessoryLeft={renderMenu}/>
 
     <TabView selectedIndex={this.state.top_index} onSelect={(index) => {this.setState((state) => {return {
           top_index: index}

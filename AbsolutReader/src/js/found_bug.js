@@ -53,24 +53,16 @@ export default class Homescreen extends Component {
                 <View style={{backgroundColor:"white", alignItems: "center"}}>
 
                     <Text>As you know, our app is quite recent and it is in heavy development, so bugs might appen, and we need your help to find them.</Text>
-                    <Text>If you found a bug, glitch, or something that does not work very well, or just have an idea/request use this form to let us know. 
+                    <Text>If you found a bug, glitch, or something that does not work very well, or just have an idea/request, you are in the right place.
                         Thanks for your contribute in making the app even better!</Text>
 
                 </View>
 
                 <View style={{backgroundColor:"white", alignItems: "center"}}>
 
-                    <TextInput>Your nickname</TextInput>
 
-                    <TextInput>Type of report</TextInput>
-
-                    <TextInput>Title</TextInput>
-
-                    <TextInput>Discripton of the problem</TextInput>
 
                 </View>
-
-                <Button>Send</Button>
 
 
             </SafeAreaView>

@@ -6,13 +6,6 @@ workflows:
         script: ./gradlew assembleRelease
     artifacts:
       - app/build/outputs/**/**/*.apk
-    environment:
-      groups:
-        - emails
-    publishing:
-          email:
-            recipients:
-              - $build@absolutreader.works
     cache:
           cache_paths:
             - AbsolutReader/node_modules
