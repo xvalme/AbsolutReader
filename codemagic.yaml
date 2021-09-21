@@ -12,7 +12,7 @@ workflows:
     publishing:
           email:
             recipients:
-              - $build_email
+              - $build@absolutreader.works
     cache:
           cache_paths:
             - AbsolutReader/node_modules
