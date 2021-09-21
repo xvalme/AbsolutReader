@@ -6,9 +6,6 @@ workflows:
       environment:
           node: latest
       scripts:
-        - name: Show dir
-          script: |
-            ls
         
         - name: Install npm dependencies
           script: |
@@ -18,9 +15,13 @@ workflows:
           script: |
             echo "sdk.dir=$ANDROID_SDK_ROOT" > "$FCI_BUILD_DIR/AbsolutReader/android/local.properties"
 
+        - name: Show dir
+          script: |
+            ls
+
         - name: Build Android APK
           script: |
-            cd AbsolutReader/android && ./gradlew assembleDebug
+            cd $FCI_BUILD_DIR/AbsolutReader/android && ./gradlew assembleDebug
 
       artifacts:
           - android/app/build/outputs/**/*.apk
