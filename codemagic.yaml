@@ -13,7 +13,7 @@ workflows:
 
         - name: Install jetifier
           script: |
-            npm i jetifier
+            npm i jetifier &&  npx jetify
 
         - name: Set Android SDK location
           script: |
