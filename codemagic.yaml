@@ -8,7 +8,7 @@ workflows:
       scripts:
         - name: Show dir
           script: |
-            echo "ls" 
+            ls
         
         - name: Install npm dependencies
           script: |
