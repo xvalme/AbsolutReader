@@ -13,9 +13,9 @@ workflows:
             - name: Build Android APK
               script: |
                 echo ls && cd android && ./gradlew assembleDebug
-        cache:
-          cache_paths:
-            - ~/.gradle/caches
-            - ~/node_modules	
         artifacts:
             - android/app/build/outputs/**/*.apk
+        cache:
+          cache_paths:
+            - $HOME/.gradle/caches
+            - $FCI_BUILD_DIR/node_modules	
