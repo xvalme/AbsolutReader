@@ -14,7 +14,8 @@ workflows:
               script: |
                 echo ls && cd android && ./gradlew assembleDebug
         cache:
-          - $HOME/.gradle/caches
-          - $FCI_BUILD_DIR/node_modules	
+          cachepaths:
+            - $HOME/.gradle/caches
+            - $FCI_BUILD_DIR/node_modules	
         artifacts:
             - android/app/build/outputs/**/*.apk
