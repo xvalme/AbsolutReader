@@ -958,7 +958,6 @@ export default class Homescreen extends Component {
 
   const renderRightActions = () => (
     <React.Fragment>
-      <TopNavigationAction icon={BugIcon} style={{alignSelf:"center"}}/>
       <TopNavigationAction icon={HelpIcon} style={{alignSelf:"center"}} />
       <TopNavigationAction icon={render_top_logo} style={{alignSelf:"center"}} />
     </React.Fragment>
