@@ -21,7 +21,7 @@ workflows:
 
         - name: Build Android APK
           script: |
-            cd $FCI_BUILD_DIR/AbsolutReader/android && chmod +x ./gradlew assembleDebug
+            cd $FCI_BUILD_DIR/AbsolutReader/android && bash./gradlew assembleDebug
 
       artifacts:
           - android/app/build/outputs/**/*.apk
