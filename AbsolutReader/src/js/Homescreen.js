@@ -20,6 +20,9 @@ import {
 from '@ui-kitten/components';
 import {
   Image,
+  Drawer, 
+  DrawerItem, 
+  IndexPath,
   StyleSheet,
   SafeAreaView,
   Dimensions,
@@ -1299,7 +1302,19 @@ export default class Homescreen extends Component {
 
 
     </Modal>
+    
+    <Drawer 
+    selectedIndex={this.state.drawer_index}
+    onSelect={(index) => this.setState(() => {return {drawer_index: index}} )}>
 
+      <DrawerItem title= 'Library' />
+      <DrawerItem title= 'Report a bug/idea' />
+      <DrawerItem title= 'How to use?' />
+      <DrawerItem title= 'Contribute' />
+      <DrawerItem title= 'About' />
+      <DrawerItem title= 'Settings' />
+
+    </Drawer>
 
     <TabView selectedIndex={this.state.top_index} onSelect={(index) => {this.setState((state) => {return {
           top_index: index}
