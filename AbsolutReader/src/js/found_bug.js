@@ -1,9 +1,12 @@
 import React, {Component} from 'react';
-import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card} from '@ui-kitten/components';
-import { Image, StyleSheet, SafeAreaView, Dimensions, View, PermissionsAndroid, Modal, TextInput} from 'react-native';
+import { Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card} from '@ui-kitten/components';
+import { Image, SafeAreaView, Dimensions, View, Linking} from 'react-native';
+import FlashMessage from "react-native-flash-message";
+import {
+    showMessage  }
+from "react-native-flash-message";
 
-export default class Homescreen extends Component {
+export default class Found_bug extends Component {
 
     constructor(props){
         super(props);
@@ -21,6 +24,23 @@ export default class Homescreen extends Component {
 		this.props.navigation.navigate('Homescreen', {back_action: true});
 
 	}
+
+    open_github = async () => {
+
+        try{
+        Linking.openURL('https://github.com/xvalme/AbsolutReader/issues/new');
+        }
+        catch{
+            showMessage({
+                message: "Link opening has failed. Check your internet connection.",
+                type: "danger",
+                durantion: 3000,
+                floating: true,
+                icon: "auto",
+            });
+        }
+
+    }
 
     render () {
 
@@ -53,17 +73,19 @@ export default class Homescreen extends Component {
                 <View style={{backgroundColor:"white", alignItems: "center"}}>
 
                     <Text>As you know, our app is quite recent and it is in heavy development, so bugs might appen, and we need your help to find them.</Text>
-                    <Text>If you found a bug, glitch, or something that does not work very well, or just have an idea/request, you are in the right place.
-                        Thanks for your contribute in making the app even better!</Text>
+                    <Text>If you found a bug, glitch, or something that does not work very well, or just have an idea/request, you are in the right place.</Text>
+                    <Text> Use the button below to open our Github repository and fill out the form. </Text>
+                        <Text>Thanks for your contribute in making the app even better!</Text>
 
                 </View>
 
                 <View style={{backgroundColor:"white", alignItems: "center"}}>
 
-
-
+                    <Button onPress={() => {this.open_github()}}>Open a Github Issue</Button>
+                    
                 </View>
 
+                <FlashMessage position="bottom"/>
 
             </SafeAreaView>
 
