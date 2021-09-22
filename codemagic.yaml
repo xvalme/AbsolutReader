@@ -1,7 +1,7 @@
 workflows:
     react-native-android:
       name: React Native Android
-      max_build_duration: 10
+      max_build_duration: 15
       working_directory: AbsolutReader
       environment:
           node: latest
@@ -10,6 +10,10 @@ workflows:
         - name: Install npm dependencies
           script: |
             npm install
+
+        - name: Install jetifier
+          script: |
+            npm i jetifier &&  npx jetify
 
         - name: Set Android SDK location
           script: |
@@ -21,7 +25,7 @@ workflows:
 
         - name: Build Android APK
           script: |
-            cd $FCI_BUILD_DIR/AbsolutReader/android && chmod +x ./gradlew assembleDebug
+            cd $FCI_BUILD_DIR/AbsolutReader/android && bash ./gradlew assembleDebug
 
       artifacts:
           - android/app/build/outputs/**/*.apk
