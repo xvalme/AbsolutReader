@@ -19,7 +19,7 @@ export default class Pdf_Renderer extends Component {
 					chaimager_loaded: false, 
 					source:{uri:props.route.params["filepath"],cache:true},
 					current_page: props.route.params["current_page"],
-					filename:'Chaimager is loading', //Added after PDF is loaded
+					filename:props.route.params["filepath"],
 					can_leave: true, //If is everything ready to move screen
 					is_page_updating: false,
 					//Modals:
@@ -344,6 +344,7 @@ export default class Pdf_Renderer extends Component {
 				onLoadComplete={(numberOfPages,filePath)=>{
 					
 				}}
+				
 				onPageChanged={(page,numberOfPages)=>{
 					this.update_page_homescreen(page);
 				}}
