@@ -10,16 +10,13 @@ export default class Pdf_Renderer extends Component {
 	constructor(props) {
 		super(props);
 
-		//Creates chaimager folder if it does not exists already:
-		//RNFS.mkdir(this.path + '/chaimager_files'); 
-
 		this.path = RNFS.DocumentDirectoryPath; //Main path of app
 
 		this.state = {chaimager: {"ids": [{}]}, 
 					chaimager_loaded: false, 
 					source:{uri:props.route.params["filepath"],cache:true},
 					current_page: props.route.params["current_page"],
-					filename:props.route.params["filepath"],
+					filename: "PDF E-book",
 					can_leave: true, //If is everything ready to move screen
 					is_page_updating: false,
 					//Modals:

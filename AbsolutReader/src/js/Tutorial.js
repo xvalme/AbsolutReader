@@ -36,14 +36,53 @@ export default class Tutorial extends Component {
             );
 
         const tab1 = () => (
-                <View>
                 
+            <Tab title="1">
+                <View>
+            
                     <Text>Hi, there!</Text>
                     <Text>Welcome to Absolut Reader.</Text>
-            
+                    <Text>Follow this quick tutorial to have an idea of the app´s functionalities.</Text>
+
                 </View>
+            </Tab>
 
         )
+
+        const tab2 = () => (
+                
+            <Tab title="2">
+                <View>
+            
+                    <Text>Things to keep in mind:</Text>
+                    <Text>-This app is currently in Beta version. Bugs might happen and we count on you yo help us finding them! </Text>
+                    <Text>-For now we only support PDFs. Other formats we be available soon.</Text>
+
+                </View>
+            </Tab>
+
+        )
+
+        const tab3 = () => (
+
+            <Tab title="3">
+                <View>
+            
+                    <Text>The biggest tool of AbsolutReader: Chaimager</Text>
+                    <Text>Always forgetting the names of the characters from the book you are reading? </Text>
+                    <Text>Chaimager is here to help:</Text>
+                    <Text>It allows you to create a config file with the names, and a small biography/image of each one
+                        and using the Forge Tool you can merge it with a pdf, and that will create a new E-book, full of hyperlinks
+                        anywhere the character´s name is called, so that you may click on it and get the information about it. 
+                    </Text>
+                    <Text>Simple, right?</Text>
+
+
+                </View>
+            </Tab>
+
+        )
+
 
         return (
 
@@ -60,13 +99,11 @@ export default class Tutorial extends Component {
                                 }
                         }>
 
-                </TabView>
-                
-                    <Tab title="1">
+                        <tab1 />
+                        <tab2 />
+                        <tab3 />
 
-                        <Tab1 />
-
-                    </Tab>
+                    </TabView>
 
                 </View>
 
