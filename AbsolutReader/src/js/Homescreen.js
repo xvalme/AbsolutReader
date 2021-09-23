@@ -28,7 +28,8 @@ import {
   Dimensions,
   View,
   PermissionsAndroid,
-  Modal
+  Modal,
+  TouchableHighlightBase
 }
 from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
@@ -54,9 +55,11 @@ import {
   PDFName,
   PDFString,
   PDFArray,
-  rgb
+  rgb,
+  toHexStringOfMinLength
 }
 from "pdf-lib"; //Adding links
+import * as Progress from 'react-native-progress';
 
 var RNFS = require('react-native-fs');
 var base64js = require('base64-js')
@@ -78,12 +81,15 @@ export default class Homescreen extends Component {
           library: [],
           chaimager_list: [],
           library_loaded: false,
+          //Editing the library:
           edit_modal_visible: false,
           edit_modal_info: {},
+          //Info about chaimager
           chaimager_info_modal_information: {},
           chaimager_info_modal_visible: false,
           welcome_modal_visible: true,
           first_time_book_opened: false,
+          //Forge:
           forge_chaimager_modal: false,
           forge_library_modal: false,
           forge_selected_book: {},
@@ -167,10 +173,15 @@ export default class Homescreen extends Component {
 
   share_chaimager = async(name) => {}
 
-  forge_chaimager = async(selected_book, chaimager_file) => {
+
+  forge_chaimager = async (selected_book, chaimager_file) => {
 
       //Runs if user ask to merge a skin with a pdf. Saves the pdf in the end in a folder
       //So that when user returns to it he does not have to wait.
+
+      await this.setState(() => {return {forge_progress: 0}}, 
+      );
+
       console.log("[MERGER] Starting merger.");
 
       //Checks 1st if values exist:
@@ -202,6 +213,8 @@ export default class Homescreen extends Component {
       console.log("[MERGER] Files opened.");
 
       //Getting the coords
+      await this.setState(() => {return {forge_progress: 0.05}}, 
+      );
 
       async function get_pdf_coordinates(pdfDoc, keywords) {
 
@@ -259,6 +272,8 @@ export default class Homescreen extends Component {
       var array_coordinate_dic = await get_pdf_coordinates(pdfDoc, chaimager_json);
 
       console.log("[MERGER] Coordinate array gotten.");
+      await this.setState(() => {return {forge_progress: 0.45}}, 
+      );
 
       async function make_links(pdfDoc, array_coordinate_dic) {
 
@@ -386,6 +401,8 @@ export default class Homescreen extends Component {
 
           return (coords);
       }
+      await this.setState(() => {return {forge_progress: 0.95}}, 
+      );
 
       //Now saving the file:
 
@@ -401,6 +418,8 @@ export default class Homescreen extends Component {
       await this.add_pdf_to_library(path, title, true, chaimager_json);
 
       console.log("[MERGER] Saved");
+      await this.setState(() => {return {forge_progress: 1}}, 
+      );
 
       showMessage({
           message: "Success! Your edited book was added to your library.",
@@ -409,18 +428,6 @@ export default class Homescreen extends Component {
           floating: true,
           icon: "auto",
       });
-  }
-
-  forge_change_progress = (value) => {
-
-      this.setState(() => {
-          return {
-              forge_progress: value
-          }
-      })
-
-      return 0
-
   }
 
   chaimager_button = async() => {
@@ -1419,7 +1426,10 @@ export default class Homescreen extends Component {
 
           </View>
 
-          <View style={{alignItems:"center", flex:4}}>
+          <View style={{alignItems:"center", flex:5}}>
+
+              <Progress.Circle progress={this.state.forge_progress} showsText={true} size={Dimensions.get('window').height / 10 * 2.5}/>
+
 
           </View>
 

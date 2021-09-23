@@ -15,6 +15,7 @@ export default class Settings extends Component {
         <SafeAreaView style={{ flex: 1 }}>
 
 
+
         </SafeAreaView>
     )}
 

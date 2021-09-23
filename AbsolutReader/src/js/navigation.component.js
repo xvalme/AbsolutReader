@@ -5,6 +5,7 @@ import  Homescreen  from './Homescreen';
 import  Pdf_renderer  from './renderer';
 import Settings from './settings';
 import Chaimager_adder from './chaimager_adder';
+import * as eva from '@eva-design/eva';
 
 const { Navigator, Screen } = createStackNavigator();
 
