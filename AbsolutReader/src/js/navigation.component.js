@@ -5,7 +5,6 @@ import  Homescreen  from './Homescreen';
 import  Pdf_renderer  from './renderer';
 import Settings from './settings';
 import Chaimager_adder from './chaimager_adder';
-import Found_bug from './found_bug';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -18,7 +17,6 @@ export const AppNavigator = () => (
       <Screen name='Pdf_renderer' component={Pdf_renderer}/>
       <Screen name='Settings' component={Settings} />
       <Screen name='Chaimager_adder' component={Chaimager_adder} />
-      <Screen name='Found_bug' component={Found_bug} />
       
     
     </Navigator>

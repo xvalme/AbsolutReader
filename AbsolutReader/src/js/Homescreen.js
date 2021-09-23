@@ -15,13 +15,13 @@ import {
   List,
   Card,
   TabView,
-  Tab
+  Tab,
+  Drawer, 
+  DrawerItem, 
 }
 from '@ui-kitten/components';
 import {
   Image,
-  Drawer, 
-  DrawerItem, 
   IndexPath,
   StyleSheet,
   SafeAreaView,
@@ -73,6 +73,7 @@ export default class Homescreen extends Component {
 
       this.state = {
           top_index: 0,
+          drawer_index: 0,
           library_forge_color: "#ffe23b",
           library: [],
           chaimager_list: [],
@@ -1302,9 +1303,10 @@ export default class Homescreen extends Component {
 
 
     </Modal>
-    
+
     <Drawer 
     selectedIndex={this.state.drawer_index}
+
     onSelect={(index) => this.setState(() => {return {drawer_index: index}} )}>
 
       <DrawerItem title= 'Library' />
