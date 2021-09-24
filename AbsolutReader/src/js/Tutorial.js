@@ -55,7 +55,7 @@ export default class Tutorial extends Component {
                 <View>
             
                     <Text>Things to keep in mind:</Text>
-                    <Text>-This app is currently in Beta version. Bugs might happen and we count on you yo help us finding them! </Text>
+                    <Text>-This app is currently in Beta version. Bugs might happen and we count on you to help us finding them! </Text>
                     <Text>-For now we only support PDFs. Other formats we be available soon.</Text>
 
                 </View>
