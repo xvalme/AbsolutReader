@@ -6,6 +6,7 @@ import  Homescreen  from './Homescreen';
 import  Pdf_renderer  from './renderer';
 import Settings from './settings';
 import Chaimager_adder from './chaimager_adder';
+import Found_bug from './found_bug';
 import { Drawer } from '@ui-kitten/components';
 
 const { Navigator, Screen } = createStackNavigator();
@@ -33,7 +34,7 @@ export const AppNavigator = () => (
 
       <Drawer.Screen name="Library" component={Library} />
       <Drawer.Screen name="Help" component={Library} />
-      <Drawer.Screen name="Report a bug" component={Library} />
+      <Drawer.Screen name="Report a bug" component={Found_bug} />
       <Drawer.Screen name="Support" component={Library} />
       <Drawer.Screen name="About" component={Library} />
       <Drawer.Screen name="Settings" component={Settings} />
