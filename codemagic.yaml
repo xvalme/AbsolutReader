@@ -7,9 +7,9 @@ workflows:
           node: latest
       scripts:
         
-        - name: Install npm dependencies
+        - name: Install dependencies via yarn
           script: |
-            npm install
+            yarn install
 
         - name: Install jetifier
           script: |
