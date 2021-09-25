@@ -7,6 +7,7 @@ import  Pdf_renderer  from './renderer';
 import Settings from './settings';
 import Chaimager_adder from './chaimager_adder';
 import Found_bug from './found_bug';
+import Tutorial from './Tutorial';
 
 const { Navigator, Screen } = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -29,12 +30,13 @@ export const AppNavigator = () => (
 
   <NavigationContainer>
 
-    <Drawer.Navigator initialRouteName="Library">
+    <Drawer.Navigator initialRouteName="Library" >
 
       <Drawer.Screen name="Library" component={Library} />
-      <Drawer.Screen name="Help" component={Library} />
+      <Drawer.Screen name="Help" component={Tutorial} />
+      <Drawer.Screen name="Chaimager tutorial" component={Library} />
       <Drawer.Screen name="Report a bug" component={Found_bug} />
-      <Drawer.Screen name="Support" component={Library} />
+      <Drawer.Screen name="Support us" component={Library} />
       <Drawer.Screen name="About" component={Library} />
       <Drawer.Screen name="Settings" component={Settings} />
 

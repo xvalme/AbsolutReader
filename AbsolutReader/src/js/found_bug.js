@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card} from '@ui-kitten/components';
-import { Image, SafeAreaView, Dimensions, View, Linking} from 'react-native';
+import { Image, SafeAreaView, Dimensions, View, Linking, StyleSheet} from 'react-native';
 import FlashMessage from "react-native-flash-message";
 import {
     showMessage  }
@@ -21,7 +21,7 @@ export default class Found_bug extends Component {
 		
 		//Going back to library, not forgetting to update it:
 
-		this.props.navigation.navigate('Homescreen', {back_action: true});
+		this.props.navigation.navigate('Library', {back_action: true});
 
 	}
 
@@ -32,9 +32,9 @@ export default class Found_bug extends Component {
         }
         catch{
             showMessage({
-                message: "Link opening has failed. Check your internet connection.",
+                message: "Link opening has failed. Check your internet connection or try again later.",
                 type: "danger",
-                durantion: 3000,
+                durantion: 5000,
                 floating: true,
                 icon: "auto",
             });
@@ -61,7 +61,7 @@ export default class Found_bug extends Component {
 
         return (
 
-            <SafeAreaView style={{ flex: 1 }} >
+            <SafeAreaView style={{backgroundColor:"white", flex:1}}>
 
                 <TopNavigation style={{height:Dimensions.get('window').height / 12}}
                             alignment='center'
@@ -70,19 +70,29 @@ export default class Found_bug extends Component {
                 accessoryRight={render_top_logo}
                 accessoryLeft={renderBackAction}/>
 
-                <View style={{backgroundColor:"white", alignItems: "center"}}>
+                <Divider />
 
-                    <Text>As you know, our app is quite recent and it is in heavy development, so bugs might appen, and we need your help to find them.</Text>
-                    <Text>If you found a bug, glitch, or something that does not work very well, or just have an idea/request, you are in the right place.</Text>
-                    <Text> Use the button below to open our Github repository and fill out the form. </Text>
-                        <Text>Thanks for your contribute in making the app even better!</Text>
+                <View style={{ justifyContent:"center", alignItems:"center", flex:1 }} >
 
-                </View>
+                    <View style={{backgroundColor:"white"}}>
 
-                <View style={{backgroundColor:"white", alignItems: "center"}}>
+                        <Image style={styles.image} source={require('./../assets/images/Magnifying_glass_icon.svg.png')} />
 
-                    <Button onPress={() => {this.open_github()}}>Open a Github Issue</Button>
-                    
+                        <Text style={styles.big_text}>
+                            We don´t like bugs either.
+                        </Text>
+
+                        <Text style={styles.text}>Help us finding them. Or just give us some ideas :).</Text>
+                        <Text style={styles.text}> Use the button below to open our Github repository and fill out the form. </Text>
+                        <Text style={styles.text}>Thanks!</Text>
+
+                    </View>
+
+                    <View style={{backgroundColor:"white", alignItems: "center", margin: 10}}>
+
+                        <Button onPress={() => {this.open_github()}}>Open a Github Issue</Button>
+                        
+                    </View>
                 </View>
 
                 <FlashMessage position="bottom"/>
@@ -95,3 +105,22 @@ export default class Found_bug extends Component {
     }
 
 }
+
+const styles = StyleSheet.create({
+    text: {
+        textAlign: "center",
+        margin: 2,
+        fontSize: Dimensions.get('window').height / 48,
+    },
+    big_text: {
+        margin: 10,
+        textAlign: "center",
+        fontWeight: "bold",
+        fontSize: Dimensions.get('window').height / 30,
+    },
+    image:{
+        width: Dimensions.get('window').height / 3,
+        height: Dimensions.get('window').height / 3,
+        alignSelf: "center"
+    }
+    });
