@@ -7,14 +7,13 @@ import  Pdf_renderer  from './renderer';
 import Settings from './settings';
 import Chaimager_adder from './chaimager_adder';
 import Found_bug from './found_bug';
-import { Drawer } from '@ui-kitten/components';
 
 const { Navigator, Screen } = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
-//The order of screen matters
-const Library = () => (
-  <NavigationContainer>
+//The order of screens matters
+export const Library = () => (
+  <NavigationContainer independent={true}>
     <Navigator headerMode='none'>
 
       <Screen name='Homescreen' component={Homescreen} />
@@ -42,4 +41,4 @@ export const AppNavigator = () => (
     </Drawer.Navigator>
 
   </NavigationContainer>
-)
+);

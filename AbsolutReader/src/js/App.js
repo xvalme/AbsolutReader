@@ -19,7 +19,9 @@ export default class extends Component {
     <>
     <IconRegistry icons={EvaIconsPack} />
     <ApplicationProvider {...eva} theme={{ ...eva.light, ...theme }}>
+
       <AppNavigator/>
+      
     </ApplicationProvider>
   </>)
   }
