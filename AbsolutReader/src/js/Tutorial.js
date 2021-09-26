@@ -14,7 +14,7 @@ export default class Tutorial extends Component {
         var app_package = require('../../package.json');
         this.version = app_package["version"];
 
-        this.state={step: 1 //Current step of tutorial
+        this.state={step: 0 //Current step of tutorial
         }
     }
 
@@ -22,7 +22,7 @@ export default class Tutorial extends Component {
 		
 		//Going back to library, not forgetting to update it:
 
-		this.props.navigation.navigate('Homescreen', {back_action: true});
+		this.props.navigation.navigate('Library', {back_action: true});
 
 	}
 
@@ -35,61 +35,18 @@ export default class Tutorial extends Component {
                 }} />
             );
 
-        const tab1 = () => (
-                
-            <Tab title="1">
-                <View>
-            
-                    <Text>Hi, there!</Text>
-                    <Text>Welcome to Absolut Reader.</Text>
-                    <Text>Follow this quick tutorial to have an idea of the app´s functionalities.</Text>
-
-                </View>
-            </Tab>
-
-        )
-
-        const tab2 = () => (
-                
-            <Tab title="2">
-                <View>
-            
-                    <Text>Things to keep in mind:</Text>
-                    <Text>-This app is currently in Beta version. Bugs might happen and we count on you to help us finding them! </Text>
-                    <Text>-For now we only support PDFs. Other formats available soon.</Text>
-                    <Text>-This app is 100% free, so help us keep developing it with donations.</Text>
-
-                </View>
-            </Tab>
-
-        )
-
-        const tab3 = () => (
-
-            <Tab title="3">
-                <View>
-            
-                    <Text>The biggest tool of AbsolutReader: Chaimager</Text>
-                    <Text>Always forgetting the names of the characters from the book you are reading? </Text>
-                    <Text>Chaimager is here to help:</Text>
-                    <Text>It allows you to create a config file with the names, and a small biography/image of each one
-                        and using the Forge Tool you can merge it with a pdf, and that will create a new E-book, full of hyperlinks
-                        anywhere the character´s name is called, so that you may click on it and get the information about it. 
-                    </Text>
-                    <Text>Simple, right?</Text>
-
-
-                </View>
-            </Tab>
-
-        )
-
-
         return (
 
             <SafeAreaView style={{ flex: 1 }} >
 
-                    <Button> Skip Tutorial</Button>
+                                
+                <TopNavigation style={{height:Dimensions.get('window').height / 12}}
+                                            alignment='center'
+                                            title='Absolut Reader'
+                                            subtitle={'Version Alpha ' + this.version}
+                                accessoryRight={render_top_logo} />
+
+                <Divider />
 
                 <View style={{backgroundColor:"white", alignItems: "center"}}>
 
@@ -100,10 +57,50 @@ export default class Tutorial extends Component {
                                 }
                         }>
 
-                        <tab1 />
-                        <tab2 />
-                        <tab3 />
+                        <Tab title="1">
+                            <Layout>
+                                <View>
+                        
+                                    <Text>Hi, there!</Text>
+                                    <Text>Welcome to Absolut Reader.</Text>
+                                    <Text>Follow this quick tutorial to have an idea of the app´s functionalities.</Text>
 
+                                </View>
+
+                            </Layout>
+                        </Tab>
+
+                        <Tab title="2">
+                            <Layout>
+                                <View>
+                        
+                                    <Text>Things to keep in mind:</Text>
+                                    <Text>-This app is currently in Beta version. Bugs might happen and we count on you to help us finding them! </Text>
+                                    <Text>-For now we only support PDFs. Other formats available soon.</Text>
+                                    <Text>-This app is 100% free, so help us keep developing it with donations.</Text>
+
+                                </View>
+                            </Layout>
+                        </Tab>
+                        
+                        <Tab title="3">
+                            <Layout>
+                                <View>
+                        
+                                    <Text>The biggest tool of AbsolutReader: Chaimager</Text>
+                                    <Text>Always forgetting the names of the characters from the book you are reading? </Text>
+                                    <Text>Chaimager is here to help:</Text>
+                                    <Text>It allows you to create a config file with the names, and a small biography/image of each one
+                                        and using the Forge Tool you can merge it with a pdf, and that will create a new E-book, full of hyperlinks
+                                        anywhere the character´s name is called, so that you may click on it and get the information about it. 
+                                    </Text>
+                                    <Text>Simple, right?</Text>
+
+                                </View>
+                            </Layout>
+                        </Tab>
+                        
+                        
                     </TabView>
 
                 </View>

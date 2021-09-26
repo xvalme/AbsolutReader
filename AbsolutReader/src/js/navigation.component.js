@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerItemList } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import  Homescreen  from './Homescreen';
 import  Pdf_renderer  from './renderer';
@@ -8,6 +8,8 @@ import Settings from './settings';
 import Chaimager_adder from './chaimager_adder';
 import Found_bug from './found_bug';
 import Tutorial from './Tutorial';
+import { Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card, TabView, Tab} from '@ui-kitten/components';
+import { Image, SafeAreaView, Dimensions, View, Linking} from 'react-native';
 
 const { Navigator, Screen } = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -30,7 +32,25 @@ export const AppNavigator = () => (
 
   <NavigationContainer>
 
-    <Drawer.Navigator initialRouteName="Library" >
+    <Drawer.Navigator initialRouteName="Report a bug" 
+    drawerStyle={{width: Dimensions.get('screen').width / 4 * 3.1}}
+    drawerContent={(props) => {
+      return (<SafeAreaView>
+
+                <View>
+
+                  <Image source={require('./../assets/images/SnowMountain.jpg')}
+                  style={{width: Dimensions.get('screen').width / 4 * 3.1,
+                          height: Dimensions.get('screen').height / 2.5 }} />
+
+                </View>
+
+                <DrawerItemList {...props} />
+
+              </SafeAreaView>
+        );
+    }} >
+        
 
       <Drawer.Screen name="Library" component={Library} />
       <Drawer.Screen name="Help" component={Tutorial} />
