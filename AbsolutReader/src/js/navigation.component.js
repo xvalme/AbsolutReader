@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator, DrawerItemList } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerItemList, DrawerContentScrollView } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import  Homescreen  from './Homescreen';
 import  Pdf_renderer  from './renderer';
@@ -35,19 +35,22 @@ export const AppNavigator = () => (
     <Drawer.Navigator initialRouteName="Report a bug" 
     drawerStyle={{width: Dimensions.get('screen').width / 4 * 3.1}}
     drawerContent={(props) => {
-      return (<SafeAreaView>
+      return (
+
+                <DrawerContentScrollView {...props} style={{marginTop: -5}}>
 
                 <View>
 
                   <Image source={require('./../assets/images/SnowMountain.jpg')}
-                  style={{width: Dimensions.get('screen').width / 4 * 3.1,
+                    style={{width: Dimensions.get('screen').width / 4 * 3.1,
                           height: Dimensions.get('screen').height / 2.5 }} />
 
                 </View>
 
                 <DrawerItemList {...props} />
 
-              </SafeAreaView>
+                </DrawerContentScrollView>
+
         );
     }} >
         
