@@ -16,8 +16,6 @@ import {
   Card,
   TabView,
   Tab,
-  Drawer, 
-  DrawerItem, 
 }
 from '@ui-kitten/components';
 import {

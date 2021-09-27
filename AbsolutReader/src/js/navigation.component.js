@@ -32,7 +32,7 @@ export const AppNavigator = () => (
 
   <NavigationContainer>
 
-    <Drawer.Navigator initialRouteName="Report a bug" 
+    <Drawer.Navigator initialRouteName="Help" 
     drawerStyle={{width: Dimensions.get('screen').width / 4 * 3.1}}
     drawerContent={(props) => {
       return (
