@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Pdf from 'react-native-pdf'; //Rendering
-import { StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput, BackHandler, ScrollView} from 'react-native';
+import { AppState, StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput, BackHandler, ScrollView} from 'react-native';
 import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem, Card} from '@ui-kitten/components';
 
 var RNFS = require('react-native-fs');
@@ -18,6 +18,7 @@ export default class Pdf_Renderer extends Component {
 					current_page: props.route.params["current_page"],
 					filename: "PDF E-book",
 					can_leave: true, //If is everything ready to move screen
+					appState: AppState.currentState, //If app is in fore/back-ground
 					//Modals:
 					chaimager_popup_visible: false,
 					chaimager_list_visible: false,
@@ -39,7 +40,18 @@ export default class Pdf_Renderer extends Component {
 		//Adding listeners:
 		BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
 		Dimensions.addEventListener('change', (dimensions) => {this.setState(() => {return {width: dimensions.window.width,
-																							height: dimensions.window.height }});} )
+																							height: dimensions.window.height }});} );
+		
+		//Listener for fore/back ground
+		AppState.addEventListener(
+			"change", nextState => {
+				this.setState(() => {return {appState: nextState}});
+				if (nextState == "background") {
+					//Updating library before user leaving:
+					this.update_page_homescreen(this.state.current_page);
+				}
+			}
+		)																
 
 		//Updating state with chaimager values (if they exist):
 
@@ -146,7 +158,6 @@ export default class Pdf_Renderer extends Component {
 
 		return 0
 	}
-	
 
 	async toggle_topbar (state) {
 
