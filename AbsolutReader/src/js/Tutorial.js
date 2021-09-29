@@ -37,7 +37,7 @@ export default class Tutorial extends Component {
 
         const skip_button = () => (
             <Button size="small">Skip</Button>
-        )
+        ) //TODO #13
 
         return (
 

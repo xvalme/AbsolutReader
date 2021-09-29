@@ -18,7 +18,6 @@ export default class Pdf_Renderer extends Component {
 					current_page: props.route.params["current_page"],
 					filename: "PDF E-book",
 					can_leave: true, //If is everything ready to move screen
-					is_page_updating: false,
 					//Modals:
 					chaimager_popup_visible: false,
 					chaimager_list_visible: false,
@@ -26,7 +25,11 @@ export default class Pdf_Renderer extends Component {
 					//Dimensions for pdf:
 					width: Dimensions.get('window').width,
 					height: Dimensions.get('window').height,
+					//Show (or not) top bar:
+					show_topbar: true,
 				}
+
+		this.library_json = path + 'library.json';
 
 		
 	}
@@ -56,12 +59,13 @@ export default class Pdf_Renderer extends Component {
 
 	handleBackButton = async () => {
 		
-		//Going back to library, not forgetting to update it:
+		//Going back to library, not forgetting to update it
 
-		//Checks 1st if can leave the screen:
-		var can_leave = this.state.can_leave;
+		//First saving the page counter;
+		await this.update_page_homescreen(this.state.current_page);
 
-		if (can_leave == false){
+		//Checks 1st if can leave the screen
+		if (this.state.can_leave == false){
 			setTimeout(() => {  console.log("Cannot leave. 1second timeout");this.handleBackButton() }, 1000);
 		}
 		else {
@@ -110,50 +114,47 @@ export default class Pdf_Renderer extends Component {
 	}
 
 	async update_page_homescreen (page) {
-		//Updates the homescreen value of the pages read when user starts new page
+		//Updates the homescreen value of the pages read when user tries to:
+		//1) Leave the file itself
+		//2) Leave the app
 
-		if (this.state.is_page_updating == false) {
-			console.log(page);
+		this.setState((state) => {return {can_leave: false}}); //Locking
 
-			this.setState((state) => {return {can_leave: false,
-												is_page_updating: true}}); //Locking
+		var json = await RNFS.readFile(this.library_json);
 
-			const filepath = this.state.source.uri;
+		var library = await JSON.parse(json);
 
-			const path = RNFS.DocumentDirectoryPath; //Main path of the App
-		
-			const library_json = path + 'library.json';
+		for (var i = 0; i<library.books.length; i++){
+			
+			//Finding the right book
 
-			var json = await RNFS.readFile(library_json);
-
-			var library = await JSON.parse(json);
-
-			for (var i = 0; i<library.books.length; i++){
+			if (library.books[i].source.uri == filepath) {
 				
-				//Finding the right book
+				//Now editing the file
+				library.books[i].current_page = page;
 
-				if (library.books[i].source.uri == filepath) {
-					
-					//Now editing the file
-					library.books[i].current_page = page;
-
-				}
 			}
-
-			//Now saving file:
-			var saving_library = JSON.stringify(library);
-
-			await RNFS.unlink(library_json);
-			await RNFS.writeFile(library_json, saving_library, 'utf8');
-
-			this.setState((state) => {return {can_leave: true, is_page_updating: true}}); //Unlocking 
 		}
 
-		else {
-			setTimeout(this.update_page_homescreen(page), 100)
-		}
+		//Saving file:
+		var saving_library = JSON.stringify(library);
 
+		await RNFS.unlink(library_json);
+		await RNFS.writeFile(library_json, saving_library, 'utf8');
+
+		this.setState((state) => {return {can_leave: true}}); //Unlocking 
+
+		return 0
 	}
+	
+
+	async toggle_topbar (state) {
+
+		this.setState(() => {return {show_topbar: state}});
+		
+		return 0
+
+	} 
 
 	render(){
 
@@ -225,14 +226,16 @@ export default class Pdf_Renderer extends Component {
 
 	<SafeAreaView style={{ flex: 1 }}>
 
+		{//Only shows if topbar state is true. Handled by toggle_topbar
+		this.state.show_topbar == true  &&
 		<TopNavigation style={{height:Dimensions.get('window').height / 12}}
 						alignment='center'
 						title='Absolut Reader'
 						subtitle={this.state.filename}
 						accessoryLeft={renderBackAction}
-						accessoryRight={renderRightActions}/>
+						accessoryRight={renderRightActions}/> }
 
-		<Divider />
+		<Divider /> 
 
 		<Modal 
 			animationType="slide"
@@ -343,7 +346,7 @@ export default class Pdf_Renderer extends Component {
 				}}
 				
 				onPageChanged={(page,numberOfPages)=>{
-					this.update_page_homescreen(page);
+					this.setState(() => {return {current_page: page}})
 				}}
 
 				page={this.state.current_page}
@@ -361,6 +364,8 @@ export default class Pdf_Renderer extends Component {
 				minScale={0.1}
 
 				fitPolicy={0}
+
+				onPageSingleTap={() => {this.toggle_topbar(!this.state.show_topbar)}}
 
 				style={{	flex:1,
 							width: this.state.width}}/>
