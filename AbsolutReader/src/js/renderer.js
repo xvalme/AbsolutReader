@@ -30,7 +30,7 @@ export default class Pdf_Renderer extends Component {
 					show_topbar: true,
 				}
 
-		this.library_json = path + 'library.json';
+		this.library_json = this.path + 'library.json';
 
 		
 	}
@@ -130,7 +130,7 @@ export default class Pdf_Renderer extends Component {
 		//1) Leave the file itself
 		//2) Leave the app
 
-		this.setState((state) => {return {can_leave: false}}); //Locking
+		this.state.can_leave = false;
 
 		var json = await RNFS.readFile(this.library_json);
 
@@ -140,7 +140,7 @@ export default class Pdf_Renderer extends Component {
 			
 			//Finding the right book
 
-			if (library.books[i].source.uri == filepath) {
+			if (library.books[i].source.uri == this.props.route.params["filepath"]) {
 				
 				//Now editing the file
 				library.books[i].current_page = page;
@@ -151,10 +151,10 @@ export default class Pdf_Renderer extends Component {
 		//Saving file:
 		var saving_library = JSON.stringify(library);
 
-		await RNFS.unlink(library_json);
-		await RNFS.writeFile(library_json, saving_library, 'utf8');
+		await RNFS.unlink(this.library_json);
+		await RNFS.writeFile(this.library_json, saving_library, 'utf8');
 
-		this.setState((state) => {return {can_leave: true}}); //Unlocking 
+		this.state.can_leave = true; //Unlocking 
 
 		return 0
 	}
@@ -356,8 +356,8 @@ export default class Pdf_Renderer extends Component {
 					
 				}}
 				
-				onPageChanged={(page,numberOfPages)=>{
-					this.setState(() => {return {current_page: page}})
+				onPageChanged={(page,numberOfPages)=>{ 
+					this.state.current_page = page;
 				}}
 
 				page={this.state.current_page}
