@@ -192,6 +192,7 @@ export default class Homescreen extends Component {
 
       }
 
+      try {
       //Opening file first:
       var base64_pdf = await RNFS.readFile(filepath, 'base64');
 
@@ -415,6 +416,17 @@ export default class Homescreen extends Component {
           floating: true,
           icon: "auto",
       });
+    }
+    catch {
+      //unknown error
+      showMessage({
+        message: " There was an unknown error while merging your files.",
+        type: "danger",
+        durantion: 3000,
+        floating: true,
+        icon: "auto",
+    });
+    }
   }
 
   chaimager_button = async() => {
