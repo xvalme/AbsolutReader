@@ -784,8 +784,8 @@ export default class Homescreen extends Component {
 
   async get_updates() {
       //Checks if there are new versions from the server.
-      fetch('https://absolutreader.works/current_version').then(
-        (response) => {console.log(response.json())}
+      fetch('https://absolutreader.works', {method: 'GET'}) .then(
+        (response) => {console.log(response.text())}
       ).catch (() => {})
   }
 
