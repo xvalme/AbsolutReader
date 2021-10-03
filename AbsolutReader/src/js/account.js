@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card, Modal} from '@ui-kitten/components';
-import { Image, StyleSheet, SafeAreaView, Dimensions, View, PermissionsAndroid} from 'react-native'
+import { TopNavigation} from '@ui-kitten/components';
+import { SafeAreaView, Dimensions, View} from 'react-native'
 
 //Login page and account page if user already logged in
 

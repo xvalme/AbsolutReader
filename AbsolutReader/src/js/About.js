@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
-import Pdf from 'react-native-pdf'; //Rendering
-import { AppState, StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput, BackHandler, ScrollView, Linking} from 'react-native';
-import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem, Card} from '@ui-kitten/components';
+import { StyleSheet, View , Dimensions, SafeAreaView, Image, ScrollView, Linking} from 'react-native';
+import { Text, TopNavigation, TopNavigationAction, Button, Icon, Divider} from '@ui-kitten/components';
 import FlashMessage from "react-native-flash-message";
-import { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 
 export default class About extends Component {
 

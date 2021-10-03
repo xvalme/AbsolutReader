@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card} from '@ui-kitten/components';
+import {Divider, Button, TopNavigation, Icon,Text, TopNavigationAction} from '@ui-kitten/components';
 import { Image, SafeAreaView, Dimensions, View, Linking, StyleSheet} from 'react-native';
 import FlashMessage from "react-native-flash-message";
 import {

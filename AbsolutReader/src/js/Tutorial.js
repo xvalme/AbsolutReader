@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import { Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card, TabView, Tab} from '@ui-kitten/components';
-import { Image, SafeAreaView, Dimensions, View, Linking,  StyleSheet} from 'react-native';
+import { Layout, Divider, Button, TopNavigation, Text, TabView, Tab} from '@ui-kitten/components';
+import { Image, SafeAreaView, Dimensions, View, StyleSheet} from 'react-native';
 import FlashMessage from "react-native-flash-message";
 
 export default class Tutorial extends Component {

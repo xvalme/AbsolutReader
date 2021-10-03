@@ -4,13 +4,12 @@ import { createDrawerNavigator, DrawerItemList, DrawerContentScrollView } from '
 import { createStackNavigator } from '@react-navigation/stack';
 import  Homescreen  from './Homescreen';
 import  Pdf_renderer  from './renderer';
-import Settings from './settings';
 import Chaimager_adder from './chaimager_adder';
 import Found_bug from './found_bug';
 import Tutorial from './Tutorial';
 import About from './About';
-import { Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card, TabView, Tab} from '@ui-kitten/components';
-import { Image, SafeAreaView, Dimensions, View, Linking} from 'react-native';
+import { Button} from '@ui-kitten/components';
+import { Image, Dimensions, View, Linking} from 'react-native';
 
 const { Navigator, Screen } = createStackNavigator();
 const Drawer = createDrawerNavigator();

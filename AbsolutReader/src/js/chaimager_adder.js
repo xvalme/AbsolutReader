@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
-import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card} from '@ui-kitten/components';
-import { Image, StyleSheet, SafeAreaView, Dimensions, View, TextInput, ScrollView, BackHandler, Modal, ImageBackground, TouchableHighlight} from 'react-native';
+import { Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card} from '@ui-kitten/components';
+import { Image, SafeAreaView, Dimensions, View, TextInput, ScrollView, BackHandler, Modal, TouchableHighlight} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import ColorPicker from 'react-native-wheel-color-picker';
 import FlashMessage from "react-native-flash-message";
-import { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 
 var RNFS = require('react-native-fs');
 

@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import Pdf from 'react-native-pdf'; //Rendering
-import { AppState, StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput, BackHandler, ScrollView} from 'react-native';
-import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem, Card} from '@ui-kitten/components';
+import { AppState, StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, BackHandler} from 'react-native';
+import { Text, TopNavigation, TopNavigationAction, Icon, Divider, List, Card} from '@ui-kitten/components';
 import FlashMessage from "react-native-flash-message";
-import { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 
 var RNFS = require('react-native-fs');
 

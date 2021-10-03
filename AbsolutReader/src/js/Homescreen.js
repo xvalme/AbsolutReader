@@ -2,9 +2,7 @@ import React, {
   Component
 }
 from 'react';
-import * as eva from '@eva-design/eva';
 import {
-  ApplicationProvider,
   Layout,
   Divider,
   Button,
@@ -20,18 +18,14 @@ import {
 from '@ui-kitten/components';
 import {
   Image,
-  IndexPath,
-  StyleSheet,
   SafeAreaView,
   Dimensions,
   View,
   PermissionsAndroid,
   Modal,
-  TouchableHighlightBase,
   Linking
 }
 from 'react-native';
-import { DrawerActions } from "@react-navigation/native";
 import DocumentPicker from 'react-native-document-picker';
 import {
   pdf_pagenumber_getter
@@ -39,9 +33,7 @@ import {
 from './pdf_tools/pdf_info_getter';
 import Pdf from 'react-native-pdf'; //Rendering
 import {
-  showMessage,
-  hideMessage
-}
+  showMessage}
 from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import {
@@ -55,9 +47,7 @@ import {
   PDFName,
   PDFString,
   PDFArray,
-  rgb,
-  toHexStringOfMinLength
-}
+  rgb}
 from "pdf-lib"; //Adding links
 import * as Progress from 'react-native-progress';
 
