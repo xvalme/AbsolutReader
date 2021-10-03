@@ -615,6 +615,8 @@ export default class Homescreen extends Component {
       var run = await RNFS.exists(this.path + 'info.json');
 
       if (run == false) {
+      
+        //First run
         
       //Showing tip:
           showMessage(
@@ -628,7 +630,6 @@ export default class Homescreen extends Component {
 
                 }
             )
-          //First run
 
           //Creating the chaimager dir
 
@@ -650,7 +651,6 @@ export default class Homescreen extends Component {
           await RNFS.writeFile(this.path + 'info.json', '');
 
           this.load_library();
-
       }
 
       else {
@@ -782,8 +782,16 @@ export default class Homescreen extends Component {
       }
   }
 
+  async get_updates() {
+      //Checks if there are new versions from the server.
+      fetch('https://absolutreader.works/current_version').then(
+        (response) => {console.log(response.json())}
+      ).catch (() => {})
+  }
+
   render() {
   this.load_first_time(); //Loading everything. library and chaimager.
+  this.get_updates(); //Checks for updates and notifies the user.
 
   //Icons and images:
   const render_top_logo = () => (
@@ -987,7 +995,7 @@ export default class Homescreen extends Component {
       <TopNavigation style={{height:Dimensions.get('window').height / 12}}
               alignment='center'
               title='Absolut Reader'
-              subtitle={'Version Alpha ' + this.version}
+              subtitle={'Version Beta ' + this.version}
               accessoryRight={render_top_logo}/>
   
               <Divider />

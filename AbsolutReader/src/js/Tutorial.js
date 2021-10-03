@@ -44,7 +44,7 @@ export default class Tutorial extends Component {
                 <TopNavigation style={{height:Dimensions.get('window').height / 12}}
                                             alignment='center'
                                             title='Absolut Reader'
-                                            subtitle={'Version Alpha ' + this.version}
+                                            subtitle={'Version Beta ' + this.version}
                                 accessoryRight={render_top_logo}
                                 accessoryLeft={skip_button} />
 
