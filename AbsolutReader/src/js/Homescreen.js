@@ -30,6 +30,7 @@ import {
   TouchableHighlightBase
 }
 from 'react-native';
+import { DrawerActions } from "@react-navigation/native";
 import DocumentPicker from 'react-native-document-picker';
 import {
   pdf_pagenumber_getter
@@ -75,7 +76,7 @@ export default class Homescreen extends Component {
       this.state = {
           top_index: 0,
           drawer_index: 0,
-          library_forge_color: "#ffe23b",
+          library_forge_color: "#ffe9b3",
           library: [],
           chaimager_list: [],
           library_loaded: false,
@@ -169,9 +170,6 @@ export default class Homescreen extends Component {
 
   }
 
-  share_chaimager = async(name) => {}
-
-
   forge_chaimager = async (selected_book, chaimager_file) => {
 
       //Runs if user ask to merge a skin with a pdf. Saves the pdf in the end in a folder
@@ -211,7 +209,7 @@ export default class Homescreen extends Component {
       console.log("[MERGER] Files opened.");
 
       //Getting the coords
-      await this.setState(() => {return {forge_progress: 0.05}}, 
+      this.setState(() => {return {forge_progress: 0.05}}, 
       );
 
       async function get_pdf_coordinates(pdfDoc, keywords) {
@@ -613,6 +611,19 @@ export default class Homescreen extends Component {
 
       //Checking if information file exists:
 
+      //Showing tip:
+      showMessage(
+        {
+            message: "TIP: Slash your finger to the right to access the menu.",
+            type: "warning",
+            durantion: 3000,
+            floating: true,
+            icon: "auto",
+
+
+        }
+    )
+
       var run = await RNFS.exists(this.path + 'info.json');
 
       if (run == false) {
@@ -781,10 +792,6 @@ export default class Homescreen extends Component {
       }} />
     );
 
-  const MenuIcon = (props) => (
-    <Icon {...props} name='menu'/>
-    );
-
   const BugIcon = (props) => (
     <Icon {...props} name='alert-triangle-outline' />
   );
@@ -797,21 +804,10 @@ export default class Homescreen extends Component {
     <Icon {...props} name='close'/>
   );
 
-  const HelpIcon = (props) => (
-    <Icon {... props} name='question-mark' />
-  );
-  //Rendering things
-  const renderMenu = () => (
-    <TopNavigationAction icon={MenuIcon} onPress={() => {this.props.navigation.navigate('Settings');}}/>
-    );
-
   const renderItem = (info) => (
     <Card
       status='basic'
       style= {{   width: Dimensions.get('window').width,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  margin: 1,
                   flex:1,
                   backgroundColor: info.item.forged ? this.state.library_forge_color : "#ffffff", 
                   }}
@@ -822,11 +818,12 @@ export default class Homescreen extends Component {
       >
       
       <View style={{flexDirection: 'row', flex:1}}>
-        <View style={{}}>
+
+        <View style={{width:Dimensions.get('window').width / 2 * 0.8, flex:2}}>
 
           <Pdf
             source={info.item.source}
-            style={{width:Dimensions.get('window').width / 2 * 0.8, height:Dimensions.get('window').height / 4}}
+            style={{width:Dimensions.get('window').width / 2 * 0.7, height:Dimensions.get('window').height / 4}}
             fitPolicy={0}
             singlePage={true}
             onError={() => {}}
@@ -834,26 +831,33 @@ export default class Homescreen extends Component {
           />
         </View>
 
-            <View style={{width: Dimensions.get('window').width * 0.4, }}>
-              <Text style={{   justifyContent: 'center',
-                              textAlign: 'center',}}>
-                  {info.item.title}
+          <View style={{flex:3}}>
 
-                </Text>
-                  <View style={{flexDirection: 'row', alignItems:'center', justifyContent: 'center',}}>
-                        <Text>
-                          {info.item.current_page} / {info.item.pages} Pages
-                        </Text>
+            <View style={{marginLeft:Dimensions.get('window').width / 50}}>
 
-                        <Button 
-                        appearance='ghost'
-                        onPress={() => {renderDropDown(info.item)}}
-                        accessoryLeft={DropDownIcon}
-                        size='small' />
+             <View style={{flexDirection: "row-reverse",}}>
 
-                  </View>
+                <Button 
+                appearance="ghost"
+                onPress={() => {renderDropDown(info.item)}}
+                accessoryLeft={DropDownIcon}
+                size="medium" />
 
-            </View>
+                </View>
+
+                  <Text>
+                      {info.item.title}
+                    </Text>
+
+                    <Text>Chaimager merged: {info.item.forged ? "True" : "False"} </Text>
+
+                    <Text>
+                              {info.item.current_page} / {info.item.pages} Pages
+                    </Text>
+
+                </View>
+
+          </View>
 
       </View>
     </Card>
@@ -886,6 +890,7 @@ export default class Homescreen extends Component {
           />
 
           <Text style={{textAlign: "center"}}>{info.item.title}</Text>
+          <Text style={{textAlign: "center"}}>Already forged: {info.item.forged ? "True" : "False"} </Text>
         </View>
     </Card>
   );
@@ -969,7 +974,6 @@ export default class Homescreen extends Component {
 
   const renderRightActions = () => (
     <React.Fragment>
-      <TopNavigationAction icon={HelpIcon} style={{alignSelf:"center"}} />
       <TopNavigationAction icon={render_top_logo} style={{alignSelf:"center"}} />
     </React.Fragment>
   );
@@ -983,8 +987,7 @@ export default class Homescreen extends Component {
               alignment='center'
               title='Absolut Reader'
               subtitle={'Version Alpha ' + this.version}
-              accessoryRight={render_top_logo}
-              accessoryLeft={renderMenu}/>
+              accessoryRight={render_top_logo}/>
   
               <Divider />
         
@@ -1000,10 +1003,6 @@ export default class Homescreen extends Component {
   
           </View>
   
-          <View style={{flex: 1}}> 
-            <Button onPress={this.load_file} style={{marginTop:10}}>Add PDF</Button>
-        </View>
-        
       </Layout>
     </SafeAreaView>
     );
@@ -1016,9 +1015,9 @@ export default class Homescreen extends Component {
     <TopNavigation style={{height:Dimensions.get('window').height / 12}}
                 alignment='center'
                 title='Absolut Reader'
-                subtitle={'Version Alpha ' + this.version}
+                subtitle={'Version Beta ' + this.version}
                 accessoryRight={renderRightActions}
-                accessoryLeft={renderMenu}/>
+                />
 
     <Modal 
 			animationType="slide"
@@ -1078,10 +1077,6 @@ export default class Homescreen extends Component {
             onPress={() => {}} 
             >Chaimager skin</Button>
 
-            <Button title='Share Chaimager file' 
-            style={{margin: 2, width: Dimensions.get('window').width * 0.8}}
-            status='basic'
-            >Share Chaimager file</Button>
           </View>
 
 				</View>
@@ -1123,7 +1118,10 @@ export default class Homescreen extends Component {
 
           
             <View>
-                <Text style={{textAlign:'center'}}>Welcome back!</Text>
+                <Text style={{textAlign:'center'}}>Hi there!</Text>
+                <Text style={{textAlign:'center'}}>Thanks for being using our app. If you are liking it, consider making a donation.</Text>
+                <Text style={{textAlign:'center'}}>It helps us keep developing without throwing tons of ads!</Text>
+                <Text style={{textAlign:'center'}}>You can also help us sharing it with your friends!</Text>
                 
                 
                 <Button accessoryLeft={CloseIcon} appearance='outline' size='small' status='danger'
@@ -1192,7 +1190,6 @@ export default class Homescreen extends Component {
 
               <Button status="success" onPress={() => {this.create_chaimager(this.state.chaimager_info_modal_information.filename)}}>Edit file</Button>
               <Button status="danger" onPress={() => {this.delete_chaimager(this.state.chaimager_info_modal_information.filename)}}>Delete (1 time touch)</Button>
-              <Button status="info" onPress={() => {this.share_chaimager(this.state.chaimager_info_modal_information.filename)}}>Share</Button>
 
             </View>
 
@@ -1301,8 +1298,6 @@ export default class Homescreen extends Component {
                   />
 
             </View>
-
-            <Button style={{alignSelf: "center"}} onPress={() => {this.setState(() =>{ return {forge_library_modal: false }})}}>Return</Button>
 
           </View>
 

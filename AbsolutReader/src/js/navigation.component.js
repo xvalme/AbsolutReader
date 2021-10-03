@@ -58,7 +58,6 @@ export const AppNavigator = () => (
 
       <Drawer.Screen name="Library" component={Library} />
       <Drawer.Screen name="Help" component={Tutorial} />
-      <Drawer.Screen name="Chaimager tutorial" component={Library} />
       <Drawer.Screen name="Report a bug" component={Found_bug} />
       <Drawer.Screen name="Support us" component={Library} />
       <Drawer.Screen name="About" component={About} />
