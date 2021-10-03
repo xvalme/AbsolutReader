@@ -2,9 +2,6 @@ import React, {Component} from 'react';
 import { Layout, Divider, Button, TopNavigation, Icon,Text, TopNavigationAction, List, Card, TabView, Tab} from '@ui-kitten/components';
 import { Image, SafeAreaView, Dimensions, View, Linking,  StyleSheet} from 'react-native';
 import FlashMessage from "react-native-flash-message";
-import {
-    showMessage  }
-from "react-native-flash-message";
 
 export default class Tutorial extends Component {
 
@@ -36,8 +33,8 @@ export default class Tutorial extends Component {
             );
 
         const skip_button = () => (
-            <Button size="small">Skip</Button>
-        ) //TODO #13
+            <Button size="small" onPress={() => {this.handleBackButton()}}>Skip</Button>
+        )
 
         return (
 
@@ -155,6 +152,8 @@ export default class Tutorial extends Component {
                                     <Text style={styles.backgrounded_text}>Simple, right? There is a specifi tutorial for it in the app if you have questions.</Text>
 
                                 </View>
+
+                                <Button style={{margin:10}} onPress={() => {this.handleBackButton()}}> Go to library</Button>
                             </Layout>
                         </Tab>
                         
