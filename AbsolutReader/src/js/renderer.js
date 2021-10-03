@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import Pdf from 'react-native-pdf'; //Rendering
 import { AppState, StyleSheet, View , Dimensions, SafeAreaView, Modal, Image, TextInput, BackHandler, ScrollView} from 'react-native';
 import { Layout, Text, TopNavigation, TopNavigationAction, Button, Icon, Divider, List, ListItem, Card} from '@ui-kitten/components';
+import FlashMessage from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 var RNFS = require('react-native-fs');
 
@@ -48,6 +50,7 @@ export default class Pdf_Renderer extends Component {
 				this.setState(() => {return {appState: nextState}});
 				if (nextState == "background") {
 					//Updating library before user leaving:
+					console.log("User is leaving app.")
 					this.update_page_homescreen(this.state.current_page);
 				}
 			}
@@ -130,6 +133,8 @@ export default class Pdf_Renderer extends Component {
 		//1) Leave the file itself
 		//2) Leave the app
 
+		console.log("Updating library with changes of page counter.")
+
 		this.state.can_leave = false;
 
 		var json = await RNFS.readFile(this.library_json);
@@ -167,6 +172,35 @@ export default class Pdf_Renderer extends Component {
 
 	} 
 
+	toggle_chaimager_list (state) {
+
+		if (this.state.chaimager.ids.length == 1) {
+
+			//There is nothing to be shown on chaimager, so it won´t open the chaimager list.
+
+			//TODO #14
+			showMessage(
+				{
+			  message: "Ups! It seems that this book does not have associated with it a Chaimager file, so there is no list to show.",
+              type: "danger",
+              durantion: 3000,
+              floating: true,
+              icon: "auto",
+				}
+			);
+
+			return 0;
+
+		} 
+		
+		this.setState((state) => {
+			return {
+				chaimager_list_visible: true
+			};
+		})
+
+	}
+
 	render(){
 
 	const BackIcon = (props) => (
@@ -188,11 +222,7 @@ export default class Pdf_Renderer extends Component {
 	const renderRightActions = () => (
 		<React.Fragment>
 
-		<TopNavigationAction icon={PaletteIcon} onPress={() => {this.setState((state) => {
-																									return {
-																										chaimager_list_visible: true
-																									};
-																								})}}/>	
+		<TopNavigationAction icon={PaletteIcon} onPress={() => {this.toggle_chaimager_list(true)}} />	
 
 			<TopNavigationAction icon={MenuIcon} onPress={() => {this.setState((state) => {
 																				return {
@@ -381,6 +411,8 @@ export default class Pdf_Renderer extends Component {
 				style={{	flex:1,
 							width: this.state.width}}/>
 		</View>
+
+		<FlashMessage position="bottom"/>
 		
 	</SafeAreaView>
 	)}

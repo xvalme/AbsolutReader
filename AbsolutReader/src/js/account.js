@@ -7,7 +7,7 @@ import { Image, StyleSheet, SafeAreaView, Dimensions, View, PermissionsAndroid} 
 
 var RNFS = require('react-native-fs');
 
-export default class Pdf_Renderer extends Component {
+export default class Account extends Component {
 
 	constructor(props) {
 		super(props);

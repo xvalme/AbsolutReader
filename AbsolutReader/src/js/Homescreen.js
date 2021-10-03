@@ -812,6 +812,7 @@ export default class Homescreen extends Component {
                   justifyContent: 'center',
                   alignItems: 'center',
                   margin: 1,
+                  flex:1,
                   backgroundColor: info.item.forged ? this.state.library_forge_color : "#ffffff", 
                   }}
                   
@@ -820,23 +821,24 @@ export default class Homescreen extends Component {
       onLongPress={() => {renderDropDown(info.item)}}
       >
       
-      <View style={{flexDirection: 'row'}}>
-        <View>
+      <View style={{flexDirection: 'row', flex:1}}>
+        <View style={{}}>
 
           <Pdf
             source={info.item.source}
             style={{width:Dimensions.get('window').width / 2 * 0.8, height:Dimensions.get('window').height / 4}}
-            fitPolicy={1}
+            fitPolicy={0}
             singlePage={true}
             onError={() => {}}
             
           />
         </View>
 
-            <View>
+            <View style={{width: Dimensions.get('window').width * 0.4, }}>
               <Text style={{   justifyContent: 'center',
                               textAlign: 'center',}}>
                   {info.item.title}
+
                 </Text>
                   <View style={{flexDirection: 'row', alignItems:'center', justifyContent: 'center',}}>
                         <Text>
@@ -1186,15 +1188,15 @@ export default class Homescreen extends Component {
 
             </View>
 
-            <View style={{marginTop: Dimensions.get('window').width / 50, flexDirection: "row" }}>
+            <View style={{marginTop: Dimensions.get('window').width / 50, flexDirection: "column" }}>
 
-              <Button status="success" onPress={() => {this.create_chaimager(this.state.chaimager_info_modal_information.filename)}}>Edit</Button>
-              <Button status="danger" onPress={() => {this.delete_chaimager(this.state.chaimager_info_modal_information.filename)}}>Delete</Button>
+              <Button status="success" onPress={() => {this.create_chaimager(this.state.chaimager_info_modal_information.filename)}}>Edit file</Button>
+              <Button status="danger" onPress={() => {this.delete_chaimager(this.state.chaimager_info_modal_information.filename)}}>Delete (1 time touch)</Button>
               <Button status="info" onPress={() => {this.share_chaimager(this.state.chaimager_info_modal_information.filename)}}>Share</Button>
 
             </View>
 
-            <Button style={{alignSelf: "center"}} onPress={() => {this.setState(() =>{ return {chaimager_info_modal_visible: false }})}}>Return</Button>
+            <Button style={{alignSelf: "center"}} onPress={() => {this.setState(() =>{ return {chaimager_info_modal_visible: false }})}}>Return to library</Button>
 
           </View>
 
