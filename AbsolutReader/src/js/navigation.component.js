@@ -48,6 +48,10 @@ export const AppNavigator = () => (
 
                 </View>
 
+                <Button appearance="outline" style={{backgroundColor:"white"}} onPress={() => {
+                  Linking.openURL("https://absolutreader.works")
+                }}>Website</Button>
+
                 <DrawerItemList {...props} />
 
                 </DrawerContentScrollView>
