@@ -73,6 +73,7 @@ export default class Tutorial extends Component {
                                     <Text style={styles.bold_text} >Hi, there!</Text>
                                     <Text style={styles.semi_bold_text} >Welcome to Absolut Reader.</Text>
                                     <Text style={styles.text}>Follow this quick tutorial to have an idea of the app´s functionalities.</Text>
+                                    <Text style={styles.text}>Slide me!</Text>
 
                                 </View>
 
@@ -81,7 +82,7 @@ export default class Tutorial extends Component {
                             </Layout>
                         </Tab>
 
-                        <Tab title="2">
+                        <Tab title="2.1">
 
                             <Layout style={{ 
                             height:Dimensions.get('window').height / 12 * 10.4,
@@ -109,6 +110,20 @@ export default class Tutorial extends Component {
                                 </Layout>
                         </Tab>
 
+                        <Tab title="2.2">
+                            <Layout style={{ 
+                            height:Dimensions.get('window').height / 12 * 10.4,
+                            justifyContent: 'center', 
+                            alignItems: 'center',}}>
+                                <View>
+                        
+                                    <Text style={styles.semi_bold_text}>But not everything is ready!</Text>
+                                    <Text style={styles.backgrounded_text_2}>Basic functionalities such as PDF reading, Chaimager, and a library are already working. We are slowly updating them and adding new features.</Text>
+                                    <Text style={styles.backgrounded_text}>The app is stil being developed, so many things that are promised are not here yet. You will be notified whenever there is a new version.</Text>
+                                </View>
+                            </Layout>
+                        </Tab>
+
                         <Tab title="3">
                             <Layout style={{ 
                             height:Dimensions.get('window').height / 12 * 10.4,
@@ -117,7 +132,6 @@ export default class Tutorial extends Component {
                                 <View>
                         
                                     <Text style={styles.semi_bold_text}>What to expect from this app:</Text>
-                                    <Text style={styles.backgrounded_text_2}>Basic functionalities such as PDF reading, Chaimager, and a library are already working. We are slowly updating them and adding new features.</Text>
                                     <Text style={styles.backgrounded_text}>This app is currently in heavy development. Bugs might happen and we count on you to help us! </Text>
                                     <Text style={styles.backgrounded_text_2}>For now we only support PDFs. Other formats available soon.</Text>
                                     <Text style={styles.backgrounded_text}>This app is 100% free, but we also need to eat (and drink coffe). We are planning to add custom features for 

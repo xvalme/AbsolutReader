@@ -222,13 +222,7 @@ export default class Pdf_Renderer extends Component {
 	const renderRightActions = () => (
 		<React.Fragment>
 
-		<TopNavigationAction icon={PaletteIcon} onPress={() => {this.toggle_chaimager_list(true)}} />	
-
-			<TopNavigationAction icon={MenuIcon} onPress={() => {this.setState((state) => {
-																				return {
-																					chaimager_adder_popup_visible: true
-																				};
-																			})}}/>			
+		<TopNavigationAction icon={PaletteIcon} onPress={() => {this.toggle_chaimager_list(true)}} />		
 													
 		</React.Fragment>
 	  );

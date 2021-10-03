@@ -14,7 +14,7 @@ export default class Settings extends Component {
     render() { return(
         <SafeAreaView style={{ flex: 1 }}>
 
-
+            
 
         </SafeAreaView>
     )}

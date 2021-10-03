@@ -27,7 +27,8 @@ import {
   View,
   PermissionsAndroid,
   Modal,
-  TouchableHighlightBase
+  TouchableHighlightBase,
+  Linking
 }
 from 'react-native';
 import { DrawerActions } from "@react-navigation/native";
@@ -611,22 +612,22 @@ export default class Homescreen extends Component {
 
       //Checking if information file exists:
 
-      //Showing tip:
-      showMessage(
-        {
-            message: "TIP: Slash your finger to the right to access the menu.",
-            type: "warning",
-            durantion: 3000,
-            floating: true,
-            icon: "auto",
-
-
-        }
-    )
-
       var run = await RNFS.exists(this.path + 'info.json');
 
       if (run == false) {
+        
+      //Showing tip:
+          showMessage(
+                {
+                    message: "TIP: Slash your finger to the right to access the menu.",
+                    type: "warning",
+                    durantion: 3000,
+                    floating: true,
+                    icon: "auto",
+
+
+                }
+            )
           //First run
 
           //Creating the chaimager dir
@@ -1071,12 +1072,6 @@ export default class Homescreen extends Component {
             style={{margin: 2 ,width: Dimensions.get('window').width * 0.8}}
             status='danger'>Remove book from library</Button>
 
-            <Button title='Reset' 
-            style={{margin: 2, width: Dimensions.get('window').width * 0.8}}
-            status='success'
-            onPress={() => {}} 
-            >Chaimager skin</Button>
-
           </View>
 
 				</View>
@@ -1099,36 +1094,54 @@ export default class Homescreen extends Component {
 
         <View style = {{flex: 1,
               justifyContent: "center",
-              alignItems: "center"
+              alignItems: "center",
+              width: Dimensions.get('window').width,
+              height:Dimensions.get('window').height,
+              backgroundColor:"white"
               }}>
         
-          <View style = {{margin: 20,
-                  backgroundColor: "white",
-                  borderRadius: 20,
-                  padding: 35,
-                  alignItems: "center",
-                  shadowColor: "#000",
-                  shadowOffset: {
-                  width: 0,
-                  height: 2
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 4,
-                  elevation: 5}} >
 
           
             <View>
-                <Text style={{textAlign:'center'}}>Hi there!</Text>
-                <Text style={{textAlign:'center'}}>Thanks for being using our app. If you are liking it, consider making a donation.</Text>
-                <Text style={{textAlign:'center'}}>It helps us keep developing without throwing tons of ads!</Text>
-                <Text style={{textAlign:'center'}}>You can also help us sharing it with your friends!</Text>
+            <Image style={{width: Dimensions.get('window').height / 5,
+                        height: Dimensions.get('window').height / 5,
+                        alignSelf: "center"}} 
+        source={require('./../assets/images/logo.png')} />
+
+                <Text style={{textAlign:'center', fontWeight:"bold", fontSize: Dimensions.get('window').height / 30 }}>AbsolutReader</Text>
+
+                <Text style={{textAlign:'center',
+              margin: Dimensions.get('window').height / 30,
+              fontSize: Dimensions.get('window').height / 40 }}>
+                Thanks for being using our app. If you are liking it, consider making a donation.</Text>
+
+                <Text style={{textAlign:'center', fontSize: Dimensions.get('window').height / 45 }}>
+                  Everyone hates ads. A donation helps us keep developing without them.</Text>
+
+                <Text style={{textAlign:'center', fontSize: Dimensions.get('window').height / 45, marginBottom: Dimensions.get('window').height / 30,}}>Thanks!</Text>
+
+                <View style={{flexDirection: "row", justifyContent:"center"}}>
                 
-                
-                <Button accessoryLeft={CloseIcon} appearance='outline' size='small' status='danger'
-                        onPress={() => {this.setState((state) => {return {
-                          welcome_modal_visible: false}
-                          ;} );}} />
-            </View>
+                  <Button status="success"
+                          onPress={() => {try{
+                            Linking.openURL('https://ko-fi.com/absolutreader');
+                            }
+                            catch{
+                                showMessage({
+                                    message: "Link opening has failed. Check your internet connection or try again later.",
+                                    type: "danger",
+                                    durantion: 5000,
+                                    floating: true,
+                                    icon: "auto",
+                                });
+                            }}} style={{margin:10}}> Donate </Button>
+                  
+                  <Button accessoryLeft={CloseIcon} appearance='outline' style={{margin:10}} status='danger'
+                          onPress={() => {this.setState((state) => {return {
+                            welcome_modal_visible: false}
+                            ;} );}} > Close </Button>
+
+                </View>
 
           </View>
 
