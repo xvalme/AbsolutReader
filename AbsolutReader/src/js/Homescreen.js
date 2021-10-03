@@ -784,9 +784,40 @@ export default class Homescreen extends Component {
 
   async get_updates() {
       //Checks if there are new versions from the server.
-      fetch('https://absolutreader.works', {method: 'GET'}) .then(
-        (response) => {console.log(response.text())}
-      ).catch (() => {})
+
+      try{
+        const response = await fetch('https://absolutreader.works/current_version.json');
+
+        const data = await response.json();
+
+        if (data.version == this.version) {
+          //App is updated
+          return 0;
+        }
+
+        else {
+
+          //Warning the user the version is older
+
+          showMessage({
+            message: "AbsolutReader is outdated! Download it now to use the newest version with new features and bug corrections.",
+            type: "danger",
+            durantion: 10000,
+            floating: true,
+            icon: "auto",
+        });
+
+        }
+
+      }
+      catch{
+        console.error("Connection to server failed.")
+        //Connection error
+        return 0
+      }
+
+
+
   }
 
   render() {
