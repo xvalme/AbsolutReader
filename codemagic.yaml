@@ -5,6 +5,8 @@ workflows:
       working_directory: AbsolutReader
       environment:
           node: latest
+	  groups:
+            - Variables
       scripts:
         
         - name: Install dependencies via yarn
