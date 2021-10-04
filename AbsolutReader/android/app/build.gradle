@@ -167,7 +167,7 @@ android {
                 storeFile file("my-upload-key.keystore")
                 storePassword $storepassword
                 keyAlias "my-key-alias"
-                keyPassword "keyPassword
+                keyPassword $keypassword
             
     }
     }
