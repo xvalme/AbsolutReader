@@ -5,7 +5,7 @@ workflows:
       working_directory: AbsolutReader
       environment:
           node: latest
-	  groups:
+        groups:
             - Variables
       scripts:
         
@@ -27,7 +27,7 @@ workflows:
 
         - name: Build Android APK
           script: |
-            cd $FCI_BUILD_DIR/AbsolutReader/android && bash ./gradlew assembleDebug
+            cd $FCI_BUILD_DIR/AbsolutReader/android && bash ./gradlew assembleRelease
 
       artifacts:
           - android/app/build/outputs/**/*.apk
