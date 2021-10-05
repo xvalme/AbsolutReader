@@ -76,7 +76,7 @@ export default class Found_bug extends Component {
 
                     <View style={{backgroundColor:"white"}}>
 
-                        <Image style={styles.image} source={require('./../assets/images/Magnifying_glass_icon.svg.png')} />
+                        <Image style={styles.image} source={require('./../assets/images/Magnifying_glass_icon.png')} />
 
                         <Text style={styles.big_text}>
                             We don´t like bugs either.
