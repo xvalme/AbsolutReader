@@ -140,6 +140,9 @@ android {
     }
 
     defaultConfig {
+        resValue "string", "storePassword_key", "$System.Variables.storepassword"
+        resValue "string", "keyPassword_key", "$System.Variables.keypassword"
+
         applicationId "com.absolutreader"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -165,9 +168,9 @@ android {
         }
         release {
                 storeFile file("my-upload-key.keystore")
-                storePassword $Variables.storepassword
+                storePassword "storePassword_key"
                 keyAlias "my-key-alias"
-                keyPassword $Variables.keypassword
+                keyPassword "keyPassword_key"
             
     }
     }

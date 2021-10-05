@@ -8,9 +8,6 @@ workflows:
           groups:
             - Variables
       scripts:  
-        - name: Tests
-          script: |
-            yarn install
         - name: Install dependencies via yarn
           script: |
             yarn install
