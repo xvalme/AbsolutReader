@@ -118,6 +118,13 @@ export default class Homescreen extends Component {
   load_file = async() => {
       console.log("User is adding a new book");
       var file = await this.file_selector();
+
+      if (file == 0) {
+      
+         return 0;
+
+	}
+	
       var filepath = file[0];
       var filename = file[1];
 
@@ -457,12 +464,9 @@ export default class Homescreen extends Component {
 
       }
       catch (err) {
-          if (DocumentPicker.isCancel(err)) {
-              throw err;
-          }
-          else {
-              throw err;
-          }
+
+          console.log(err);
+          return 0;
       }
   }
 
@@ -813,7 +817,7 @@ export default class Homescreen extends Component {
 
       }
       catch{
-        console.error("Connection to server failed.")
+        console.log("Connection to server failed.")
         //Connection error
         return 0
       }
