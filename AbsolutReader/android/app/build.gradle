@@ -165,9 +165,9 @@ android {
         }
         release {
                 storeFile file("my-upload-key.keystore")
-                storePassword $System.env.storepassword
+                storePassword $Variables.storepassword
                 keyAlias "my-key-alias"
-                keyPassword $System.env.keypassword
+                keyPassword $Variables.keypassword
             
     }
     }
