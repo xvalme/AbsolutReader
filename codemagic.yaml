@@ -7,12 +7,7 @@ workflows:
           node: latest
           groups:
             - Variables
-      scripts:
-        - name: Variables test
-          script: |
-            echo  $ANDROID_SDK_ROOT
-            echo  $Variables.keypassword
-        
+      scripts:  
         - name: Install dependencies via yarn
           script: |
             yarn install
