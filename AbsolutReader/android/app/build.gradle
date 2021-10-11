@@ -140,9 +140,6 @@ android {
     }
 
     defaultConfig {
-        resValue "string", "storePassword_key", "$System.Variables.storepassword"
-        resValue "string", "keyPassword_key", "$System.Variables.keypassword"
-
         applicationId "com.absolutreader"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -158,13 +155,11 @@ android {
         }
     }
     signingConfigs {
-        debug {
-            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
-                storeFile file(MYAPP_RELEASE_STORE_FILE)
-                storePassword MYAPP_RELEASE_STORE_PASSWORD 
-                keyAlias MYAPP_RELEASE_KEY_ALIAS
-                keyPassword MYAPP_RELEASE_KEY_PASSWORD
-            }
+         debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
         }
         release {
                 storeFile file("my-upload-key.keystore")

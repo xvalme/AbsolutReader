@@ -30,7 +30,7 @@ import DocumentPicker from 'react-native-document-picker';
 import {
   pdf_pagenumber_getter
 }
-from './pdf_tools/pdf_info_getter';
+from '../pdf_tools/pdf_info_getter';
 import Pdf from 'react-native-pdf'; //Rendering
 import {
   showMessage}
@@ -59,7 +59,7 @@ export default class Homescreen extends Component {
   constructor(props) {
       super(props);
 
-      var app_package = require('./../../package.json');
+      var app_package = require('../../../package.json');
       this.version = app_package["version"];
 
       this.path = RNFS.DocumentDirectoryPath; //Main path of app
@@ -178,14 +178,15 @@ export default class Homescreen extends Component {
 
       console.log("[MERGER] Starting merger.");
 
-      //Checks 1st if values exist:
-
+      //Checks 1st if files exist:
+      try{
       try {
           var filepath = selected_book.source.uri;
           var chaimager_json = chaimager_file.chaimager;
       }
 
       catch {
+          console.log("One of the files is missing.");
 
           showMessage({
               message: "You did not select a Book and a Chaimager file to merge!",
@@ -199,18 +200,35 @@ export default class Homescreen extends Component {
 
       }
 
+      //Opening files
       try {
       //Opening file first:
       var base64_pdf = await RNFS.readFile(filepath, 'base64');
 
-      var pdfDoc = base64js.toByteArray(base64_pdf); //PDF as byte array so pdf.js library can understand it
+      var pdfDoc = base64js.toByteArray(base64_pdf); //PDF as byte array so pdf.js library can understand it }
+      }
+      catch {
+        //corrupted error
+        console.log("[MERGER] Can´t open files.")
+
+
+        showMessage({
+          message: "Can´t open your files. Probably one of them is corrupted.",
+          type: "danger",
+          durantion: 3000,
+          floating: true,
+          icon: "auto",
+      });
+
+        return 0;
+      }
 
       console.log("[MERGER] Files opened.");
 
-      //Getting the coords
       this.setState(() => {return {forge_progress: 0.05}}, 
       );
 
+      //Getting a list of cords of where to add the hyperlinks
       async function get_pdf_coordinates(pdfDoc, keywords) {
 
           /*Given a file (Already opened by fs), it uses Pdfjs library to get the coordinates of the keywords
@@ -232,6 +250,8 @@ export default class Homescreen extends Component {
 
           for (let i = 1; i <= numPages; i++) {
 
+            try{
+
               var page = await doc.getPage(i);
 
               var content = await page.getTextContent();
@@ -250,7 +270,7 @@ export default class Homescreen extends Component {
                           var text = items[p]["str"];
 
                           var coords = calculate_coords(i, transform, width, height, text, keywords.ids[z].name, keywords.ids[z].color);
-                          //sends the page, transform with the x and y elements, size, the complete sentence and the keywords we want in a array.
+                          //sends back the page, transform with the x and y elements, size, the complete sentence and the keywords we want in a array.
 
                           for (const v of coords) {
                               coords_array.push(v);
@@ -260,20 +280,47 @@ export default class Homescreen extends Component {
 
                   }
               }
+            }
+              catch {
+                  //Probably page has some element that was not recognized by th pdf js library. We just keep going on the other ones, without stopping.
+              }
+
           };
+
           return coords_array;
       }
 
-      var array_coordinate_dic = await get_pdf_coordinates(pdfDoc, chaimager_json);
+      try {
+      var array_coordinate_dic = await get_pdf_coordinates(pdfDoc, chaimager_json); 
+      }
+      catch {
+        //corrupted error
+        console.log("[MERGER] Error while getting the cords to be edited.")
 
-      console.log("[MERGER] Coordinate array gotten.");
+
+        showMessage({
+          message: "Unkown error. If this keep happening, please submit this bug to our Github page. Thanks!",
+          type: "danger",
+          durantion: 5000,
+          floating: true,
+          icon: "auto",
+      });
+
+        return 0;
+      }
+
+      console.log("[MERGER] Coordinate array gotten, with this number of elements: " + array_coordinate_dic.length);
       await this.setState(() => {return {forge_progress: 0.45}}, 
       );
 
+      //Now making the links, using the array of dictionaries:
       async function make_links(pdfDoc, array_coordinate_dic) {
 
-          if (array_coordinate_dic != 0) { //Empty. No characters.
+          if (array_coordinate_dic != 0) { //In case it is empty it will jump out this phase
 
+            console.log("Building links.");
+
+            //Opening file
               var pdfDoc = await PDFDocument.load(pdfDoc, {
                   ignoreEncryption: true
               });
@@ -282,12 +329,13 @@ export default class Homescreen extends Component {
 
               for (let i = 0; i < array_coordinate_dic.length; i++) {
 
+                  try {
+
                   var rgb_color = hexToRgb(array_coordinate_dic[i].color);
-                  var id = array_coordinate_dic[i].name;
 
                   var page_number = array_coordinate_dic[i]["page"];
 
-                  var page = pages[page_number - 1]; //Loading page
+                  var page = pages[page_number - 1]; //Loading page from the index
 
                   const coordinate_dic = array_coordinate_dic[i];
 
@@ -328,6 +376,12 @@ export default class Homescreen extends Component {
                   else { //Need to create a new array of annotations
                       page.node.set(PDFName.of('Annots'), pdfDoc.context.obj([linkAnnotationRef]));
                   };
+
+                }
+
+                catch (e) { //Error while adding link. Keep going and ignore it.
+                  console.log("Error while bulding links: " + e);
+                }
 
               }
 
@@ -396,6 +450,7 @@ export default class Homescreen extends Component {
 
           return (coords);
       }
+      
       await this.setState(() => {return {forge_progress: 0.95}}, 
       );
 
@@ -404,7 +459,24 @@ export default class Homescreen extends Component {
       var title = filepath.split('\\').pop().split('/').pop();
       var path = RNFS.DocumentDirectoryPath + '/edited_pdfs/' + title + '.pdf';
 
+      try{
       await RNFS.writeFile(path, base64_pdf, 'base64');
+      }
+      catch {
+        //corrupted error
+        console.log("[MERGER] Can´t save PDF")
+
+
+        showMessage({
+          message: "Could not save the new edited file!",
+          type: "danger",
+          durantion: 5000,
+          floating: true,
+          icon: "auto",
+      });
+
+        return 0;
+      }
 
       console.log("[MERGER] New Pdf being saved.");
 
@@ -424,8 +496,11 @@ export default class Homescreen extends Component {
           icon: "auto",
       });
     }
-    catch {
+
+    catch (e) {
       //unknown error
+      console.log(e);
+
       showMessage({
         message: " There was an unknown error while merging your files.",
         type: "danger",
@@ -475,7 +550,11 @@ export default class Homescreen extends Component {
       //Picks up the title, pages, and thumbnail
       console.log("Saving new book to library");
 
+      try{
+
       var title = filename.split('.').slice(0, -1).join('.');
+
+      console.log("Saving book with the title" + title);
 
       var pagenumber = await pdf_pagenumber_getter(filepath);
 
@@ -509,7 +588,7 @@ export default class Homescreen extends Component {
 
       const path = RNFS.DocumentDirectoryPath; //Main path of the App
 
-      const library_json = path + 'library.json';
+      const library_json = path + '/library.json';
 
       var saving_object = {
           "books": new_library
@@ -520,6 +599,32 @@ export default class Homescreen extends Component {
       await RNFS.writeFile(library_json, saving_string, 'utf8');
 
       console.log("Added book to library");
+
+      showMessage({
+        message: "Success! Your book was added to your library.",
+        type: "success",
+        durantion: 3000,
+        floating: true,
+        icon: "auto",
+    });
+
+    }
+
+    catch {
+      
+      console.log("Error while adding nw book to library")
+
+      showMessage({
+        message: "There was an error while adding your boo to the library.",
+        type: "danger",
+        durantion: 5000,
+        floating: true,
+        icon: "auto",
+    });
+
+      return 0;
+    }
+
   }
 
   remove_pdf_from_library = async() => {
@@ -549,7 +654,7 @@ export default class Homescreen extends Component {
 
               const path = RNFS.DocumentDirectoryPath; //Main path of the App
 
-              const library_json = path + 'library.json';
+              const library_json = path + '/library.json';
 
               var saving_object = {
                   "books": this.state.library
@@ -618,7 +723,7 @@ export default class Homescreen extends Component {
 
       //Checking if information file exists:
 
-      var run = await RNFS.exists(this.path + 'info.json');
+      var run = await RNFS.exists(this.path + '/library.json');
 
       if (run == false) {
       
@@ -629,7 +734,7 @@ export default class Homescreen extends Component {
                 {
                     message: "TIP: Slash your finger to the right to access the menu.",
                     type: "warning",
-                    durantion: 3000,
+                    durantion: 20000,
                     floating: true,
                     icon: "auto",
 
@@ -651,7 +756,7 @@ export default class Homescreen extends Component {
           await RNFS.mkdir(this.path + '/edited_pdfs/');
 
           //Library:
-          await RNFS.writeFile(this.path + 'library.json', '{"books": []}', 'utf8');
+          await RNFS.writeFile(this.path + '/library.json', '{"books": []}', 'utf8');
 
           //Info file:
           await RNFS.writeFile(this.path + 'info.json', '');
@@ -689,7 +794,7 @@ export default class Homescreen extends Component {
 
           const path = RNFS.DocumentDirectoryPath; //Main path of the App
 
-          const library_json = path + 'library.json';
+          const library_json = path + '/library.json';
 
           var library = {
               "books": []
@@ -828,7 +933,6 @@ export default class Homescreen extends Component {
 
   render() {
   this.load_first_time(); //Loading everything. library and chaimager.
-  this.get_updates(); //Checks for updates and notifies the user.
 
   //Icons and images:
   const render_top_logo = () => (
@@ -1182,7 +1286,8 @@ export default class Homescreen extends Component {
                             }}} style={{margin:10}}> Donate </Button>
                   
                   <Button accessoryLeft={CloseIcon} appearance='outline' style={{margin:10}} status='danger'
-                          onPress={() => {this.setState((state) => {return {
+                          onPress={() => {this.get_updates(); //Checks for updates and notifies the user.;
+                             this.setState((state) => {return {
                             welcome_modal_visible: false}
                             ;} );}} > Close </Button>
 

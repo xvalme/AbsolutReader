@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator, DrawerItemList, DrawerContentScrollView } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import  Homescreen  from './Homescreen';
+import  Homescreen  from './homescreen/Homescreen';
 import  Pdf_renderer  from './renderer';
 import Chaimager_adder from './chaimager_adder';
 import Found_bug from './found_bug';

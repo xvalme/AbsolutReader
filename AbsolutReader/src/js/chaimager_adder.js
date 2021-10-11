@@ -216,7 +216,7 @@ export default class Chaimager_adder extends Component {
             {
                 message: "Character was removed.",
                 type: "danger",
-                durantion: 1000,
+                durantion: 3000,
                 floating: true,
                 icon: "auto",
 

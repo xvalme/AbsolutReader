@@ -32,9 +32,21 @@ export default class Pdf_Renderer extends Component {
 					show_topbar: true,
 				}
 
-		this.library_json = this.path + 'library.json';
+		this.library_json = this.path + '/library.json';
 
 		
+	}
+
+	AppStateChange (nextState) {
+
+		this.setState(() => {return {appState: nextState}});
+		if (nextState == "background") {
+			//Updating library before user leaving:
+			console.log("User is leaving app.")
+			this.update_page_homescreen(this.state.current_page);
+		}
+
+		return 0;
 	}
 
 	componentDidMount() {
@@ -46,15 +58,8 @@ export default class Pdf_Renderer extends Component {
 		
 		//Listener for fore/back ground
 		AppState.addEventListener(
-			"change", nextState => {
-				this.setState(() => {return {appState: nextState}});
-				if (nextState == "background") {
-					//Updating library before user leaving:
-					console.log("User is leaving app.")
-					this.update_page_homescreen(this.state.current_page);
-				}
-			}
-		)																
+			"change", nextState => { this.AppStateChange (nextState) }
+		)	
 
 		//Updating state with chaimager values (if they exist):
 
@@ -68,7 +73,16 @@ export default class Pdf_Renderer extends Component {
 
 		}
 
+	}
 
+	componentWillUnmount() {
+		//User leaves 1st the screen, and only then component unmounts.
+
+		console.log("Unmounting...");
+
+		AppState.removeEventListener(
+			"change", nextState => {this.AppStateChange(nextState) }
+		)
 
 	}
 
