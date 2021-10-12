@@ -1,25 +1,22 @@
-
 var RNFS = require('react-native-fs');
-import {
-    showMessage}
-  from "react-native-flash-message";
-  import FlashMessage from "react-native-flash-message";
+import {showMessage} from "react-native-flash-message";
+import { requestStoragePermission } from "./get_permissions";
+import {BackHandler} from 'react-native'
 
-
-export function load_first_time () {
+export function load_first_time (path) {
+    //path being the one from this.path
 
     //Function to load when the user makes the 1st lauch of the app
-    //Function checks if app already ran and, if not, creates the needed files.
+    //Checks if app already ran and, if not, creates the needed files.
     //Can also be used to create new files after an update
 
     //Checking if library file exists:
-    var run = await RNFS.exists(this.path + '/library.json');
+    var run = await RNFS.exists(path + '/library.json');
 
     if (run == false) {
-    
-    //First run
-      
-    //Showing tip:
+        //First run
+        
+        //Showing tip:
         showMessage(
 
               {
@@ -38,19 +35,29 @@ export function load_first_time () {
         console.log('1st run. Creating necessary files.');
 
         //Permissions
-        await this.requestStoragePermission();
+        const storage_acess = await requestStoragePermission();
+
+        if (!storage_acess) {
+            //User denied storage acess, so app will close
+
+            BackHandler.exitApp();
+
+            return 0;
+        }
 
         //Chaimager
-        await RNFS.mkdir(this.path + '/chaimager_files/');
+        await RNFS.mkdir(path + '/chaimager_files/');
 
         //Chaimager edited pdfs
-        await RNFS.mkdir(this.path + '/edited_pdfs/');
+        await RNFS.mkdir(path + '/edited_pdfs/');
 
         //Library:
-        await RNFS.writeFile(this.path + '/library.json', '{"books": []}', 'utf8');
+        await RNFS.writeFile(path + '/library.json', '{"books": []}', 'utf8');
 
         //Info file:
-        await RNFS.writeFile(this.path + 'info.json', '');
+        await RNFS.writeFile(path + 'info.json', '');
+
+        return 0;
 
     }
 
