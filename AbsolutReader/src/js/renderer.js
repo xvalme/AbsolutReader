@@ -34,19 +34,21 @@ export default class Pdf_Renderer extends Component {
 
 		this.library_json = this.path + '/library.json';
 
+		//Binding function of listener:
+		this.AppStateChange = this.AppStateChange.bind(this);
+
 		
 	}
 
-	AppStateChange (nextState) {
+	AppStateChange (state) {
 
-		this.setState(() => {return {appState: nextState}});
-		if (nextState == "background") {
-			//Updating library before user leaving:
-			console.log("User is leaving app.")
+		if (state == "background") {
+
 			this.update_page_homescreen(this.state.current_page);
-		}
+		
+			return 0;
 
-		return 0;
+		}
 	}
 
 	componentDidMount() {
@@ -58,7 +60,7 @@ export default class Pdf_Renderer extends Component {
 		
 		//Listener for fore/back ground
 		AppState.addEventListener(
-			"change", nextState => { this.AppStateChange (nextState) }
+			"change", this.AppStateChange
 		)	
 
 		//Updating state with chaimager values (if they exist):
@@ -78,11 +80,13 @@ export default class Pdf_Renderer extends Component {
 	componentWillUnmount() {
 		//User leaves 1st the screen, and only then component unmounts.
 
-		console.log("Unmounting...");
-
 		AppState.removeEventListener(
-			"change", nextState => {this.AppStateChange(nextState) }
+			"change", this.AppStateChange
 		)
+
+		BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+
+		console.log("Unmounted. Listeners sucessfully removed.")
 
 	}
 
@@ -149,6 +153,8 @@ export default class Pdf_Renderer extends Component {
 
 		console.log("Updating library with changes of page counter.")
 
+		try{
+
 		this.state.can_leave = false;
 
 		var json = await RNFS.readFile(this.library_json);
@@ -175,7 +181,11 @@ export default class Pdf_Renderer extends Component {
 
 		this.state.can_leave = true; //Unlocking 
 
-		return 0
+		return 0; }
+
+		catch (e) {
+			console.error("Could not update the homescreen with page counter due to: \n" + e);
+		}
 	}
 
 	async toggle_topbar (state) {
