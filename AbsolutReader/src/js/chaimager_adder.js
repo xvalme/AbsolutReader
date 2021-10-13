@@ -320,7 +320,7 @@ export default class Chaimager_adder extends Component {
 
         var path = RNFS.DocumentDirectoryPath + '/chaimager_files/' + filename + '.json';
 
-        var forbidden_charachters = ["|", '\\', "\\\\", "?", "*", "<", '"', ':', ">", "+", "[", "]", "/" ]
+        var forbidden_charachters = ["|",, ' ', '\\', "\\\\", "?", "*", "<", '"', ':', ">", "+", "[", "]", "/" ]
 
         //Checking if filename is invalid:
 
@@ -334,7 +334,7 @@ export default class Chaimager_adder extends Component {
 
                 showMessage(
                     {
-                        message: "Invalid file name. Remove any '|\\?*<:>'+[]/' characters. ",
+                        message: "Invalid file name. Remove any '|\\?*<:>'+[]/' characters,or any spaces. ",
                         type: "danger",
                         durantion: 5000,
                         floating: true,
@@ -353,7 +353,7 @@ export default class Chaimager_adder extends Component {
 
         if (RNFS.exists(path) == true) {
 
-            await RNFS.unlink(path);  //Removing
+            await RNFS.unlink(path);  //Removing file that already exists
 
         }
 
