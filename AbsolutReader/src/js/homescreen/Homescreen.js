@@ -714,6 +714,65 @@ export default class Homescreen extends Component {
       }
   };
 
+  load_first_time = async() => {
+
+      //Function to load when the user makes the 1st lauch of the app
+
+      //Picks information about the user and saves it, to then send to server if user accepts
+      //TODO #8
+
+      //Checking if information file exists:
+
+      var run = await RNFS.exists(this.path + '/library.json');
+
+      if (run == false) {
+      
+        //First run
+        
+      //Showing tip:
+          showMessage(
+                {
+                    message: "TIP: Slash your finger to the right to access the menu.",
+                    type: "warning",
+                    durantion: 20000,
+                    floating: true,
+                    icon: "auto",
+
+
+                }
+            )
+
+          //Creating the chaimager dir
+
+          console.log('1st run. Creating necessary files.');
+
+          //Permissions
+          await this.requestStoragePermission();
+
+          //Chaimager
+          await RNFS.mkdir(this.path + '/chaimager_files/');
+
+          //Chaimager edited pdfs
+          await RNFS.mkdir(this.path + '/edited_pdfs/');
+
+          //Library:
+          await RNFS.writeFile(this.path + '/library.json', '{"books": []}', 'utf8');
+
+          //Info file:
+          await RNFS.writeFile(this.path + 'info.json', '');
+
+          this.load_library();
+      }
+
+      else {
+
+          //Just loads everything because is not 1st launch.
+          this.load_library();
+
+      }
+
+  }
+
   async load_library() {
       //Will load the pdf library based on a stored json. Returns an array with the info to render
 
@@ -873,7 +932,7 @@ export default class Homescreen extends Component {
   }
 
   render() {
-  this.load_library(); //Loading everything. library and chaimager.
+  this.load_first_time(); //Loading everything. library and chaimager.
 
   //Icons and images:
   const render_top_logo = () => (
