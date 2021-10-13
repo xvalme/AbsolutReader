@@ -50,6 +50,7 @@ import {
   rgb}
 from "pdf-lib"; //Adding links
 import * as Progress from 'react-native-progress';
+import { welcome_modal } from './JSX/modals';
 
 var RNFS = require('react-native-fs');
 var base64js = require('base64-js')
@@ -1365,58 +1366,7 @@ export default class Homescreen extends Component {
 
     </Modal>
 
-    <Modal 
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => {this.setState((state) => {return {
-          forge_chaimager_modal: false}
-                                                          ;}
-                                              );
-                                }
-                        }
-        visible={this.state.forge_chaimager_modal}>
-
-        <View style = {{flex: 1,
-              justifyContent: "center",
-              alignItems: "center"
-              }}>
-        
-          <View style = {{margin: 20,
-                  backgroundColor: "white",
-                  borderRadius: 20,
-                  padding: 35,
-                  alignItems: "center",
-                  shadowColor: "#000",
-                  shadowOffset: {
-                  width: 0,
-                  height: 2
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 4,
-                  elevation: 5}} >
-
-          
-            <View style={{alignItems: "center"}}>
-
-              <Text style= {{textAlign: "center"}}>Select the Chaimager skin you want to add to the forge</Text>
-
-
-            <List
-                data={this.state.chaimager_list}
-                renderItem={forge_renderChaimagerItem}
-                numColumns={2}
-                  />
-
-            </View>
-
-            <Button style={{alignSelf: "center"}} onPress={() => {this.setState(() =>{ return {forge_chaimager_modal: false }})}}>Return</Button>
-
-          </View>
-
-        </View>
-
-
-    </Modal>
+    <welcome_modal />
 
     <Modal 
         animationType="slide"

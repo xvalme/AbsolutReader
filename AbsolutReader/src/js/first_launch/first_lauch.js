@@ -3,6 +3,8 @@ import {showMessage} from "react-native-flash-message";
 import { requestStoragePermission } from "./get_permissions";
 import {BackHandler} from 'react-native'
 
+//TODO #16
+
 export function load_first_time (path) {
     //path being the one from this.path
 

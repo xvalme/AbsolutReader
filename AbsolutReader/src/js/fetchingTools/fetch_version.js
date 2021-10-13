@@ -3,6 +3,8 @@ export function fetch_version (current_version) {
     //Function that fetches the information from the server and
     //retrives if there is a new version.
 
+    //TODO #15
+
     try{
         const response = await fetch('https://absolutreader.works/current_version.json');
   
