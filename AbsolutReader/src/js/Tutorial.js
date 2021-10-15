@@ -175,8 +175,6 @@ export default class Tutorial extends Component {
 
                 </View>
 
-                <FlashMessage position="bottom"/>
-
             </SafeAreaView>
 
         )

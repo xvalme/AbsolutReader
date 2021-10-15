@@ -114,9 +114,6 @@ export default class About extends Component {
                         
                     </View>
                 </ScrollView>
-
-                <FlashMessage position="bottom"/>
-
             </SafeAreaView>
 
         )

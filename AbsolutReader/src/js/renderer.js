@@ -429,8 +429,6 @@ export default class Pdf_Renderer extends Component {
 				style={{	flex:1,
 							width: this.state.width}}/>
 		</View>
-
-		<FlashMessage position="bottom"/>
 		
 	</SafeAreaView>
 	)}

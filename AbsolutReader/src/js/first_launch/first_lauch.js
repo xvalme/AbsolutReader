@@ -5,7 +5,7 @@ import {BackHandler} from 'react-native'
 
 //TODO #16
 
-export function load_first_time (path) {
+export async function load_first_time (path) {
     //path being the one from this.path
 
     //Function to load when the user makes the 1st lauch of the app

@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Text} from '@ui-kitten/components';
 import { Image, Dimensions, View, Modal} from 'react-native';
 
-export const welcome_modal = () => (
+export const Welcome_modal = (props) => (
     <Modal 
         animationType="slide"
         transparent={true}

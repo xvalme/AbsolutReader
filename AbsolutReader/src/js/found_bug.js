@@ -94,9 +94,6 @@ export default class Found_bug extends Component {
                         
                     </View>
                 </View>
-
-                <FlashMessage position="bottom"/>
-
             </SafeAreaView>
 
         )

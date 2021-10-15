@@ -27,6 +27,8 @@ export default class extends Component {
     <ApplicationProvider {...eva} theme={{ ...eva.light, ...theme }}>
 
       <AppNavigator/>
+
+      <FlashMessage position="bottom"/>
       
     </ApplicationProvider>
   </>)

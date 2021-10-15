@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   Component
 }
 from 'react';
@@ -50,7 +50,6 @@ import {
   rgb}
 from "pdf-lib"; //Adding links
 import * as Progress from 'react-native-progress';
-import { welcome_modal } from './JSX/modals';
 
 var RNFS = require('react-native-fs');
 var base64js = require('base64-js')
@@ -932,6 +931,74 @@ export default class Homescreen extends Component {
 
   }
 
+  async load_first_time (path) {
+    //path being the one from this.path
+
+    //Function to load when the user makes the 1st lauch of the app
+    //Checks if app already ran and, if not, creates the needed files.
+    //Can also be used to create new files after an update
+
+    //Checking if library file exists:
+    var run = await RNFS.exists(path + '/library.json');
+
+    if (run == false) {
+        //First run
+        
+        //Showing tip:
+        showMessage(
+
+              {
+                  message: "TIP: Slash your finger to the right to access the menu.",
+                  type: "warning",
+                  durantion: 20000,
+                  floating: true,
+                  icon: "auto",
+
+
+              }
+          )
+
+        //Creating the chaimager dir
+
+        console.log('1st run. Creating necessary files.');
+
+        //Permissions
+        const storage_acess = await requestStoragePermission();
+
+        if (!storage_acess) {
+            //User denied storage acess, so app will close
+
+            BackHandler.exitApp();
+
+            return 0;
+        }
+
+        //Chaimager
+        await RNFS.mkdir(path + '/chaimager_files/');
+
+        //Chaimager edited pdfs
+        await RNFS.mkdir(path + '/edited_pdfs/');
+
+        //Library:
+        await RNFS.writeFile(path + '/library.json', '{"books": []}', 'utf8');
+
+        //Info file:
+        await RNFS.writeFile(path + 'info.json', '');
+
+    }
+
+    else {
+
+        //Does nothing, since app already is working.
+
+    }
+
+    this.load_library();
+
+    return 0;
+
+}
+
   render() {
   this.load_first_time(); //Loading everything. library and chaimager.
 
@@ -1366,7 +1433,75 @@ export default class Homescreen extends Component {
 
     </Modal>
 
-    <welcome_modal />
+        <Modal 
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {this.setState((state) => {return {
+                                                          welcome_modal_visible: false}
+                                                          ;}
+                                              );
+                                }
+                        }
+        visible={this.state.welcome_modal_visible}>
+
+        <View style = {{flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              width: Dimensions.get('window').width,
+              height:Dimensions.get('window').height,
+              backgroundColor:"white"
+              }}>
+        
+
+          
+            <View>
+            <Image style={{width: Dimensions.get('window').height / 5,
+                        height: Dimensions.get('window').height / 5,
+                        alignSelf: "center"}} 
+        source={require('./../assets/images/logo.png')} />
+
+                <Text style={{textAlign:'center', fontWeight:"bold", fontSize: Dimensions.get('window').height / 30 }}>AbsolutReader</Text>
+
+                <Text style={{textAlign:'center',
+              margin: Dimensions.get('window').height / 30,
+              fontSize: Dimensions.get('window').height / 40 }}>
+                Thanks for being using our app. If you are liking it, consider making a donation.</Text>
+
+                <Text style={{textAlign:'center', fontSize: Dimensions.get('window').height / 45 }}>
+                  Everyone hates ads. A donation helps us keep developing without them.</Text>
+
+                <Text style={{textAlign:'center', fontSize: Dimensions.get('window').height / 45, marginBottom: Dimensions.get('window').height / 30,}}>Thanks!</Text>
+
+                <View style={{flexDirection: "row", justifyContent:"center"}}>
+                
+                  <Button status="success"
+                          onPress={() => {try{
+                            Linking.openURL('https://ko-fi.com/absolutreader');
+                            }
+                            catch{
+                                showMessage({
+                                    message: "Link opening has failed. Check your internet connection or try again later.",
+                                    type: "danger",
+                                    durantion: 5000,
+                                    floating: true,
+                                    icon: "auto",
+                                });
+                            }}} style={{margin:10}}> Donate </Button>
+                  
+                  <Button accessoryLeft={CloseIcon} appearance='outline' style={{margin:10}} status='danger'
+                          onPress={() => {this.get_updates(); //Checks for updates and notifies the user.;
+                             this.setState((state) => {return {
+                            welcome_modal_visible: false}
+                            ;} );}} > Close </Button>
+
+                </View>
+
+          </View>
+
+        </View>
+
+
+    </Modal>
 
     <Modal 
         animationType="slide"
@@ -1544,8 +1679,6 @@ export default class Homescreen extends Component {
       </Tab>
         
     </TabView>
-
-    <FlashMessage position="bottom"/>
             
   </SafeAreaView>
   );
