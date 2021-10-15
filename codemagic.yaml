@@ -1,7 +1,7 @@
 workflows:
     react-native-android:
       name: React Native Android
-      max_build_duration: 15
+      max_build_duration: 60
       working_directory: AbsolutReader
       environment:
           node: latest
