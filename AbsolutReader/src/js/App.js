@@ -6,6 +6,7 @@ import { default as theme } from './../assets/themes/main_theme.json';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
 import SplashScreen from  "react-native-splash-screen";
 import { load_first_time } from './first_launch/first_lauch';
+import FlashMessage from "react-native-flash-message";
 
 export default class extends Component {
 

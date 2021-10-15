@@ -35,7 +35,7 @@ import Pdf from 'react-native-pdf'; //Rendering
 import {
   showMessage}
 from "react-native-flash-message";
-import FlashMessage from "react-native-flash-message";
+
 import {
   pdfjsWorker
 }
