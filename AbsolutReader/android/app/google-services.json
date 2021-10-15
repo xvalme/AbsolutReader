@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "378997515875",
+    "project_id": "areader-2b1f7",
+    "storage_bucket": "areader-2b1f7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:378997515875:android:8f8d808bd36ac58096fa56",
+        "android_client_info": {
+          "package_name": "com.absolutreader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "378997515875-aebg5p89h59ncg9s34cgsmdcdavfjgtf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiVBUyCl5odWGzQ3sxZ0MxW89SXUXoTPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "378997515875-aebg5p89h59ncg9s34cgsmdcdavfjgtf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
