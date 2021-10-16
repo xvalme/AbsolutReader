@@ -1,9 +1,10 @@
 import React from 'react';
 import { Button, Text} from '@ui-kitten/components';
-import { Image, Dimensions, View, Modal} from 'react-native';
+import { Image, Dimensions, View, Modal, Linking} from 'react-native';
 
-export const Welcome_modal = (props) => (
-    <Modal 
+export function Welcome_modal (props) {
+  return (
+  <Modal 
         animationType="slide"
         transparent={true}
         onRequestClose={() => {this.setState((state) => {return {
@@ -71,5 +72,5 @@ export const Welcome_modal = (props) => (
         </View>
 
 
-    </Modal>
-);
+    </Modal> )
+};

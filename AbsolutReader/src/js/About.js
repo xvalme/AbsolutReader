@@ -103,7 +103,7 @@ export default class About extends Component {
                         <Text></Text>
                         <Text style={styles.backgrounded_text}>This app is realeased under the GNU Affero General Public License v3.0. The
                         logo and paitings present in this software are Copyrighted by Valentino C. Do not use or redistribute these without 
-                        permission. If you wish to contact any of the team´s members, use general@absolutreader.works.</Text>
+                        permission. If you wish to contact any of the team´s members, please use general@absolutreader.works.</Text>
 
                     </View>
 
