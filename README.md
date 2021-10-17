@@ -1,4 +1,8 @@
-# AbsolutReader
+<p align="center">
+
+    **AbsolutReader**
+
+</p>
 AbsolutReader is the next generation e-book reader, 100% Open source, highly customizable, and featuring Chaimager. 
 The plan is to make it available for Android, IOS and Windows/Mac/Linux, so that one can easily keep reading everywhere,
 without the complications of using diferent apps.
