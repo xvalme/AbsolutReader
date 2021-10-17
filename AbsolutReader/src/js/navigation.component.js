@@ -16,7 +16,7 @@ const Drawer = createDrawerNavigator();
 
 //The order of screens matters
 export const Library = () => (
-  <NavigationContainer independent={true}>
+
     <Navigator headerMode='none'>
 
       <Screen name='Homescreen' component={Homescreen} />
@@ -25,7 +25,7 @@ export const Library = () => (
       
     </Navigator>
 
-  </NavigationContainer>
+
 );
 
 export const AppNavigator = () => (
