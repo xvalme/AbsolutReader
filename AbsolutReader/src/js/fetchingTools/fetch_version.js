@@ -16,6 +16,8 @@ export function fetch_version (current_version) {
         }
   
         else {
+
+          console.log("App needs to be updated.")
   
           return data.version;
   
