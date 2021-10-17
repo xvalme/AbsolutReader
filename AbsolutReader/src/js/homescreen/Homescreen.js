@@ -931,6 +931,11 @@ export default class Homescreen extends Component {
 
   }
 
+  toggle_menu() {
+    console.log("Toggling menu.");
+    this.props.navigation.toggleDrawer();
+  }
+
   render() {
   this.load_first_time(); //Loading everything. library and chaimager.
 
@@ -1129,6 +1134,16 @@ export default class Homescreen extends Component {
     </React.Fragment>
   );
 
+  const MenuIcon = (props) => (
+    <Icon {...props} name='menu' />
+  );
+
+  const renderLeftActions = () => (
+    <React.Fragment>
+      <TopNavigationAction icon={MenuIcon} style={{alignSelf:"center"}} onPress={() => {this.toggle_menu()}} />
+    </React.Fragment>
+  );
+
   if (this.state.library_loaded == false) { //Is still loading the library
     return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -1138,7 +1153,8 @@ export default class Homescreen extends Component {
               alignment='center'
               title='Absolut Reader'
               subtitle={'Version Beta ' + this.version}
-              accessoryRight={render_top_logo}/>
+              accessoryRight={render_top_logo}
+              />
   
               <Divider />
         
@@ -1168,6 +1184,7 @@ export default class Homescreen extends Component {
                 title='Absolut Reader'
                 subtitle={'Version Beta ' + this.version}
                 accessoryRight={renderRightActions}
+                accessoryLeft={renderLeftActions}
                 />
 
     <Modal 
